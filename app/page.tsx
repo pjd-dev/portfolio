@@ -33,10 +33,10 @@ export default function Page() {
             color: "#eaeaea",
             letterSpacing: 0.5,
             fontWeight: 600,
-            fontSize: "10vw"
+            fontSize: "10vw",
           }}
         >
-          JEAN  DARRY . PAULETTE
+          JEAN DARRY . PAULETTE
         </h1>
         <h2
           className={WildWorld.className}
@@ -47,12 +47,12 @@ export default function Page() {
             left: "5vw",
             letterSpacing: 0.5,
             fontWeight: 600,
-            fontSize: "6vw"
+            fontSize: "6vw",
           }}
         >
           Developpeur Full-Stack JS/TS
         </h2>
-        <div
+        {/*<div
           style={{
             // position: "absolute",
             // bottom: "50vh",
@@ -88,7 +88,7 @@ export default function Page() {
               Current Project
             </a>
           </button>
-        </div>
+        </div>*/}
       </section>
     </main>
   );
