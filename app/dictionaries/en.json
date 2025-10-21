@@ -1,0 +1,39 @@
+{
+  "name": "Jean Darry Paulette",
+  "title": "Full Stack Js/Typescript Developer",
+  "img": {
+    "background": {
+      "alt": "Jean Darry Paulette background image"
+    }
+  },
+  "buttons": [
+    {
+      "label": "Hire Me",
+      "href": "",
+      "alt": "Bouton Hire Me",
+      "target": "_blank",
+      "rel": "noopener noreferrer"
+    },
+    {
+      "label": "Curriculum Vitae",
+      "href": "",
+      "alt": "Bouton Curriculum Vitae",
+      "target": "_blank",
+      "rel": "noopener noreferrer"
+    },
+    {
+      "label": "See My Work",
+      "href": "",
+      "alt": "Bouton See My Work",
+      "target": "_blank",
+      "rel": "noopener noreferrer"
+    },
+    {
+      "label": "Contact Me",
+      "href": "",
+      "alt": "Bouton Contact Me",
+      "target": "_blank",
+      "rel": "noopener noreferrer"
+    }
+  ]
+}
