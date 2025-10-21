@@ -1,41 +1,54 @@
 import type { NextConfig } from "next";
 
+const ONE_YEAR = 31536000;
+
 const nextConfig: NextConfig = {
+  reactStrictMode: true,
   async headers() {
     return [
       {
-        // Next static chunks
+        // Next.js static chunks
         source: "/_next/static/:path*",
         headers: [
           {
             key: "Cache-Control",
-            value: "public, max-age=31536000, immutable",
+            value: `public, max-age=${ONE_YEAR}, immutable`,
           },
         ],
       },
       {
-        // All images in /public
-        source: "/(.*\\.(?:webp|jpg|jpeg|png|gif|svg))$",
+        // All images in /public (extension-matched)
+        source: "/:path*\\.(webp|jpg|jpeg|png|gif|svg)$",
         headers: [
           {
             key: "Cache-Control",
-            value: "public, max-age=31536000, immutable",
+            value: `public, max-age=${ONE_YEAR}, immutable`,
           },
         ],
       },
       {
         // Fonts in /public
-        source: "/(.*\\.(?:woff|woff2|ttf|eot))$",
+        source: "/:path*\\.(woff|woff2|ttf|eot)$",
         headers: [
           {
             key: "Cache-Control",
-            value: "public, max-age=31536000, immutable",
+            value: `public, max-age=${ONE_YEAR}, immutable`,
           },
         ],
       },
     ];
   },
+  // in next.config.ts
+  async redirects() {
+    return [
+      {
+        source: "/",
+        destination: "/fr",
+        permanent: true, // keep 302; switch to true only when stable
+        basePath: false,
+      },
+    ];
+  },
 };
-// next.config.js
 
 export default nextConfig;
