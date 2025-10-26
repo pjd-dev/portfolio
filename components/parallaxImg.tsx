@@ -32,7 +32,13 @@ export default function ParallaxImage(props: Props) {
     }
   }
 
-  const { src, alt, speed = 0.5, maxShift = 160, mouseFollowStrength = 0.5 } = props;
+  const {
+    src,
+    alt,
+    speed = 0.5,
+    maxShift = 160,
+    mouseFollowStrength = 0.5,
+  } = props;
   const ref = useRef<HTMLImageElement | null>(null);
   const yRef = useRef(0);
   const xRef = useRef(0);
@@ -68,7 +74,7 @@ export default function ParallaxImage(props: Props) {
     const start = () => {
       if (raf.current == null) raf.current = requestAnimationFrame(tick);
     };
-    
+
     const stop = () => {
       if (raf.current != null) cancelAnimationFrame(raf.current);
       raf.current = null;
@@ -141,6 +147,7 @@ export default function ParallaxImage(props: Props) {
         ref={ref}
         src={src}
         alt={alt}
+        className="home-tab-item-img"
         fill
         sizes="(max-width: 800px) 80vw, 560px"
         style={{ objectFit: "contain" }}

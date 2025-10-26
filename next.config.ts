@@ -4,6 +4,21 @@ const ONE_YEAR = 31536000;
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  webpack(config) {
+    config.module.rules.push({
+      test: /\.svg$/i,
+      issuer: /\.[jt]sx?$/,
+      use: [
+        {
+          loader: "@svgr/webpack",
+          options: {
+            svgo: true,
+          },
+        },
+      ],
+    });
+    return config;
+  },
   async headers() {
     return [
       {

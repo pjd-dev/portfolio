@@ -1,6 +1,6 @@
 {
   "name": "Jean Darry Paulette",
-  "title": "Full Stack Js/Typescript Developer",
+  "title": "FullStack Javascript| Typescript Developer",
   "img": {
     "background": {
       "alt": "Jean Darry Paulette background image"
@@ -16,14 +16,14 @@
     },
     {
       "label": "Curriculum Vitae",
-      "href": "",
+      "href": "/cv/Jean_Darry_Paulette_FullStack_Dev_En_2025.pdf",
       "alt": "Bouton Curriculum Vitae",
       "target": "_blank",
       "rel": "noopener noreferrer"
     },
     {
       "label": "See My Work",
-      "href": "",
+      "href": "https://github.com/pjd-dev",
       "alt": "Bouton See My Work",
       "target": "_blank",
       "rel": "noopener noreferrer"

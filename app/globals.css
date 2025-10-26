@@ -1,8 +1,11 @@
+@import "./reset.css";
 @import "tailwindcss";
 
 :root {
-    --background: #ffffff;
-    --foreground: #171717;
+    --background: #ededed;
+    --foreground: #0a0a0a;
+    --background-rgb: 237, 237, 237;
+    --foreground-rgb: 10, 10, 10;
 }
 
 @theme inline {
@@ -16,23 +19,111 @@
     :root {
         --background: #0a0a0a;
         --foreground: #ededed;
+        --foreground-rgb: 237, 237, 237;
+        --background-rgb: 10, 10, 10;
+    }
+}
+@layer utilities {
+    .text-hero-bevel {
+        color: var(--foreground);
+        text-shadow:
+            0 1px 2px rgb(var(--background-rgb), 0.8),
+            0 -1px 0 rgb(var(--foreground-rgb), 0.2); /* light rim on top */
+    }
+
+    /* softer cinematic depth */
+    .text-hero-glow {
+        color: var(--foreground);
+        text-shadow:
+            0 2px 4px rgb(var(--background-rgb), 0.9),
+            0 8px 16px rgb(var(--background-rgb), 0.6);
     }
 }
 
+html {
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+}
 body {
     background: var(--background);
-    color: var(--foreground);
-    font-family: Arial, Helvetica, sans-serif;
+    height: 100dvh;
+    width: 100dvw;
+    position: relative;
+    overflow: hidden;
+    font-weight: 400;
+    line-height: 1.55;
+    letter-spacing: 0.01em;
+    margin: 0;
+    padding: 0;
+    text-rendering: optimizeLegibility;
+}
+
+button,
+input,
+textarea {
+    font-family: inherit;
+    font-size: 1rem;
+    color: inherit;
+}
+
+strong,
+b {
+    font-weight: 600;
 }
 
 .glass-button {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 16px;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(var(--foreground-rgb), 0.08);
+    border-radius: 9999px; /* full pill */
     padding: 0.5rem 1rem;
-    color: #eaeaea;
+
+    color: var(--foreground);
+    font-weight: 500;
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    text-transform: none;
     text-decoration: none;
+
+    border: 1px solid rgba(var(--foreground-rgb), 0.18);
+    box-shadow:
+        0 1px 2px rgba(var(--background-rgb), 0.25),
+        0 0 0 1px rgba(var(--foreground-rgb), 0.05) inset;
+
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+
+    transition: all 0.25s ease;
+}
+
+.glass-button:hover {
+    background: rgba(var(--foreground-rgb), 0.16);
+    border-color: rgba(var(--foreground-rgb), 0.25);
+    transform: translateY(-1px);
+    box-shadow:
+        0 3px 6px rgba(var(--background-rgb), 0.35),
+        0 0 0 1px rgba(var(--foreground-rgb), 0.08) inset;
+}
+
+.glass-button:active {
+    transform: translateY(0);
+    background: rgba(var(--foreground-rgb), 0.24);
+    border-color: rgba(var(--foreground-rgb), 0.3);
+}
+
+h1,
+h2 {
+    -webkit-filter: drop-shadow(5px 5px 5px rgba(0, 0, 0, 0.1));
+    filter: drop-shadow(5px 5px 5px rgba(0, 0, 0, 0.1));
+}
+
+.home-tab-item-img {
+    -webkit-filter: drop-shadow(5px 5px 5px rgba(0, 0, 0, 0.1));
+    filter: drop-shadow(5px 5px 5px rgba(0, 0, 0, 0.1));
 }
