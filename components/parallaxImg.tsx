@@ -147,7 +147,7 @@ export default function ParallaxImage(props: Props) {
         ref={ref}
         src={src}
         alt={alt}
-        className="home-tab-item-img"
+        className="hero-figure"
         fill
         sizes="(max-width: 800px) 80vw, 560px"
         style={{ objectFit: "contain" }}

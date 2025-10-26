@@ -33,6 +33,7 @@ export default async function Page({
             <h1
               className={clsx(
                 CondeSans.className,
+                "hero-headline-text",
                 "[container-type:inline-size]",
                 "text-[clamp(96px,calc(18cqw-0.5rem),333px)]",
                 "[word-spacing:.02em]",
@@ -49,6 +50,7 @@ export default async function Page({
               className={clsx(
                 WildWorld.className,
                 "[container-type:inline-size]",
+                "hero-headline-text",
                 "text-[clamp(36px,calc(10cqw-0.5rem),96px)] [word-spacing:.05em]",
                 "[word-spacing:.015em]",
                 "leading-[0.96] sm:leading-[0.94] md:leading-[0.92] xl:leading-[1.1]",

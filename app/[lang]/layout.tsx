@@ -1,7 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import "../globals.css";
+import Logo from "@/public/logotype/DB_Master.svg";
 import LanguageToggle from "@/components/LanguageToggle";
 import EngineClient from "@/hooks/engine-client";
+import ThemeToggle from "@/components/ThemeToggle";
 import { spaceGrotesk } from "../fonts";
 
 export const dynamic = "force-dynamic";
@@ -32,11 +34,39 @@ export default async function RootLayout({
       lang={lang}
       data-google-analytics-opt-out=""
       className={spaceGrotesk.className}
+      suppressHydrationWarning
     >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+      (function() {
+        try {
+          var stored = localStorage.getItem('theme');
+          var theme = stored === 'light' || stored === 'dark'
+            ? stored
+            : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+          document.documentElement.setAttribute('data-theme', theme);
+        } catch(e) {
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+      })();
+                `,
+          }}
+        />
+      </head>
       <EngineClient />
       <body>
-        <header className="fixed z-50 w-full flex justify-end p-2 md:p-4 lg:p-8">
+        <header className="absolute z-50 flex flex-col items-center top-4 right-4 md:top-8 md:right-8 gap-2">
+          <div className=" glass-badge">
+            <Logo
+              className="w-6 h-6 md:w-12 md:h-12 block "
+              aria-hidden="true"
+            />
+          </div>
+
           <LanguageToggle locale={lang as "en" | "fr"} />
+          <ThemeToggle locale={lang as "en" | "fr"} />
         </header>
         {children}
         <footer></footer>
