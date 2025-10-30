@@ -10,15 +10,18 @@ type Dictionary = {
   privacy: LegalDocumentPageProps;
   terms: LegalDocumentPageProps;
 };
-const dictionaries = {
-  en: () => import("../app/dictionaries/en.json").then((m) => m.default),
-  fr: () => import("../app/dictionaries/fr.json").then((m) => m.default),
-};
 
-export const getDictionary = async (lang: Locale) => {
-  const getDict = dictionaries[lang as "en" | "fr"] || dictionaries["fr"];
+
+export const getDictionary = async (locale: string, target: string, type ="page") => {
+  if (!locale) throw new Error("Language not specified");
+  if (!target) throw new Error("Page not specified");
+  const getDict = await  import(
+    `../app/dictionaries/${locale}/${type}/${target}.json`
+  ).then((m) => m.default);
   if (!getDict) {
-    throw new Error(`No dictionary found for language: ${lang}`);
+    throw new Error(
+      `No dictionary found for language: ${locale}, type and page: ${target}`,
+    );
   }
-  return getDict() as Promise<Dictionary>;
+  return getDict as Promise<Dictionary>;
 };

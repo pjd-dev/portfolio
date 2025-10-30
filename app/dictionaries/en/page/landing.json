@@ -1,0 +1,40 @@
+{
+  "hero": {
+    "title": "Jean Darry Paulette",
+    "headline": "FullStack Javascript Typescript Developer",
+    "headlineCta": {
+      "label": "Curriculum Vitae",
+      "href": "/cv/Jean_Darry_Paulette_FullStack_Dev_En_2025.pdf",
+      "alt": "Curriculum Vitae Button",
+      "target": "_blank",
+      "rel": "noopener noreferrer"
+    },
+    "plxImg": {
+      "src": "/poses/jump.webp",
+      "alt": "Jean Darry Paulette background image"
+    },
+    "ctas": [
+      {
+        "label": "See My Work",
+        "href": "https://github.com/pjd-dev",
+        "alt": "Bouton See My Work",
+        "target": "_blank",
+        "rel": "noopener noreferrer"
+      },
+      {
+        "label": "Work with me",
+        "href": "https://www.linkedin.com/in/jean-darry-p/",
+        "alt": "Bouton work with me",
+        "target": "_blank",
+        "rel": "noopener noreferrer"
+      },
+      {
+        "label": "Contact Me",
+        "href": "mailto:contact@darrybook.fr",
+        "alt": "Bouton Contact Me",
+        "target": "_blank",
+        "rel": "noopener noreferrer"
+      }
+    ]
+  }
+}

@@ -43,7 +43,10 @@ export default async function RootLayout({
   // Narrow to your Locale type, with a safe fallback
   const lang: Locale = rawLang === "fr" || rawLang === "en" ? rawLang : "fr";
 
-  const dictionary = await getDictionary(lang);
+  const dictionary = await getDictionary(lang, 
+    "base", 
+    "layout"
+  );
 
   return (
     <html

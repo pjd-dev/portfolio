@@ -1,0 +1,21 @@
+{
+  "footer": {
+    "copyright": "© 2024 Jean Darry Paulette. All rights reserved.",
+    "links": {
+      "privacyPolicy": {
+        "label": "Privacy Policy",
+        "href": "/en/privacy",
+        "alt": "Privacy Policy Link",
+        "target": "_self",
+        "rel": ""
+      },
+      "termsOfService": {
+        "label": "Terms of Service",
+        "href": "/en/terms",
+        "alt": "Terms of Service Link",
+        "target": "_self",
+        "rel": ""
+      }
+    }
+  }
+}
