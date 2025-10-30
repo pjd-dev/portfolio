@@ -7,7 +7,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 import { getCssText } from "@/stitches.config";
 import { getDictionary } from "@/lib/getDictionary";
 import { spaceGrotesk } from "../fonts";
-
+import { SpeedInsights } from "@vercel/speed-insights/next";
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Darrybook - ",
@@ -116,6 +116,7 @@ export default async function RootLayout({
           </div>
         </footer>
       </body>
+      <SpeedInsights />
     </html>
   );
 }
