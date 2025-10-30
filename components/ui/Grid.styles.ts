@@ -7,8 +7,6 @@ export const Grid = styled("div", {
   display: "grid",
   minWidth: 0,
   gridAutoRows: "auto",
-
-  // mobile base
   gridTemplateAreas: `
     "who empty"
     "what what"

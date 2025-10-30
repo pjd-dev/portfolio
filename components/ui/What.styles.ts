@@ -5,7 +5,7 @@ export const What = styled("h2", {
   textTransform: "uppercase",
   userSelect: "none",
   textAlign: "right",
-  fontSize: "clamp(32px, calc(20cqh - 2rem), 64px)",
+  fontSize: "clamp(32px, calc(15cqw - 2rem), 64px)",
   "@coarse": { "@md": { fontSize: "clamp(32px, calc(12cqw - 2rem), 64px)" } },
   "@portrait": {
     "@md": { fontSize: "clamp(32px, calc(18cqw - 2rem), 64px)" },

@@ -15,5 +15,4 @@ export const CtaGroup = styled("div", {
       alignItems: "stretch",
     },
   },
-  // "@lg": { gap: "3rem" },
 });

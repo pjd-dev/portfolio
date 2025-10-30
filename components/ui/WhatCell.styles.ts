@@ -10,15 +10,5 @@ export const WhatCell = styled("div", {
   justifyContent: "end",
   alignItems: "end",
   padding: "2rem 0",
-  containerType: "size",
-  // backgroundColor: "DarkCyan",
-  "@md": {
-    // padding: "3rem 2rem",
-    containerType: "inline-size",
-    // backgroundColor: "teal",
-  },
-  "@lg": {
-    // padding: "3rem 3rem",
-    // backgroundColor: "MediumSeaGreen",
-  },
+  containerType: "inline-size",
 });
