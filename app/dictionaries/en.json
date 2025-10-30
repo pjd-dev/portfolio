@@ -1,6 +1,13 @@
 {
   "name": "Jean Darry Paulette",
-  "title": "FullStack Javascript| Typescript Developer",
+  "title": "FullStack Javascript Typescript Developer",
+  "titleCta": {
+    "label": "Curriculum Vitae",
+    "href": "/cv/Jean_Darry_Paulette_FullStack_Dev_En_2025.pdf",
+    "alt": "Curriculum Vitae Button",
+    "target": "_blank",
+    "rel": "noopener noreferrer"
+  },
   "img": {
     "background": {
       "alt": "Jean Darry Paulette background image"
@@ -11,13 +18,6 @@
       "label": "Hire Me",
       "href": "",
       "alt": "Bouton Hire Me",
-      "target": "_blank",
-      "rel": "noopener noreferrer"
-    },
-    {
-      "label": "Curriculum Vitae",
-      "href": "/cv/Jean_Darry_Paulette_FullStack_Dev_En_2025.pdf",
-      "alt": "Bouton Curriculum Vitae",
       "target": "_blank",
       "rel": "noopener noreferrer"
     },
@@ -35,5 +35,26 @@
       "target": "_blank",
       "rel": "noopener noreferrer"
     }
-  ]
+  ],
+  "layout": {
+    "footer": {
+      "copyright": "© 2024 Jean Darry Paulette. All rights reserved.",
+      "links": {
+        "privacyPolicy": {
+          "label": "Privacy Policy",
+          "href": "/privacy-policy",
+          "alt": "Privacy Policy Link",
+          "target": "_self",
+          "rel": ""
+        },
+        "termsOfService": {
+          "label": "Terms of Service",
+          "href": "/terms-of-service",
+          "alt": "Terms of Service Link",
+          "target": "_self",
+          "rel": ""
+        }
+      }
+    }
+  }
 }
