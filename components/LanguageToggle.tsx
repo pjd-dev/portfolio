@@ -26,7 +26,7 @@ export default function LanguageToggle({ locale }: Props) {
       type="button"
       className={"glass"}
       disabled={isPending}
-      aria-label={`${locale} ${ariaLabel}`}
+      aria-label={`FR / EN – ${ariaLabel}`}
       onClick={() => {
         startTransition(() => router.replace(targetHref));
       }}
