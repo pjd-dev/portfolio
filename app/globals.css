@@ -10,6 +10,7 @@
 
     --background-rgb: 237, 237, 237;
     --foreground-rgb: 10, 10, 10;
+    --footer-height: 2rem;
 }
 
 /* Dark theme override via <html data-theme="dark"> */
@@ -84,22 +85,8 @@ b {
 
 /* ---------- GLASS SURFACES ---------- */
 
-.glass-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-
+.glass {
     background: rgba(var(--foreground-rgb), 0.08);
-    border-radius: 9999px;
-    padding: 0.5rem 1rem;
-
-    color: var(--foreground);
-    font-weight: 500;
-    font-size: 0.75rem;
-    letter-spacing: 0.04em;
-    text-transform: none;
-    text-decoration: none;
-
     border: 1px solid rgba(var(--foreground-rgb), 0.18);
     box-shadow:
         0 1px 2px rgba(var(--background-rgb), 0.25),
@@ -111,7 +98,7 @@ b {
     transition: all 0.25s ease;
 }
 
-.glass-button:hover {
+.glass:hover {
     background: rgba(var(--foreground-rgb), 0.16);
     border-color: rgba(var(--foreground-rgb), 0.25);
     transform: translateY(-1px);
@@ -120,12 +107,28 @@ b {
         0 0 0 1px rgba(var(--foreground-rgb), 0.08) inset;
 }
 
-.glass-button:active {
+.glass:active {
     transform: translateY(0);
     background: rgba(var(--foreground-rgb), 0.24);
     border-color: rgba(var(--foreground-rgb), 0.3);
 }
 
+/*
+.glass-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 9999px;
+    padding: 0.5rem 1rem;
+
+    color: var(--foreground);
+    font-weight: 500;
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    text-transform: none;
+    text-decoration: none;
+}
 .glass-badge {
     display: inline-flex;
     align-items: center;
@@ -147,7 +150,7 @@ b {
     font-size: 0.7rem;
     font-weight: 600;
     line-height: 1;
-}
+}*/
 
 /* ---------- HERO TYPO (DISPLAY HEADLINE) ---------- */
 
