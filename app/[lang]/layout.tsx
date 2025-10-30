@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "../globals.css";
 import Logo from "@/public/logotype/DB_Master.svg";
 import LanguageToggle from "@/components/LanguageToggle";
-import EngineClient from "@/hooks/engine-client";
+// import EngineClient from "@/hooks/engine-client";
 import ThemeToggle from "@/components/ThemeToggle";
 import { getCssText } from "@/stitches.config";
 import { getDictionary } from "@/lib/getDictionary";
@@ -65,9 +65,12 @@ export default async function RootLayout({
           dangerouslySetInnerHTML={{ __html: getCssText() }}
         />
       </head>
-      <EngineClient />
+
       <body>
-        <header className="absolute z-50 flex flex-col items-end top-[1rem] right-4 md:top-8 md:right-8 lg:right-[3rem] lg:top-[3rem] gap-2">
+        <header
+          className="absolute z-50 flex flex-col items-end top-[1rem] right-4 md:top-8 md:right-8 lg:right-[3rem] lg:top-[3rem] gap-2"
+          aria-hidden="false"
+        >
           <div className=" glass rounded-full py-[0.2rem] px-[0.6rem]  ">
             <Logo
               className="w-6 h-6 md:w-12 md:h-12 lg:h-12 lg:w-12 block "
@@ -79,7 +82,10 @@ export default async function RootLayout({
           <ThemeToggle locale={lang as "en" | "fr"} />
         </header>
         {children}
-        <footer className=" h-[var(--footer-height)] flex w-full  items-center justify-between px-4 md:px-8  lg:px-12  inset-0 ">
+        <footer
+          className=" h-[var(--footer-height)] flex w-full  items-center justify-between px-4 md:px-8  lg:px-12  inset-0 "
+          aria-hidden="false"
+        >
           <div className="flex gap-1 -ml-4">
             {dictionary.layout.footer.links.privacyPolicy && (
               <a

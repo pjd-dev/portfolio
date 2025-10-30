@@ -45,6 +45,7 @@ export default async function Page({
                   href={dictionary.titleCta.href}
                   target={dictionary.titleCta.target}
                   rel={dictionary.titleCta.rel}
+                  className="underline-offset-4 hover:underline text-[var(--foreground)] text-2xl"
                 >
                   {dictionary.titleCta.label}
                 </a>
