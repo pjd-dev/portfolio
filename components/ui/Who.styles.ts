@@ -4,10 +4,10 @@ export const Who = styled("h1", {
   fontFamily: "CondeSans, sans-serif",
   textTransform: "uppercase",
   userSelect: "none",
-  fontSize: "clamp(64px, calc(45cqh - 1rem), 222px)",
+  fontSize: "clamp(64px, calc(45cqh - 1rem), 128px)",
   lineHeight: 0.9,
   "@sm": {
-    fontSize: "clamp(80px, calc(94cqw - 1rem), 222px)",
+    fontSize: "clamp(64px, calc(94cqw - 1rem), 170px)",
     lineHeight: 0.85,
   },
   "@md": {

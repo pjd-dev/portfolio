@@ -5,24 +5,40 @@ export const Switch = styled("button", {
   paddingLeft: 8,
   paddingRight: 8,
   borderRadius: 9999,
-  fontSize: 9,
+  fontSize: 10, // bump to help contrast math
   fontWeight: 500,
   lineHeight: 1,
   letterSpacing: "0.06em",
-  color: "rgba(var(--foreground-rgb), 0.4)",
-  boxShadow: "inset 0 1px 2px rgba(0,0,0,0.25)",
-  transition: "background-color 300ms ease-in-out, color 300ms ease-in-out",
+  backgroundColor: "rgba(var(--background-rgb), 0.35)",
+  color: "rgba(var(--foreground-rgb), 0.82)", // was 0.4 -> now readable
+  boxShadow: "inset 0 1px 2px rgba(0,0,0,0.12)",
+  transition: "background-color 200ms ease, color 200ms ease",
   userSelect: "none",
+  border: "1px solid rgba(var(--foreground-rgb), 0.15)",
+
   "&:hover": {
-    cursor: "pointer",
+    backgroundColor: "rgba(var(--background-rgb), 0.5)",
   },
+
+  "&:focus-visible": {
+    outline: "2px solid rgba(var(--foreground-rgb), 0.9)",
+    outlineOffset: 2,
+  },
+
   "& .split": {
-    color: "rgba(var(--foreground-rgb), 0.4)",
+    color: "rgba(var(--foreground-rgb), 0.55)", // lighter but still ≥3:1 in dark
     paddingLeft: 2,
     paddingRight: 2,
   },
 
   variants: {
+    active: {
+      true: {
+        backgroundColor: "rgba(var(--foreground-rgb), 0.08)", // works in dark
+        color: "rgba(var(--foreground-rgb), 1)",
+        borderColor: "rgba(var(--foreground-rgb), 0.3)",
+      },
+    },
     disabled: {
       true: {
         opacity: 0.5,

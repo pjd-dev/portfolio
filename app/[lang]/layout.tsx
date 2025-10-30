@@ -15,16 +15,16 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  width: "device-width",
   initialScale: 1.0,
-  maximumScale: 1.0,
+  userScalable: true,
+  viewportFit: "cover",
 };
 
 export async function generateStaticParams() {
   return [{ lang: "en" }, { lang: "fr" }];
 }
 const FooterButtonStyle =
-  "text-[0.5rem] sm:text-xs md:text-sm p-1 md:p-4 hover:underline ";
+  "text-[0.6rem] sm:text-xs md:text-sm p-[1.5rem] md:p-4 hover:underline ";
 export default async function RootLayout({
   children,
   params,
