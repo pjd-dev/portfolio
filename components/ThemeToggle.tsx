@@ -13,11 +13,11 @@ export default function ThemeToggle({ locale }: Props) {
 
   const ariaLabel = isDark
     ? isEN
-      ? "Switch to light theme"
-      : "Passer en thème clair"
+      ? "☾ - Switch to light theme"
+      : "☾ - Passer en thème clair"
     : isEN
-      ? "Switch to dark theme"
-      : "Passer en thème sombre";
+      ? "☀︎ - Switch to dark theme"
+      : "☀︎ - Passer en thème sombre";
 
   return (
     <Switch
