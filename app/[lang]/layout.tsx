@@ -70,6 +70,7 @@ export default async function RootLayout({
         <header
           className="absolute z-50 flex flex-col items-end top-[1rem] right-4 md:top-8 md:right-8 lg:right-[3rem] lg:top-[3rem] gap-2"
           aria-hidden="false"
+          role="banner"
         >
           <div className=" glass rounded-full py-[0.2rem] px-[0.6rem]  ">
             <Logo
@@ -85,6 +86,7 @@ export default async function RootLayout({
         <footer
           className=" h-[var(--footer-height)] flex w-full  items-center justify-between px-4 md:px-8  lg:px-12  inset-0 "
           aria-hidden="false"
+          role="contentinfo"
         >
           <div className="flex gap-1 -ml-4">
             {dictionary.layout.footer.links.privacyPolicy && (

@@ -22,7 +22,7 @@ export default async function Page({
   const dictionary = await getDictionary(lang);
 
   return (
-    <Wrapper id="main-content">
+    <Wrapper id="main-content" role="main">
       <section className="absolute inset-0 top-0 z-10 flex w-full place-items-center justify-center">
         <ParallaxImage
           src="/poses/jump.webp"
