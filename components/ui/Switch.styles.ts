@@ -19,6 +19,7 @@ export const Switch = styled("button", {
 
   "&:hover": {
     backgroundColor: "rgba(var(--background-rgb), 1)",
+    cursor: "pointer",
   },
 
   "&:focus-visible": {

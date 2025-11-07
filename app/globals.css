@@ -10,7 +10,10 @@
 
     --background-rgb: 237, 237, 237;
     --foreground-rgb: 10, 10, 10;
-    --footer-height: 2rem;
+    --footer-height: 3rem;
+    @media (width < 48rem) {
+        --footer-height: 2rem;
+    }
 }
 
 /* Dark theme override via <html data-theme="dark"> */
@@ -97,8 +100,22 @@ b {
 
     transition: all 0.25s ease;
 }
+/* ---------- BACKGROUND PATTERN ---------- */
 
-.glass:hover {
+.glassButton {
+    background: rgba(var(--foreground-rgb), 0.08);
+    border: 1px solid rgba(var(--foreground-rgb), 0.18);
+    box-shadow:
+        0 1px 2px rgba(var(--background-rgb), 0.25),
+        0 0 0 1px rgba(var(--foreground-rgb), 0.05) inset;
+
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+
+    transition: all 0.25s ease;
+}
+
+.glassButton:hover {
     background: rgba(var(--foreground-rgb), 0.16);
     border-color: rgba(var(--foreground-rgb), 0.25);
     transform: translateY(-1px);
@@ -107,7 +124,7 @@ b {
         0 0 0 1px rgba(var(--foreground-rgb), 0.08) inset;
 }
 
-.glass:active {
+.glassButton:active {
     transform: translateY(0);
     background: rgba(var(--foreground-rgb), 0.24);
     border-color: rgba(var(--foreground-rgb), 0.3);
