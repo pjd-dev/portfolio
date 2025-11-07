@@ -15,7 +15,7 @@ const dictionaries = {
   fr: () => import("../app/dictionaries/fr.json").then((m) => m.default),
 };
 
-export const getDictionary = async (lang: string) => {
+export const getDictionary = async (lang: Locale) => {
   const getDict = dictionaries[lang as "en" | "fr"] || dictionaries["fr"];
   if (!getDict) {
     throw new Error(`No dictionary found for language: ${lang}`);

@@ -6,9 +6,7 @@ const ThemeToggle = dynamic(() => import("@/components/ThemeToggle"), {
   ssr: false,
 });
 type SiteHeaderProps = {
-  // dictionary: FooterDictionary;
   lang: Locale;
-  // copyright: string;
 };
 
 export function SiteHeader({ lang }: SiteHeaderProps) {

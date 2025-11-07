@@ -24,11 +24,7 @@ export function SiteHead() {
         }}
       />
 
-      <style
-        id="stitches"
-        // inject SSR styles from Stitches
-        dangerouslySetInnerHTML={{ __html: getCssText() }}
-      />
+      <style id="stitches" dangerouslySetInnerHTML={{ __html: getCssText() }} />
     </Head>
   );
 }
