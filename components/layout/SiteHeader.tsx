@@ -1,0 +1,28 @@
+import dynamic from "next/dynamic";
+import { HeaderRoot, HeaderLogo, HeaderHomeLink } from "../ui";
+import LanguageToggle from "@/components/LanguageToggle";
+
+const ThemeToggle = dynamic(() => import("@/components/ThemeToggle"), {
+  ssr: false,
+});
+type SiteHeaderProps = {
+  lang: Locale;
+};
+
+export function SiteHeader({ lang }: SiteHeaderProps) {
+  return (
+    <HeaderRoot aria-hidden="false" role="banner">
+      <HeaderHomeLink
+        className="glassButton"
+        href={`/${lang}`}
+        aria-label="Darrybook Home"
+        hrefLang={lang}
+        prefetch
+      >
+        <HeaderLogo />
+      </HeaderHomeLink>
+      <LanguageToggle locale={lang} />
+      <ThemeToggle locale={lang} />
+    </HeaderRoot>
+  );
+}
