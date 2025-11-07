@@ -1,0 +1,73 @@
+{
+  "hero": {
+    "title": "Jean Darry Paulette",
+    "headline": "FullStack Javascript Typescript Developer",
+    "headlineCta": {
+      "label": "Curriculum Vitae",
+      "href": "/cv/Jean_Darry_Paulette_FullStack_Dev_En_2025.pdf",
+      "alt": "Curriculum Vitae Button",
+      "target": "_blank",
+      "rel": "noopener noreferrer"
+    },
+    "plxImg": {
+      "src": "/poses/jump.webp",
+      "alt": "Jean Darry Paulette background image"
+    },
+    "ctas": [
+      {
+        "label": "See My Work",
+        "href": "https://github.com/pjd-dev",
+        "alt": "Bouton See My Work",
+        "target": "_blank",
+        "rel": "noopener noreferrer"
+      },
+      {
+        "label": "Work with me",
+        "href": "https://www.linkedin.com/in/jean-darry-p/",
+        "alt": "Bouton work with me",
+        "target": "_blank",
+        "rel": "noopener noreferrer"
+      },
+      {
+        "label": "Contact Me",
+        "href": "mailto:contact@darrybook.fr",
+        "alt": "Bouton Contact Me",
+        "target": "_blank",
+        "rel": "noopener noreferrer"
+      }
+    ]
+  },
+  "layout": {
+    "footer": {
+      "copyright": "© 2024 Jean Darry Paulette. All rights reserved.",
+      "links": {
+        "privacyPolicy": {
+          "label": "Privacy Policy",
+          "href": "/en/privacy",
+          "alt": "Privacy Policy Link",
+          "target": "_self",
+          "rel": ""
+        },
+        "termsOfService": {
+          "label": "Terms of Service",
+          "href": "/en/terms",
+          "alt": "Terms of Service Link",
+          "target": "_self",
+          "rel": ""
+        }
+      }
+    }
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "content": "\n\nThis website is a **personal portfolio** hosted on [Vercel](https://vercel.com).\n\n## Data Collected\nNo personal data is collected or stored at present.\nNo cookies, analytics tools or contact forms are active.\n\n## Hosting\nHosting is provided by *Vercel Inc.* (United States).\nServer logs (anonymous) may contain your IP address for security and maintenance.\n\n## Your Rights\nUnder the **General Data Protection Regulation (GDPR)**,\nyou may exercise your rights of access, rectification and deletion once data collection is implemented.\n\n",
+    "lastUpdated": "Last updated: November 2025",
+    "note": "This document will be updated whenever a form or tracking tool is added."
+  },
+  "terms": {
+    "title": "Terms of Use",
+    "content": "\n\nThis website is a **personal portfolio** intended to showcase the author’s work and skills.\n\n## Use of Content\nContent is provided for informational purposes only.\nReproduction, distribution or commercial use without written permission is prohibited.\n\n## Liability\nThe author of this website cannot be held responsible for errors or omissions on this site nor for any direct or indirect damages arising from its use.\n\n## Hosting\nHosted by **Vercel Inc.** (340 S Lemon Ave #4133, Walnut, CA 91789, United States).\n\n",
+    "lastUpdated": "November 2025",
+    "note": "These terms may be modified without notice to remain compliant with legal or technical requirements."
+  }
+}

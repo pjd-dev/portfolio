@@ -1,0 +1,74 @@
+{
+  "hero": {
+    "title": "Jean Darry Paulette",
+    "headline": "Developpeur FullStack Javascript Typescript",
+    "headlineCta": {
+      "label": "Curriculum Vitae",
+      "href": "/cv/Jean_Darry_Paulette_FullStack_Dev_Fr_2025.pdf",
+      "alt": "Bouton Curriculum Vitae",
+      "target": "_blank",
+      "rel": "noopener noreferrer"
+    },
+    "plxImg": {
+      "src": "/poses/jump.webp",
+      "alt": "Image de fond de Jean Darry Paulette"
+    },
+    "ctas": [
+      {
+        "label": "Voir mon travail",
+        "href": "https://github.com/pjd-dev",
+        "alt": "Bouton Voir mon travail",
+        "target": "_blank",
+        "rel": "noopener noreferrer"
+      },
+      {
+        "label": "travailler avec moi",
+        "href": "https://www.linkedin.com/in/jean-darry-p/",
+        "alt": "Bouton travailler avec moi",
+        "target": "_blank",
+        "rel": "noopener noreferrer"
+      },
+      {
+        "label": "Contactez-moi",
+        "href": "mailto:contact@darrybook.fr",
+        "alt": "Bouton Contactez-moi",
+        "target": "_blank",
+        "rel": "noopener noreferrer"
+      }
+    ]
+  },
+
+  "layout": {
+    "footer": {
+      "copyright": "© 2024 Jean Darry Paulette. Tous droits réservés.",
+      "links": {
+        "privacyPolicy": {
+          "label": "Politique de confidentialité",
+          "href": "/fr/privacy",
+          "alt": "Lien Politique de confidentialité",
+          "target": "_self",
+          "rel": ""
+        },
+        "termsOfService": {
+          "label": "Conditions d'utilisation",
+          "href": "/fr/terms",
+          "alt": "Lien Conditions d'utilisation",
+          "target": "_self",
+          "rel": ""
+        }
+      }
+    }
+  },
+  "privacy": {
+    "title": "Politique de confidentialité",
+    "content": "\n\nCe site est un **portfolio personnel** hébergé sur [Vercel](https://vercel.com).\n\n## Données collectées  \nAucune donnée personnelle n’est collectée ou stockée actuellement.  \nAucun cookie, outil d’analyse ou formulaire de contact n’est actif.\n\n## Hébergement  \nL’hébergement est assuré par *Vercel Inc.* (États-Unis).  \nLes journaux techniques du serveur (logs anonymes) peuvent contenir votre adresse IP pour la sécurité et la maintenance.\n\n## Vos droits  \nConformément au **Règlement Général sur la Protection des Données (RGPD)**,  \nvous pouvez exercer vos droits d’accès, de rectification et de suppression une fois que la collecte de données sera mise en place.\n\n",
+    "lastUpdated": "Dernière mise à jour : novembre 2025",
+    "note": "Ce document sera mis à jour dès qu’un formulaire ou un outil de suivi sera ajouté."
+  },
+  "terms": {
+    "title": "Conditions d’utilisation",
+    "content": "\n\nCe site est un **portfolio personnel** destiné à présenter le travail et les compétences de son auteur.\n\n## Utilisation du contenu  \nLe contenu est fourni à titre informatif.  \nToute reproduction, diffusion ou utilisation commerciale sans autorisation écrite est interdite.\n\n## Responsabilité  \nL’auteur du site ne peut être tenu responsable des erreurs ou omissions présentes sur ce site ni des dommages directs ou indirects liés à son utilisation.\n\n## Hébergement  \nHébergé par **Vercel Inc.** (340 S Lemon Ave #4133, Walnut, CA 91789, États-Unis).\n\n",
+    "lastUpdated": "Dernière mise à jour : novembre 2025",
+    "note": "Ces conditions peuvent être modifiées sans préavis pour rester conformes aux exigences légales ou techniques."
+  }
+}
