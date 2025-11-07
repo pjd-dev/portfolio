@@ -48,6 +48,7 @@ export default async function RootLayout({
         <SiteHeader lang={lang} />
         <SiteMain>{children}</SiteMain>
         <SiteFooter {...(dictionary.layout.footer as any)} />
+        //type mismatch issue needs to be resolved
       </body>
       <SpeedInsights />
     </html>
