@@ -10,7 +10,7 @@ import {
   CtaGroup,
   CtaButton,
 } from "../ui";
-type HeroProps = {
+export type HeroProps = {
   title: string;
   headline: string;
   headlineCta?: AppLinkConfig;

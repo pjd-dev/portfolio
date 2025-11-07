@@ -31,11 +31,17 @@ export default function LanguageToggle({ locale }: Props) {
         startTransition(() => router.replace(targetHref));
       }}
     >
-      <SwitchPart active={!isEN} className="uppercase">
+      <SwitchPart
+        active={!isEN}
+        className={!isEN ? "uppercase font-bold" : "lowercase"}
+      >
         fr
       </SwitchPart>
       <span className="split">/</span>
-      <SwitchPart active={isEN} className="uppercase">
+      <SwitchPart
+        active={isEN}
+        className={isEN ? "uppercase font-bold" : "lowercase"}
+      >
         en
       </SwitchPart>
     </Switch>

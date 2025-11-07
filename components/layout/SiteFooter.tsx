@@ -6,8 +6,7 @@ import {
   FooterMeta,
 } from "../ui";
 
-type SiteFooterProps = {
-  // dictionary: FooterDictionary;
+export type SiteFooterProps = {
   links: {
     privacyPolicy?: AppLinkConfig;
     termsOfService?: AppLinkConfig;

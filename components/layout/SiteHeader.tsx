@@ -1,6 +1,10 @@
+import dynamic from "next/dynamic";
 import { HeaderRoot, HeaderLogo, HeaderHomeLink } from "../ui";
 import LanguageToggle from "@/components/LanguageToggle";
-import ThemeToggle from "@/components/ThemeToggle";
+
+const ThemeToggle = dynamic(() => import("@/components/ThemeToggle"), {
+  ssr: false,
+});
 type SiteHeaderProps = {
   // dictionary: FooterDictionary;
   lang: Locale;

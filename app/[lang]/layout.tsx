@@ -39,7 +39,6 @@ export default async function RootLayout({
   return (
     <html
       lang={lang}
-      // data-google-analytics-opt-out=""
       className={spaceGrotesk.className}
       suppressHydrationWarning
     >
@@ -47,8 +46,7 @@ export default async function RootLayout({
       <body>
         <SiteHeader lang={lang} />
         <SiteMain>{children}</SiteMain>
-        <SiteFooter {...(dictionary.layout.footer as any)} />
-        //type mismatch issue needs to be resolved
+        <SiteFooter {...dictionary.layout.footer} />
       </body>
       <SpeedInsights />
     </html>

@@ -10,7 +10,7 @@ import {
   LegalBlur,
 } from "../ui";
 import { Markdown } from "../Markdown";
-type LegalDocumentPageProps = {
+export type LegalDocumentPageProps = {
   title: string;
   lastUpdated: string;
   content: string;
@@ -32,9 +32,7 @@ export function LegalDocumentPage({
           <LegalTitle>{title}</LegalTitle>
           <LegalMeta>Dernière mise à jour : {lastUpdated}</LegalMeta>
         </LegalHeader>
-
         <Markdown content={content} />
-
         {note && <LegalFooter>{note}</LegalFooter>}
       </LegalScroll>
     </LegalShell>

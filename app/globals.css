@@ -11,9 +11,15 @@
     --background-rgb: 237, 237, 237;
     --foreground-rgb: 10, 10, 10;
     --footer-height: 3rem;
-    @media (width < 48rem) {
+    /*@media (width < 48rem) {
         --footer-height: 2rem;
-    }
+    }*/
+}
+* {
+    transition: all 0.3s ease;
+}
+.lucide {
+    display: inline-block;
 }
 
 /* Dark theme override via <html data-theme="dark"> */

@@ -9,6 +9,5 @@ export default async function Page({
   const { lang } = await params;
   const dictionary = await getDictionary(lang);
 
-  return <Hero {...(dictionary.hero as any)} />;
-  //type mismatch issue needs to be resolved
+  return <Hero {...dictionary.hero} />;
 }
