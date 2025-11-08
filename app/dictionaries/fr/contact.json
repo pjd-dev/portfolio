@@ -1,0 +1,82 @@
+{
+  "title": "Contactez-moi",
+  "description": "Vous avez un projet en tête ou simplement envie de dire bonjour ? Envoyez-moi un message !",
+  "fields": {
+    "name": {
+      "label": "Nom",
+      "placeholder": "Votre nom",
+      "error": "Le nom est requis (min. 2 caractères)"
+    },
+    "email": {
+      "label": "Email",
+      "placeholder": "votre.email@exemple.com",
+      "error": "Un email valide est requis"
+    },
+    "subject": {
+      "label": "Sujet",
+      "placeholder": "Sélectionnez un sujet",
+      "options": [
+        {
+          "value": "recruitment",
+          "label": "Opportunité d'emploi"
+        },
+        {
+          "value": "freelance",
+          "label": "Projet Freelance"
+        },
+        {
+          "value": "collab",
+          "label": "Collaboration"
+        },
+        {
+          "value": "other",
+          "label": "Autre"
+        }
+      ],
+      "error": "Veuillez sélectionner un sujet"
+    },
+    "company": {
+      "label": "Entreprise",
+      "placeholder": "Nom de votre entreprise",
+      "error": "Le nom de l'entreprise est requis (min. 2 caractères)"
+    },
+    "budget": {
+      "label": "Budget",
+      "placeholder": "ex: 5 000€ - 10 000€",
+      "error": "Le budget est requis"
+    },
+    "deadline": {
+      "label": "Délai",
+      "placeholder": "ex: 2 semaines, 1 mois",
+      "error": "Le délai est requis"
+    },
+    "projectLink": {
+      "label": "Lien du projet",
+      "placeholder": "https://votre-projet.com",
+      "error": "Une URL valide est requise"
+    },
+    "goal": {
+      "label": "Objectif du projet",
+      "placeholder": "Décrivez ce que vous souhaitez accomplir",
+      "error": "L'objectif du projet est requis"
+    },
+    "message": {
+      "label": "Message",
+      "placeholder": "Parlez-moi de votre projet ou de votre demande...",
+      "error": "Le message est requis (min. 10 caractères)"
+    }
+  },
+  "submit": {
+    "idle": "Envoyer le message",
+    "sending": "Envoi en cours...",
+    "success": "Message envoyé avec succès !",
+    "error": "Échec de l'envoi du message. Veuillez réessayer."
+  },
+  "validation": {
+    "required": "Ce champ est requis",
+    "invalidEmail": "Veuillez entrer une adresse email valide",
+    "invalidUrl": "Veuillez entrer une URL valide",
+    "tooShort": "Ce champ est trop court",
+    "tooLong": "Ce champ est trop long"
+  }
+}
