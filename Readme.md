@@ -25,6 +25,11 @@ Personal portfolio website for Jean Darry Paulette, a FullStack JavaScript TypeS
 See `docs/ContactForm-spec.pdf` for the full functional & technical spec
 (schema, API, validation, mailer, tests).
 
+## Contact Form Spec
+
+See `docs/ContactForm-spec.pdf` for the full functional & technical spec
+(schema, API, validation, mailer, tests).
+
 ## Dev
 pnpm dev
 
