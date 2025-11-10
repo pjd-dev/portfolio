@@ -46,10 +46,8 @@ export const AppLinkBase = forwardRef<HTMLAnchorElement, AppLinkBaseProps>(
     }
 
     return (
-      <Link href={localizedHref} prefetch={prefetch} legacyBehavior passHref>
-        <a ref={ref} {...rest}>
-          {children}
-        </a>
+      <Link href={localizedHref} prefetch={prefetch} ref={ref} {...rest}>
+        {children}
       </Link>
     );
   },
