@@ -1,6 +1,12 @@
 import "server-only";
-import type { LayoutDictionary } from "./validation/layoutDictionarySchema";
-import type { PageDictionary } from "./validation/pageDictionarySchema";
+import {
+  layoutDictionarySchema,
+  type LayoutDictionary,
+} from "./validation/layoutDictionarySchema";
+import {
+  pageDictionarySchema,
+  type PageDictionary,
+} from "./validation/pageDictionarySchema";
 
 export const getDictionary = async (
   locale: string,
@@ -9,18 +15,18 @@ export const getDictionary = async (
 ): Promise<LayoutDictionary | PageDictionary> => {
   if (!locale) throw new Error("Language not specified");
   if (!target) throw new Error("Page not specified");
-  const getDict = await import(
+  const rawDict = (await import(
     `../app/dictionaries/${locale}/${type}/${target}.json`
-  ).then((m) => m.default);
-  if (!getDict) {
+  ).then((m) => m.default)) as unknown;
+  if (!rawDict) {
     throw new Error(
       `No dictionary found for language: ${locale}, type and page: ${target}`,
     );
   }
   if (type === "layout") {
-    return getDict as Promise<LayoutDictionary>;
+    return layoutDictionarySchema.parse(rawDict);
   }
-  return getDict as Promise<PageDictionary>;
+  return pageDictionarySchema.parse(rawDict);
 };
 
 export const getLayoutDictionary = async (

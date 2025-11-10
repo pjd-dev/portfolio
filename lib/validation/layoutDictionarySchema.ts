@@ -19,8 +19,8 @@ export const HeaderSchema = z.object({
 });
 
 export const layoutDictionarySchema = z.object({
-  header: HeaderSchema,
-  footer: FooterSchema,
+  header: HeaderSchema.optional(),
+  footer: FooterSchema.optional(),
 });
 
 // TypeScript type inference

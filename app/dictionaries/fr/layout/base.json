@@ -3,18 +3,16 @@
     "copyright": "© 2024 Jean Darry Paulette. Tous droits réservés.",
     "links": {
       "privacyPolicy": {
+        "type": "internal",
         "label": "Politique de confidentialité",
         "href": "/fr/privacy",
-        "alt": "Lien Politique de confidentialité",
-        "target": "_self",
-        "rel": ""
+        "alt": "Lien Politique de confidentialité"
       },
       "termsOfService": {
+        "type": "internal",
         "label": "Conditions d'utilisation",
         "href": "/fr/terms",
-        "alt": "Lien Conditions d'utilisation",
-        "target": "_self",
-        "rel": ""
+        "alt": "Lien Conditions d'utilisation"
       }
     }
   }

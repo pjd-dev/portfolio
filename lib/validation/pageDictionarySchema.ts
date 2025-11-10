@@ -18,7 +18,7 @@ export const sectionSchema = z.union([
 export const basePageDictionarySchema = z.object({
   title: z.string(),
   subtitle: z.string().optional(),
-  meta: pageMetaSchema,
+  meta: pageMetaSchema.optional(),
   messages: pageMessagesSchema.optional(),
   seo: pageSeoSchema.optional(),
 });
