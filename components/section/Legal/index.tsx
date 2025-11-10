@@ -1,6 +1,7 @@
 // components/legal/LegalDocumentPage.tsx
 "use client";
-import { Markdown } from "../composites/Markdown";
+import type { LegalSection } from "@/lib/validation/section/legalDictionarySchema";
+import { Markdown } from "../../composites/Markdown";
 import {
   LegalBlur,
   LegalFooter,
@@ -9,20 +10,9 @@ import {
   LegalScroll,
   LegalShell,
   LegalTitle,
-} from "../ui";
-export type LegalDocumentPageProps = {
-  title: string;
-  lastUpdated: string;
-  content: string;
-  note?: string;
-};
+} from "./ui";
 
-export function LegalDocumentPage({
-  title,
-  lastUpdated,
-  content,
-  note,
-}: LegalDocumentPageProps) {
+export function Legal({ title, lastUpdated, content, note }: LegalSection) {
   return (
     <LegalShell>
       <LegalBlur position="top" />
@@ -32,7 +22,7 @@ export function LegalDocumentPage({
           <LegalTitle>{title}</LegalTitle>
           <LegalMeta>Dernière mise à jour : {lastUpdated}</LegalMeta>
         </LegalHeader>
-        <Markdown content={content} />
+        {content && <Markdown content={content} />}
         {note && <LegalFooter>{note}</LegalFooter>}
       </LegalScroll>
     </LegalShell>

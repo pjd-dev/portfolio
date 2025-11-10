@@ -1,7 +1,7 @@
-import { getDictionary } from "@/lib/getDictionary";
-import FormShell from "@/components/form/FormShell";
-import ContactForm from "@/components/form/ContactForm";
+import ContactForm from "@/components/section/form/ContactForm";
+import FormShell from "@/components/section/form/FormShell";
 import { Wrapper } from "@/components/ui";
+import { getDictionary } from "@/lib/getDictionary";
 export default async function ContactPage({
   params,
 }: {

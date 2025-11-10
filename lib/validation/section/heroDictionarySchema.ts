@@ -1,10 +1,10 @@
 // lib/validation/section/heroSchema.ts
 import { z } from "zod";
-import { ctaSchema } from "../shared/ctaSchema";
 import { baseSectionSchema } from "../shared/baseSectionSchema";
+import { ctaSchema } from "../shared/ctaSchema";
 
 export const heroSectionSchema = baseSectionSchema.extend({
-  type: z.literal("hero"),
+  kind: z.literal("hero"),
   title: z.string(), // was "name"
   headline: z.string(), // was "title"
   headlineCta: ctaSchema.optional(),

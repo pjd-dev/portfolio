@@ -1,4 +1,4 @@
-import { SiteFooter, SiteHead, SiteMain } from "@/components/layout";
+import { SiteFooter, SiteHead, SiteHeader, SiteMain } from "@/components/layout";
 import { spaceGrotesk } from "@/components/ui/fonts";
 import { getLayoutDictionary } from "@/lib/getDictionary";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -38,7 +38,7 @@ export default async function RootLayout({ children, params }: RootLayoutProps) 
       </head>
 
       <body>
-        {/* <SiteHeader lang={lang} /> */}
+        <SiteHeader lang={lang} />
         <SiteMain>{children}</SiteMain>
         <SiteFooter {...footer} />
         <SpeedInsights />

@@ -13,8 +13,6 @@ export const FooterSchema = z.object({
 });
 
 export const HeaderSchema = z.object({
-  logoAlt: z.string().optional(),
-  logoSrc: z.string().optional(),
   i18nSwitch: z.boolean().optional(),
   themeSwitch: z.boolean().optional(),
   navLinks: z.array(ctaSchema).optional(),

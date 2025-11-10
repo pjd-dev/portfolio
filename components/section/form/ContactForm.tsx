@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
 import { styled } from "@/stitches.config";
-import { TextField, SelectField, TextAreaField } from "./FormFields";
-import type { ContactFormData } from "@/lib/schemas/contact";
+import React, { useState } from "react";
+import { SelectField, TextAreaField, TextField } from "./FormFields";
+// import type { ContactFormData } from "@/lib/schemas/contact";
 
 const Form = styled("form", {
   display: "flex",

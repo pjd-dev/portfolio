@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import ContactForm from "@/components/section/form/ContactForm";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
-import ContactForm from "@/components/form/ContactForm";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { contactDict } from "./__fixtures__/contactDict";
 
 // Mock Stitches to avoid CSSOM issues in jsdom

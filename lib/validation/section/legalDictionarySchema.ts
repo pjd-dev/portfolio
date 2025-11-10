@@ -1,9 +1,9 @@
 // lib/validation/section/textDictionarySchema.ts
-import { z } from "zod";
 import { baseSectionSchema } from "@/lib/validation/shared/baseSectionSchema";
+import { z } from "zod";
 
 export const legalSectionSchema = baseSectionSchema.extend({
-  type: z.literal("text"),
+  kind: z.literal("legal"),
   title: z.string().optional(),
   content: z.string().optional(), // can be long markdown or plain text
   lastUpdated: z.string().optional(), //"Dernière mise à jour : novembre 2025",

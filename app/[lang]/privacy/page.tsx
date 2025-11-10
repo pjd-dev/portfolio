@@ -1,5 +1,5 @@
+import { LegalSection } from "@/components/section/Legal";
 import { getDictionary } from "@/lib/getDictionary";
-import { LegalDocumentPage } from "@/components/legal/LegalDocumentPage";
 export default async function PrivacyPage({
   params,
 }: {
@@ -7,5 +7,5 @@ export default async function PrivacyPage({
 }) {
   const { lang } = await params;
   const dictionary = await getDictionary(lang, "privacy", "legal");
-  return <LegalDocumentPage {...dictionary} />;
+  return <LegalSection {...dictionary} />;
 }

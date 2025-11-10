@@ -1,5 +1,5 @@
+import { LegalDocumentPage } from "@/components/section/Legal";
 import { getDictionary } from "@/lib/getDictionary";
-import { LegalDocumentPage } from "@/components/legal/LegalDocumentPage";
 export default async function PrivacyPage({
   params,
 }: {

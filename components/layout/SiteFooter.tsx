@@ -14,14 +14,6 @@ export function SiteFooter({ links, copyright }: FooterLayout) {
                   prefetch: true,
                 }}
               />
-              // <FooterLink
-              //   href={links.privacyPolicy.href}
-              //   rel={links.privacyPolicy.rel}
-              //   target={links.privacyPolicy.target}
-              //   prefetch
-              // >
-              //   {links.privacyPolicy.label}
-              // </FooterLink>
             )}
 
             {links.termsOfService && (
@@ -31,14 +23,6 @@ export function SiteFooter({ links, copyright }: FooterLayout) {
                   prefetch: true,
                 }}
               />
-              // <FooterLink
-              //   href={links.termsOfService.href}
-              //   rel={links.termsOfService.rel}
-              //   target={links.termsOfService.target}
-              //   prefetch
-              // >
-              //   {links.termsOfService.label}
-              // </FooterLink>
             )}
           </FooterLinks>
         )}

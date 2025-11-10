@@ -1,13 +1,7 @@
 "use client";
-export * from "./Grid.styles";
-export * from "./WhoCell.styles";
-export * from "./WhatCell.styles";
-export * from "./Who.styles";
-export * from "./What.styles";
-export * from "./CtaCell.styles";
-export * from "./CtaGroup.styles";
-export * from "./CtaButton.styles";
-export * from "./Switch.styles";
-export * from "./PatternedBg.styles";
-export * from "./legal";
+
+export * from "./createCtaButton";
+export * from "./fonts";
 export * from "./layout";
+export * from "./PatternedBg.styles";
+export * from "./Switch.styles";

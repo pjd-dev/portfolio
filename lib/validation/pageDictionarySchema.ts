@@ -1,13 +1,13 @@
 // lib/validation/pageDictionarySchema.ts
-import { z } from "zod";
 import {
-  heroSectionSchema,
   formSectionSchema,
-  textSectionSchema,
+  heroSectionSchema,
   legalSectionSchema,
+  textSectionSchema,
 } from "@/lib/validation/section";
-import { pageMetaSchema, pageMessagesSchema } from "@/lib/validation/shared";
+import { pageMessagesSchema, pageMetaSchema } from "@/lib/validation/shared";
 import { pageSeoSchema } from "@/lib/validation/shared/seoSchema";
+import { z } from "zod";
 
 export const sectionSchema = z.union([
   heroSectionSchema,
@@ -35,3 +35,4 @@ export const pageLegalDictionarySchema = basePageDictionarySchema.extend({
 export type PageDictionary = z.infer<
   typeof pageDictionarySchema | typeof pageLegalDictionarySchema
 >;
+export type Sections = z.infer<typeof sectionSchema>;

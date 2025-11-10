@@ -1,9 +1,9 @@
 // lib/validation/section/formDictionarySchema.ts
 import { z } from "zod";
 
-import { ctaSchema } from "../shared/ctaSchema";
-import { sectionMetaSchema, sectionMessagesSchema } from "../shared/sectionSchema";
 import { baseSectionSchema } from "../shared/baseSectionSchema";
+import { ctaSchema } from "../shared/ctaSchema";
+import { sectionMessagesSchema, sectionMetaSchema } from "../shared/sectionSchema";
 
 /* Form field + section */
 
@@ -28,7 +28,7 @@ export const fieldSchema = z.object({
 });
 
 export const formSectionSchema = baseSectionSchema.extend({
-  type: z.literal("form"),
+  kind: z.literal("form"),
   meta: sectionMetaSchema.optional(),
   messages: sectionMessagesSchema.optional(),
   fields: z.array(fieldSchema),
