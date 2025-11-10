@@ -1,15 +1,15 @@
 // components/legal/LegalDocumentPage.tsx
 "use client";
+import { Markdown } from "../composites/Markdown";
 import {
-  LegalShell,
-  LegalHeader,
-  LegalTitle,
-  LegalMeta,
-  LegalFooter,
-  LegalScroll,
   LegalBlur,
+  LegalFooter,
+  LegalHeader,
+  LegalMeta,
+  LegalScroll,
+  LegalShell,
+  LegalTitle,
 } from "../ui";
-import { Markdown } from "../Markdown";
 export type LegalDocumentPageProps = {
   title: string;
   lastUpdated: string;

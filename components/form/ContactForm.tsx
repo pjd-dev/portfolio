@@ -22,17 +22,17 @@ const SubmitButton = styled("button", {
   cursor: "pointer",
   transition: "all 0.2s",
   marginTop: "1rem",
-  
+
   "&:hover": {
     backgroundColor: "#333",
     transform: "translateY(-2px)",
     boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
   },
-  
+
   "&:active": {
     transform: "translateY(0)",
   },
-  
+
   "&:disabled": {
     backgroundColor: "#999",
     cursor: "not-allowed",
@@ -46,7 +46,7 @@ const StatusMessage = styled("div", {
   fontSize: "0.875rem",
   fontWeight: "500",
   marginTop: "1rem",
-  
+
   variants: {
     type: {
       success: {
@@ -63,12 +63,15 @@ const StatusMessage = styled("div", {
 
 interface ContactFormProps {
   dictionary: {
-    fields: Record<string, {
-      label: string;
-      placeholder: string;
-      error?: string;
-      options?: Array<{ value: string; label: string }>;
-    }>;
+    fields: Record<
+      string,
+      {
+        label: string;
+        placeholder: string;
+        error?: string;
+        options?: Array<{ value: string; label: string }>;
+      }
+    >;
     submit: {
       idle: string;
       sending: string;
@@ -96,7 +99,7 @@ export default function ContactForm({ dictionary }: ContactFormProps) {
   });
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));

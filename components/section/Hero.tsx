@@ -1,24 +1,20 @@
-import ParallaxImage from "../parallaxImg";
-import { WildWorld, CondeSans } from "../ui/fonts";
+import ParallaxImage from "../composites/parallaxImg";
 import {
-  Grid,
-  WhoCell,
-  WhatCell,
-  Who,
-  What,
+  CtaButton,
   CtaCell,
   CtaGroup,
-  CtaButton,
+  Grid,
+  What,
+  WhatCell,
+  Who,
+  WhoCell,
 } from "../ui";
-export type HeroProps = {
-  title: string;
-  headline: string;
-  headlineCta?: AppLinkConfig;
-  plxImg: {
-    src: string;
-    alt: string;
-  };
-  ctas: AppLinkConfig[];
+import { CondeSans, WildWorld } from "../ui/fonts";
+
+import type { HeroSection } from "@/lib/validation/section";
+
+export type HeroProps = HeroSection & {
+  classNames: {};
 };
 
 export default function Hero({
@@ -30,12 +26,14 @@ export default function Hero({
 }: HeroProps) {
   return (
     <>
-      <section className="absolute inset-0 top-0 z-10 flex w-full place-items-center justify-center">
-        <ParallaxImage
-          src={plxImg.src} //"/poses/jump.webp"
-          alt={plxImg.alt}
-        />
-      </section>
+      {plxImg && (
+        <section className="absolute inset-0 top-0 z-10 flex w-full place-items-center justify-center">
+          <ParallaxImage
+            src={plxImg.src} //"/poses/jump.webp"
+            alt={plxImg?.alt || "parallaxe image alt"}
+          />
+        </section>
+      )}
 
       <Grid>
         <WhoCell>

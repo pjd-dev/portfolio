@@ -14,6 +14,8 @@
     "corejs",
     "cssstyle",
     "csstools",
+    "ctas",
+    "Darrybook",
     "deepmerge",
     "devlop",
     "domelementtype",
@@ -49,6 +51,8 @@
     "nodelib",
     "nodemailer",
     "nolyfill",
+    "noopener",
+    "noreferrer",
     "nwsapi",
     "openharmony",
     "pathe",
@@ -82,5 +86,83 @@
     "webdriverio",
     "whatwg",
     "xmlserializer"
-  ]
+  ],
+
+  // ---------- CORE FORMAT / LINT ----------
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.organizeImports": "explicit"
+  },
+
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+  "eslint.alwaysShowStatus": true,
+
+  // ----------  FOCUS TWEAKS ----------
+  "workbench.startupEditor": "none", // no noisy welcome
+  "workbench.editor.enablePreview": false, // each file = tab, no tab reuse
+  "workbench.editor.highlightModifiedTabs": true,
+
+  "editor.minimap.enabled": false,
+  "editor.scrollbar.verticalScrollbarSize": 6,
+  "editor.scrollbar.horizontalScrollbarSize": 6,
+
+  "editor.hover.enabled": false, // less popups, more focus
+  "editor.parameterHints.enabled": false,
+  "editor.suggest.snippetsPreventQuickSuggestions": false,
+  "editor.inlineSuggest.enabled": true, // ghost text is fine, not intrusive
+
+  "breadcrumbs.enabled": false,
+  "outline.icons": false,
+
+  "editor.cursorBlinking": "smooth",
+  "editor.cursorSmoothCaretAnimation": "on",
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.renderWhitespace": "none",
+  "editor.wordWrap": "on",
+
+  // ---------- FILE / PROJECT NOISE ----------
+  "files.exclude": {
+    "**/.git": true,
+    "**/.next": true,
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/build": true
+  },
+  "search.exclude": {
+    "**/.git": true,
+    "**/.next": true,
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/build": true
+  },
+
+  // keep autosave manual for deliberate commits
+  "files.autoSave": "off"
 }

@@ -187,9 +187,9 @@ describe("ContactForm", () => {
                 ok: true,
                 json: async () => ({ ok: true }),
               } as Response),
-            100
-          )
-        )
+            100,
+          ),
+        ),
     );
 
     render(<ContactForm dictionary={contactDict.en} />);

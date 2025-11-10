@@ -8,14 +8,10 @@ export const heroSectionSchema = baseSectionSchema.extend({
   title: z.string(), // was "name"
   headline: z.string(), // was "title"
   headlineCta: ctaSchema.optional(),
-  img: z
+  plxImg: z
     .object({
-      background: z
-        .object({
-          alt: z.string().optional(),
-          src: z.string().optional(),
-        })
-        .optional(),
+      alt: z.string().optional(),
+      src: z.string(),
     })
     .optional(),
   ctas: z.array(ctaSchema).default([]),

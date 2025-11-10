@@ -1,9 +1,9 @@
 "use client";
 
+import { Switch, SwitchPart } from "@/components/ui/Switch.styles";
+import { swapLocaleInPath, type Locale } from "@/lib/i18n";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useTransition } from "react";
-import { swapLocaleInPath, type Locale } from "@/lib/i18n";
-import { Switch, SwitchPart } from "./ui/Switch.styles";
 type Props = { locale: Locale };
 
 export default function LanguageToggle({ locale }: Props) {
@@ -33,14 +33,14 @@ export default function LanguageToggle({ locale }: Props) {
     >
       <SwitchPart
         active={!isEN}
-        className={!isEN ? "uppercase font-bold" : "lowercase"}
+        className={!isEN ? "font-bold uppercase" : "lowercase"}
       >
         fr
       </SwitchPart>
       <span className="split">/</span>
       <SwitchPart
         active={isEN}
-        className={isEN ? "uppercase font-bold" : "lowercase"}
+        className={isEN ? "font-bold uppercase" : "lowercase"}
       >
         en
       </SwitchPart>

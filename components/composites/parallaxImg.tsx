@@ -32,13 +32,7 @@ export default function ParallaxImage(props: Props) {
     }
   }
 
-  const {
-    src,
-    alt,
-    speed = 0.5,
-    maxShift = 160,
-    mouseFollowStrength = 0.5,
-  } = props;
+  const { src, alt, speed = 0.5, maxShift = 160, mouseFollowStrength = 0.5 } = props;
   const ref = useRef<HTMLImageElement | null>(null);
   const yRef = useRef(0);
   const xRef = useRef(0);
@@ -51,9 +45,7 @@ export default function ParallaxImage(props: Props) {
     const img = ref.current;
     if (!img) return;
 
-    const prefersReduced = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (prefersReduced) return;
 
     const stickyContainer = img.closest("main") as HTMLElement | null;

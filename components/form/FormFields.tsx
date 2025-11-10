@@ -21,16 +21,16 @@ const Input = styled("input", {
   borderRadius: "8px",
   transition: "border-color 0.2s",
   fontFamily: "inherit",
-  
+
   "&:focus": {
     outline: "none",
     borderColor: "#000",
   },
-  
+
   "&::placeholder": {
     color: "#999",
   },
-  
+
   variants: {
     hasError: {
       true: {
@@ -50,12 +50,12 @@ const Select = styled("select", {
   fontFamily: "inherit",
   backgroundColor: "white",
   cursor: "pointer",
-  
+
   "&:focus": {
     outline: "none",
     borderColor: "#000",
   },
-  
+
   variants: {
     hasError: {
       true: {
@@ -75,16 +75,16 @@ const TextArea = styled("textarea", {
   fontFamily: "inherit",
   minHeight: "150px",
   resize: "vertical",
-  
+
   "&:focus": {
     outline: "none",
     borderColor: "#000",
   },
-  
+
   "&::placeholder": {
     color: "#999",
   },
-  
+
   variants: {
     hasError: {
       true: {
@@ -116,7 +116,14 @@ interface TextFieldProps {
   error?: string;
 }
 
-export function TextField({ name, type = "text", value, onChange, config, error }: TextFieldProps) {
+export function TextField({
+  name,
+  type = "text",
+  value,
+  onChange,
+  config,
+  error,
+}: TextFieldProps) {
   return (
     <FieldGroup>
       <Label htmlFor={name}>{config.label}</Label>
@@ -146,13 +153,7 @@ export function SelectField({ name, value, onChange, config, error }: SelectFiel
   return (
     <FieldGroup>
       <Label htmlFor={name}>{config.label}</Label>
-      <Select
-        id={name}
-        name={name}
-        value={value}
-        onChange={onChange}
-        hasError={!!error}
-      >
+      <Select id={name} name={name} value={value} onChange={onChange} hasError={!!error}>
         <option value="">{config.placeholder}</option>
         {config.options?.map((option) => (
           <option key={option.value} value={option.value}>
@@ -173,7 +174,13 @@ interface TextAreaFieldProps {
   error?: string;
 }
 
-export function TextAreaField({ name, value, onChange, config, error }: TextAreaFieldProps) {
+export function TextAreaField({
+  name,
+  value,
+  onChange,
+  config,
+  error,
+}: TextAreaFieldProps) {
   return (
     <FieldGroup>
       <Label htmlFor={name}>{config.label}</Label>

@@ -2,10 +2,7 @@
 import { z } from "zod";
 
 import { ctaSchema } from "../shared/ctaSchema";
-import {
-  sectionMetaSchema,
-  sectionMessagesSchema,
-} from "../shared/sectionSchema";
+import { sectionMetaSchema, sectionMessagesSchema } from "../shared/sectionSchema";
 import { baseSectionSchema } from "../shared/baseSectionSchema";
 
 /* Form field + section */

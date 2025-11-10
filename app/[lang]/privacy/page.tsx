@@ -6,6 +6,6 @@ export default async function PrivacyPage({
   params: Promise<{ lang: Locale }>;
 }) {
   const { lang } = await params;
-  const dictionary = await getDictionary(lang);
-  return <LegalDocumentPage {...dictionary.privacy} />;
+  const dictionary = await getDictionary(lang, "privacy", "legal");
+  return <LegalDocumentPage {...dictionary} />;
 }

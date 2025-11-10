@@ -1,13 +1,9 @@
 import { getDictionary } from "@/lib/getDictionary";
-import Hero from "@/components/section/Hero";
 
-export default async function Page({
-  params,
-}: {
-  params: Promise<{ lang: Locale }>;
-}) {
+export default async function Page({ params }: { params: Promise<{ lang: Locale }> }) {
   const { lang } = await params;
   const dictionary = await getDictionary(lang, "landing");
-
-  return <Hero {...dictionary.hero} />;
+  console.log(dictionary);
+  return null;
+  // return <Hero {...dictionary.hero} />;
 }

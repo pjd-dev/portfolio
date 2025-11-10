@@ -1,11 +1,14 @@
+// import LanguageToggle from "@/components/composites/LanguageToggle";
+import type { HeaderLayout } from "@/lib/validation/layoutDictionarySchema";
 import dynamic from "next/dynamic";
-import { HeaderRoot, HeaderLogo, HeaderHomeLink } from "../ui";
-import LanguageToggle from "@/components/LanguageToggle";
-
-const ThemeToggle = dynamic(() => import("@/components/ThemeToggle"), {
+import { HeaderHomeLink, HeaderLogo, HeaderRoot } from "../ui";
+const ThemeToggle = dynamic(() => import("@/components/composites/ThemeToggle"), {
   ssr: false,
 });
-type SiteHeaderProps = {
+const LanguageToggle = dynamic(() => import("@/components/composites/LanguageToggle"), {
+  ssr: false,
+});
+type SiteHeaderProps = HeaderLayout & {
   lang: Locale;
 };
 

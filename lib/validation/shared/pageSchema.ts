@@ -17,7 +17,13 @@ export const pageMessagesSchema = z
     loading: z.string().optional(),
   })
   .default({});
-
+export const pageSeoSchema = z
+  .object({
+    description: z.string().optional(),
+    keywords: z.array(z.string()).optional(),
+    image: z.string().optional(),
+  })
+  .default({});
 // TypeScript type inference
 export type PageMeta = z.infer<typeof pageMetaSchema>;
 export type PageMessage = z.infer<typeof pageMessagesSchema>;

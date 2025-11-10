@@ -1,10 +1,10 @@
 // app/(components)/ThemeToggle.tsx
 "use client";
 
+import { Switch, SwitchPart } from "@/components/ui/Switch.styles";
 import { useThemeToggle } from "@/hooks/theme";
 import { type Locale } from "@/lib/i18n";
-import { Switch, SwitchPart } from "./ui/Switch.styles";
-import { Sun, Moon } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
 type Props = { locale: Locale };
 
 export default function ThemeToggle({ locale }: Props) {

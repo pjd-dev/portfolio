@@ -4,33 +4,34 @@ import {
   heroSectionSchema,
   formSectionSchema,
   textSectionSchema,
+  legalSectionSchema,
 } from "@/lib/validation/section";
-import {
-  pageMetaSchema,
-  pageMessagesSchema,
-  ctaSchema,
-} from "@/lib/validation/shared";
+import { pageMetaSchema, pageMessagesSchema } from "@/lib/validation/shared";
+import { pageSeoSchema } from "@/lib/validation/shared/seoSchema";
+
 export const sectionSchema = z.union([
   heroSectionSchema,
   formSectionSchema,
   textSectionSchema,
 ]);
 
-export const pageDictionarySchema = z.object({
+export const basePageDictionarySchema = z.object({
   title: z.string(),
   subtitle: z.string().optional(),
   meta: pageMetaSchema,
   messages: pageMessagesSchema.optional(),
-  seo: z
-    .object({
-      description: z.string().optional(),
-      keywords: z.array(z.string()).optional(),
-      image: z.string().optional(),
-    })
-    .optional(),
-  ctas: z.array(ctaSchema).default([]),
+  seo: pageSeoSchema.optional(),
+});
+
+export const pageDictionarySchema = basePageDictionarySchema.extend({
   sections: z.array(sectionSchema).default([]),
 });
 
+export const pageLegalDictionarySchema = basePageDictionarySchema.extend({
+  content: legalSectionSchema,
+});
+
 // TypeScript type inference
-export type PageDictionary = z.infer<typeof pageDictionarySchema>;
+export type PageDictionary = z.infer<
+  typeof pageDictionarySchema | typeof pageLegalDictionarySchema
+>;
