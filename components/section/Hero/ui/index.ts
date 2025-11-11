@@ -1,3 +1,4 @@
+"use client";
 export * from "./CtaButton.styles";
 export * from "./CtaCell.styles";
 export * from "./CtaGroup.styles";

@@ -1,5 +1,9 @@
-import { SiteFooter, SiteHead, SiteHeader, SiteMain } from "@/components/layout";
-import { spaceGrotesk } from "@/components/ui/fonts";
+import { SiteFooter, SiteHead, SiteHeader } from "@/components/layout";
+import {
+  cako,
+  // condeSans,
+  spaceGrotesk,
+} from "@/components/ui";
 import { getLayoutDictionary } from "@/lib/getDictionary";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Viewport } from "next";
@@ -32,14 +36,18 @@ export default async function RootLayout({ children, params }: RootLayoutProps) 
   const { footer } = await getLayoutDictionary(lang, "base");
 
   return (
-    <html lang={lang} className={spaceGrotesk.className} suppressHydrationWarning>
+    <html
+      lang={lang}
+      className={`${cako.variable} ${spaceGrotesk.variable}`}
+      suppressHydrationWarning
+    >
       <head>
         <SiteHead />
       </head>
 
       <body>
         <SiteHeader lang={lang} />
-        <SiteMain>{children}</SiteMain>
+        {children}
         <SiteFooter {...footer} />
         <SpeedInsights />
       </body>

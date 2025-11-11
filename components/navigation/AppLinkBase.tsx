@@ -1,3 +1,4 @@
+"use client";
 // src/components/navigation/AppLinkBase.tsx
 import Link from "next/link";
 import { forwardRef, type AnchorHTMLAttributes, type ReactNode } from "react";

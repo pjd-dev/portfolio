@@ -1,8 +1,7 @@
+"use client";
 import type { HeroSection } from "@/lib/validation/section";
-import clsx from "clsx";
 import ParallaxImage from "../../composites/parallaxImg";
 import { AppLink } from "../../navigation/AppLink";
-import { CondeSans, WildWorld } from "../../ui/fonts";
 import {
   CtaCell,
   CtaGroup,
@@ -46,7 +45,7 @@ export function Hero({
   classNames,
 }: HeroProps) {
   return (
-    <div>
+    <>
       {plxImg && (
         <ParallaxeWrapper>
           <ParallaxImage
@@ -58,15 +57,15 @@ export function Hero({
 
       <Grid>
         <WhoCell>
-          <Who className={clsx([CondeSans.className])}>{title}</Who>
+          <Who>{title}</Who>
         </WhoCell>
 
         <WhatCell>
-          <What className={clsx([WildWorld.className])}>{headline}</What>
+          <What>{headline}</What>
           {headlineCta && (
             <div className="mt-4 ml-4 flex flex-col items-end font-medium">
               <span className="block h-0.5 w-1/2 bg-[var(--foreground)]" />
-              <AppLink cta={headlineCta} />
+              <AppLink cta={headlineCta} size={"lg"} />
               <span className="block h-0.5 w-full bg-[var(--foreground)]" />
             </div>
           )}
@@ -75,12 +74,12 @@ export function Hero({
           <CtaCell>
             <CtaGroup>
               {ctas.map((cta) => (
-                <AppLink key={cta.label} cta={cta} />
+                <AppLink key={cta.label} cta={{ ...cta, variant: "solid" }} />
               ))}
             </CtaGroup>
           </CtaCell>
         )}
       </Grid>
-    </div>
+    </>
   );
 }

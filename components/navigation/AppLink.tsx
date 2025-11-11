@@ -1,3 +1,4 @@
+"use client";
 // src/components/navigation/AppLink.tsx
 import { createCtaButton } from "@/components/ui/createCtaButton";
 import type { ActionCta, Cta } from "@/lib/validation/shared/ctaSchema";

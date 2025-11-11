@@ -8,7 +8,7 @@ export const ParallaxeWrapper = styled("div", {
   height: "100%",
   overflow: "hidden",
   zIndex: 1,
-  backgroundColor: "red",
+
   display: "flex",
   alignItems: "center",
   justifyContent: "center",

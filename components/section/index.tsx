@@ -1,6 +1,8 @@
 // components/sections/SectionRenderer.tsx
+"use client";
 import type { Sections } from "@/lib/validation/pageDictionarySchema";
 import type { ReactElement } from "react";
+import { Wrapper } from "../ui";
 import { Hero } from "./Hero";
 import { Legal } from "./Legal";
 // import others as needed
@@ -22,7 +24,7 @@ type SectionRendererProps = {
 
 export function SectionRenderer({ sections }: SectionRendererProps) {
   return (
-    <>
+    <Wrapper>
       {sections.map((section) => {
         const Component = SECTION_COMPONENTS[section.kind];
 
@@ -37,6 +39,6 @@ export function SectionRenderer({ sections }: SectionRendererProps) {
         // TS narrows by kind inside the component, which expects the specific type
         return <Component key={section.id} {...section} />;
       })}
-    </>
+    </Wrapper>
   );
 }
