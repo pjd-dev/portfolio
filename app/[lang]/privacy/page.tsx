@@ -1,11 +1,11 @@
-import { LegalSection } from "@/components/section/Legal";
-import { getDictionary } from "@/lib/getDictionary";
+import { SectionRenderer } from "@/components/section";
+import { getPageDictionary } from "@/lib/getDictionary";
 export default async function PrivacyPage({
   params,
 }: {
   params: Promise<{ lang: Locale }>;
 }) {
   const { lang } = await params;
-  const dictionary = await getDictionary(lang, "privacy", "legal");
-  return <LegalSection {...dictionary} />;
+  const dictionary = await getPageDictionary(lang, "privacy");
+  return <SectionRenderer sections={dictionary.sections} />;
 }

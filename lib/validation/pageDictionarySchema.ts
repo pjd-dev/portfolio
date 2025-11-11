@@ -13,6 +13,7 @@ export const sectionSchema = z.union([
   heroSectionSchema,
   formSectionSchema,
   textSectionSchema,
+  legalSectionSchema,
 ]);
 
 export const basePageDictionarySchema = z.object({
@@ -27,12 +28,6 @@ export const pageDictionarySchema = basePageDictionarySchema.extend({
   sections: z.array(sectionSchema).default([]),
 });
 
-export const pageLegalDictionarySchema = basePageDictionarySchema.extend({
-  content: legalSectionSchema,
-});
-
 // TypeScript type inference
-export type PageDictionary = z.infer<
-  typeof pageDictionarySchema | typeof pageLegalDictionarySchema
->;
+export type PageDictionary = z.infer<typeof pageDictionarySchema>;
 export type Sections = z.infer<typeof sectionSchema>;

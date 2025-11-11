@@ -1,10 +1,10 @@
 // components/layout/SiteMain.tsx
 "use client";
 
-import { usePathname } from "next/navigation";
-import type { ReactNode } from "react";
 import { Wrapper } from "@/components/ui/layout";
 import { SUPPORTED_LOCALES } from "@/lib/i18n";
+import { usePathname } from "next/navigation";
+import type { ReactNode } from "react";
 
 type WrapperLayoutVariant = React.ComponentProps<typeof Wrapper>["layout"];
 

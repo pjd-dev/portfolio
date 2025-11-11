@@ -35,7 +35,7 @@ export function SectionRenderer({ sections }: SectionRendererProps) {
         }
 
         // TS narrows by kind inside the component, which expects the specific type
-        return <Component key={section.id} section={section as any} />;
+        return <Component key={section.id} {...section} />;
       })}
     </>
   );

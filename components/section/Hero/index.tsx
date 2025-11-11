@@ -45,12 +45,10 @@ export function Hero({
   ctas,
   classNames,
 }: HeroProps) {
-  const { parallaxe, grid, who, what } = classNames;
-
   return (
-    <>
+    <div>
       {plxImg && (
-        <ParallaxeWrapper className={parallaxe && ""}>
+        <ParallaxeWrapper>
           <ParallaxImage
             src={plxImg.src} //"/poses/jump.webp"
             alt={plxImg?.alt || "parallaxe image alt"}
@@ -58,15 +56,13 @@ export function Hero({
         </ParallaxeWrapper>
       )}
 
-      <Grid className={grid && ""}>
-        <WhoCell className={who?.cell && ""}>
-          <Who className={clsx([CondeSans.className, who?.self && ""])}>{title}</Who>
+      <Grid>
+        <WhoCell>
+          <Who className={clsx([CondeSans.className])}>{title}</Who>
         </WhoCell>
 
-        <WhatCell className={what?.cell && ""}>
-          <What className={clsx([WildWorld.className, what?.self && ""])}>
-            {headline}
-          </What>
+        <WhatCell>
+          <What className={clsx([WildWorld.className])}>{headline}</What>
           {headlineCta && (
             <div className="mt-4 ml-4 flex flex-col items-end font-medium">
               <span className="block h-0.5 w-1/2 bg-[var(--foreground)]" />
@@ -75,15 +71,16 @@ export function Hero({
             </div>
           )}
         </WhatCell>
-
-        <CtaCell className={classNames.cta?.cell && ""}>
-          <CtaGroup className={classNames.cta?.group && ""}>
-            {ctas.map((cta) => (
-              <AppLink cta={cta} className={classNames.cta?.self} />
-            ))}
-          </CtaGroup>
-        </CtaCell>
+        {ctas && (
+          <CtaCell>
+            <CtaGroup>
+              {ctas.map((cta) => (
+                <AppLink key={cta.label} cta={cta} />
+              ))}
+            </CtaGroup>
+          </CtaCell>
+        )}
       </Grid>
-    </>
+    </div>
   );
 }
