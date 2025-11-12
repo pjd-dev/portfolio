@@ -25,6 +25,10 @@ export const SharedButton = {
       solid: {
         // base = .glassButton
         glassButton: true,
+        fontSize: "0.63rem",
+        padding: "0.5rem 1rem",
+        "@md": { fontSize: "0.8rem", padding: "0.5rem 1rem" },
+        "@lg": { fontSize: "0.9rem", padding: ".8rem 1rem" },
         // background: "rgba(var(--foreground-rgb), 0.08)",
         // borderColor: "rgba(var(--foreground-rgb), 0.18)",
         // boxShadow:

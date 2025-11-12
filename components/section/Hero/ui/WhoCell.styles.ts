@@ -1,4 +1,3 @@
-"use client";
 import { styled } from "@/stitches.config";
 
 export const WhoCell = styled("div", {
@@ -6,7 +5,7 @@ export const WhoCell = styled("div", {
   minWidth: 0,
   minHeight: 0,
   containerType: "size",
-  padding: "0.5rem 1rem",
+  padding: "0 1rem",
   "@md": {
     containerType: "inline-size",
     paddingTop: "1rem",

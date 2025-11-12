@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef } from "react";
-import Image from "next/image";
 import { z, ZodError } from "zod";
+import { ParallaxImg, ParallaxImgContainer } from "./styles";
 
 type Props = {
   src: string;
@@ -126,25 +126,16 @@ export default function ParallaxImage(props: Props) {
   }, [speed, maxShift, mouseFollowStrength]);
 
   return (
-    <div
-      style={{
-        position: "relative",
-        width: "min(80vw, 560px)",
-        aspectRatio: "3 / 4",
-        userSelect: "none",
-        pointerEvents: "none",
-      }}
-    >
-      <Image
+    <ParallaxImgContainer>
+      <ParallaxImg
         ref={ref}
         src={src}
         alt={alt}
-        className="hero-figure"
         fill
         sizes="(max-width: 800px) 80vw, 560px"
         style={{ objectFit: "contain" }}
         priority
       />
-    </div>
+    </ParallaxImgContainer>
   );
 }

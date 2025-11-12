@@ -35,17 +35,14 @@ export const { styled, css, theme, config, getCssText } = createStitches({
       },
     }),
     // ✦ Hero headline shadow
-    heroText: (mode: "light" | "dark" = "light") =>
-      mode === "light"
-        ? {
-            color: "var(--foreground)",
-            textShadow:
-              "2px 3px 4px rgba(0,0,0,0.4), 0 1px 0 rgba(0,0,0,0.8), 0 -1px 0 rgba(255,255,255,0.12)",
-          }
-        : {
-            color: "var(--foreground)",
-            textShadow: "0 2px 4px rgba(0,0,0,0.8), 0 8px 16px rgba(0,0,0,0.6)",
-          },
+    heroText: () => ({
+      color: "var(--foreground)",
+      textShadow:
+        "2px 3px 4px rgba(0,0,0,0.4), 0 1px 0 rgba(0,0,0,0.8), 0 -1px 0 rgba(255,255,255,0.12)",
+      "@media (prefers-color-scheme: dark)": {
+        textShadow: "0 2px 4px rgba(0,0,0,0.8), 0 8px 16px rgba(0,0,0,0.6)",
+      },
+    }),
     heroBevel: () => ({
       color: "var(--foreground)",
       textShadow: `
@@ -70,31 +67,18 @@ export const { styled, css, theme, config, getCssText } = createStitches({
           drop-shadow(0 18px 32px rgba(0, 0, 0, 0.8))
           drop-shadow(0 6px 12px rgba(0, 0, 0, 0.6))
         `,
+      "@media (prefers-color-scheme: light)": {
+        filter: `
+            drop-shadow(0 40px 60px rgba(0, 0, 0, 0.22))
+            drop-shadow(0 6px 4px rgba(0, 0, 0, 0.4))
+          `,
+        WebkitFilter: `
+            drop-shadow(0 40px 60px rgba(0, 0, 0, 0.22))
+            drop-shadow(0 6px 4px rgba(0, 0, 0, 0.4))
+          `,
+      },
     }),
-
     // Light mode grounded version
-    heroFigureLight: () => ({
-      filter: `
-          drop-shadow(0 40px 60px rgba(0, 0, 0, 0.22))
-          drop-shadow(0 6px 4px rgba(0, 0, 0, 0.4))
-        `,
-      WebkitFilter: `
-          drop-shadow(0 40px 60px rgba(0, 0, 0, 0.22))
-          drop-shadow(0 6px 4px rgba(0, 0, 0, 0.4))
-        `,
-    }),
-
-    // Dark mode floating aura
-    heroFigureDark: () => ({
-      filter: `
-          drop-shadow(0 18px 32px rgba(0, 0, 0, 0.8))
-          drop-shadow(0 6px 12px rgba(0, 0, 0, 0.6))
-        `,
-      WebkitFilter: `
-          drop-shadow(0 18px 32px rgba(0, 0, 0, 0.8))
-          drop-shadow(0 6px 12px rgba(0, 0, 0, 0.6))
-        `,
-    }),
   },
   media: {
     // width breakpoints

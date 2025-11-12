@@ -1,6 +1,6 @@
 "use client";
 import type { HeroSection } from "@/lib/validation/section";
-import ParallaxImage from "../../composites/parallaxImg";
+import ParallaxImage from "../../composites/ParallaxeImg";
 import { AppLink } from "../../navigation/AppLink";
 import {
   CtaCell,

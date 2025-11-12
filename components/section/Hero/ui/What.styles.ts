@@ -2,6 +2,7 @@
 import { langSelector, styled } from "@/stitches.config";
 
 export const What = styled("h2", {
+  heroBevel: true,
   fontFamily: "var(--font-WildWorld)",
   textTransform: "uppercase",
   userSelect: "none",
