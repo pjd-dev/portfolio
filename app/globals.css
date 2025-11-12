@@ -8,10 +8,10 @@
   --background: #ededed;
   --foreground: #0a0a0a;
 
-  --background-rgb: 237 237 237;
-  --foreground-rgb: 10 10 10;
+  --background-rgb: 237, 237, 237;
+  --foreground-rgb: 10, 10, 10;
 
-  --footer-height: 3rem;
+  --footer-height: 4rem;
   --transition-base: 0.3s ease;
   /* font-name variables (human-readable) */
   --font-WildWorld: var(--font-wild-world);
@@ -27,19 +27,13 @@
   color-scheme: light;
 }
 
-@media (max-width: 47.999rem) {
-  :root {
-    --footer-height: 2rem;
-  }
-}
-
 /* Dark theme override via <html data-theme="dark"> */
 html[data-theme="dark"] {
   --background: #0a0a0a;
   --foreground: #ededed;
 
-  --background-rgb: 10 10 10;
-  --foreground-rgb: 237 237 237;
+  --background-rgb: 10, 10, 10;
+  --foreground-rgb: 237, 237, 237;
 
   color-scheme: dark;
 }
@@ -65,7 +59,7 @@ html {
 body {
   margin: 0;
   padding: 0;
-  height: 100dvh;
+  /* height: 100dvh; */
 
   background: var(--background);
   color: var(--foreground);

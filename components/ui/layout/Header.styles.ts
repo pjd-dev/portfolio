@@ -1,6 +1,6 @@
-import { styled } from "@/stitches.config";
+import { AppLinkBase } from "@/components/navigation/AppLinkBase";
 import Logo from "@/public/logotype/DB_Master.svg";
-import Link from "next/link";
+import { styled } from "@/stitches.config";
 export const HeaderRoot = styled("header", {
   position: "absolute",
   display: "flex",
@@ -33,7 +33,8 @@ export const HeaderLogo = styled(Logo, {
   },
 });
 
-export const HeaderHomeLink = styled(Link, {
+export const HeaderHomeLink = styled(AppLinkBase, {
+  glassButton: true,
   borderRadius: "9999px",
   paddingInline: "0.6rem",
   paddingBlock: "0.2rem",

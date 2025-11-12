@@ -1,8 +1,7 @@
 // import LanguageToggle from "@/components/composites/LanguageToggle";
 import type { HeaderLayout } from "@/lib/validation/layoutDictionarySchema";
 import dynamic from "next/dynamic";
-import { AppLinkBase } from "../navigation/AppLinkBase";
-import { HeaderLogo, HeaderRoot } from "../ui";
+import { HeaderHomeLink, HeaderLogo, HeaderRoot } from "../ui";
 const ThemeToggle = dynamic(() => import("@/components/composites/ThemeToggle"), {
   ssr: false,
 });
@@ -20,9 +19,9 @@ export function SiteHeader({
 }: SiteHeaderProps) {
   return (
     <HeaderRoot aria-hidden="false" role="banner">
-      <AppLinkBase href={`/${lang}`} external={false} prefetch>
+      <HeaderHomeLink href={`/${lang}`} external={false} prefetch>
         <HeaderLogo />
-      </AppLinkBase>
+      </HeaderHomeLink>
       {i18nSwitch && <LanguageToggle locale={lang} />}
       {themeSwitch && <ThemeToggle locale={lang} />}
     </HeaderRoot>

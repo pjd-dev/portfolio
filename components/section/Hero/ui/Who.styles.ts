@@ -2,7 +2,7 @@
 import { styled } from "@/stitches.config";
 
 export const Who = styled("h1", {
-  fontFamily: "CondeSans, sans-serif",
+  fontFamily: "var(--font-CondeSans)",
   textTransform: "uppercase",
   userSelect: "none",
   fontSize: "clamp(64px, calc(45cqh - 1rem), 128px)",

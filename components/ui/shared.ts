@@ -1,3 +1,4 @@
+import { langSelector } from "@/stitches.config";
 export const SharedButton = {
   display: "inline-flex",
   alignItems: "center",
@@ -23,31 +24,32 @@ export const SharedButton = {
       // GLASS BUTTON
       solid: {
         // base = .glassButton
-        background: "rgba(var(--foreground-rgb), 0.08)",
-        borderColor: "rgba(var(--foreground-rgb), 0.18)",
-        boxShadow:
-          "0 1px 2px rgba(var(--background-rgb), 0.25), 0 0 0 1px rgba(var(--foreground-rgb), 0.05) inset",
-        backdropFilter: "blur(8px)",
-        WebkitBackdropFilter: "blur(8px)",
+        glassButton: true,
+        // background: "rgba(var(--foreground-rgb), 0.08)",
+        // borderColor: "rgba(var(--foreground-rgb), 0.18)",
+        // boxShadow:
+        //   "0 1px 2px rgba(var(--background-rgb), 0.25), 0 0 0 1px rgba(var(--foreground-rgb), 0.05) inset",
+        // backdropFilter: "blur(8px)",
+        // WebkitBackdropFilter: "blur(8px)",
 
-        "&:hover": {
-          background: "rgba(var(--foreground-rgb), 0.16)",
-          borderColor: "rgba(var(--foreground-rgb), 0.25)",
-          transform: "translateY(-1px)",
-          boxShadow:
-            "0 3px 6px rgba(var(--background-rgb), 0.35), 0 0 0 1px rgba(var(--foreground-rgb), 0.08) inset",
-        },
+        // "&:hover": {
+        //   background: "rgba(var(--foreground-rgb), 0.16)",
+        //   borderColor: "rgba(var(--foreground-rgb), 0.25)",
+        //   transform: "translateY(-1px)",
+        //   boxShadow:
+        //     "0 3px 6px rgba(var(--background-rgb), 0.35), 0 0 0 1px rgba(var(--foreground-rgb), 0.08) inset",
+        // },
 
-        "&:active": {
-          transform: "translateY(0)",
-          background: "rgba(var(--foreground-rgb), 0.24)",
-          borderColor: "rgba(var(--foreground-rgb), 0.3)",
-        },
+        // "&:active": {
+        //   transform: "translateY(0)",
+        //   background: "rgba(var(--foreground-rgb), 0.24)",
+        //   borderColor: "rgba(var(--foreground-rgb), 0.3)",
+        // },
 
-        "&:focus-visible": {
-          outline: "2px solid rgba(var(--foreground-rgb), 0.4)",
-          outlineOffset: "2px",
-        },
+        // "&:focus-visible": {
+        //   outline: "2px solid rgba(var(--foreground-rgb), 0.4)",
+        //   outlineOffset: "2px",
+        // },
       },
 
       outline: {
@@ -85,6 +87,65 @@ export const SharedButton = {
         "&:focus-visible": {
           outline: "2px solid $accent",
           outlineOffset: "2px",
+        },
+      },
+
+      superlink: {
+        display: "inline-block",
+        position: "relative",
+        fontSize: "0.7rem",
+        fontWeight: 800,
+        textAlign: "center",
+        backgroundColor: "transparent",
+        borderColor: "transparent",
+        fontFamily: "var(--font-WildWorld)",
+        [langSelector.fr]: {
+          fontFamily: "var(--font-Cako)",
+          fontWeight: 600,
+          fontSize: "0.75rem",
+
+          "@md": { fontSize: "0.8rem", padding: "0.5rem 1rem" },
+          "@lg": { fontSize: "0.9rem", padding: ".8rem 1rem" },
+        },
+        textTransform: "uppercase",
+        textDecoration: "none",
+        letterSpacing: "0",
+        opacity: 0.8,
+        "@md": { fontSize: "0.8rem", padding: "0.5rem 1rem" },
+        "@lg": { fontSize: "0.9rem", padding: ".8rem 1rem" },
+        "&:hover": {
+          opacity: 1,
+          letterSpacing: "0.1rem",
+          transform: "scale(1.05)",
+          "&::before": { width: "100%" },
+        },
+        "&:focus-visible": {
+          outline: "2px solid $accent",
+          outlineOffset: "2px",
+        },
+        "&::before": {
+          content: "",
+          display: "block",
+          height: "0.5rem",
+          width: "80%",
+          backgroundColor: " rgba(var(--foreground-rgb), 1)",
+          position: "absolute",
+          top: "0",
+          left: "0",
+          zIndex: -1,
+          transform: "skew(-10deg)",
+        },
+        "&::after": {
+          content: "",
+          display: "block",
+          height: "0.5rem",
+          width: "100%",
+          backgroundColor: " rgba(var(--foreground-rgb), 1)",
+          position: "absolute",
+          bottom: "0",
+          left: "0",
+          zIndex: -1,
+          transform: "skew(-10deg)",
         },
       },
     },

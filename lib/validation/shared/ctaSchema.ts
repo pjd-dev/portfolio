@@ -5,7 +5,7 @@ const baseCta = z.object({
   id: z.string().optional(),
   label: z.string(),
   icon: z.string().optional(),
-  variant: z.enum(["link", "outline", "solid", "ghost"]).optional(),
+  variant: z.enum(["link", "outline", "solid", "ghost", "superlink"]).optional(),
 });
 
 const internalCtaSchema = baseCta.extend({

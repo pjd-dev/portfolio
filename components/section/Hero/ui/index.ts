@@ -3,6 +3,7 @@ export * from "./CtaButton.styles";
 export * from "./CtaCell.styles";
 export * from "./CtaGroup.styles";
 export * from "./Grid.styles";
+export * from "./HeroShell.styles";
 export * from "./ParallaxeWrapper.styles";
 export * from "./What.styles";
 export * from "./WhatCell.styles";

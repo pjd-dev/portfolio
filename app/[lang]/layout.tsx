@@ -1,9 +1,5 @@
 import { SiteFooter, SiteHead, SiteHeader } from "@/components/layout";
-import {
-  cako,
-  // condeSans,
-  spaceGrotesk,
-} from "@/components/ui";
+import { cako, condeSans, spaceGrotesk, wildWorld } from "@/components/ui/font";
 import { getLayoutDictionary } from "@/lib/getDictionary";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Viewport } from "next";
@@ -38,7 +34,7 @@ export default async function RootLayout({ children, params }: RootLayoutProps) 
   return (
     <html
       lang={lang}
-      className={`${cako.variable} ${spaceGrotesk.variable}`}
+      className={`${cako.variable} ${spaceGrotesk.variable} ${condeSans.variable} ${wildWorld.variable}`}
       suppressHydrationWarning
     >
       <head>

@@ -4,8 +4,8 @@ import { styled } from "@/stitches.config";
 export const Grid = styled("div", {
   position: "relative",
   minHeight: "100%",
+  height: "100%",
   width: "100%",
-  zIndex: 10,
   display: "grid",
   minWidth: 0,
   gridAutoRows: "auto",

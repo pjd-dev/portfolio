@@ -6,6 +6,7 @@ import {
   CtaCell,
   CtaGroup,
   Grid,
+  HeroShell,
   ParallaxeWrapper,
   What,
   WhatCell,
@@ -45,7 +46,7 @@ export function Hero({
   classNames,
 }: HeroProps) {
   return (
-    <>
+    <HeroShell>
       {plxImg && (
         <ParallaxeWrapper>
           <ParallaxImage
@@ -64,9 +65,8 @@ export function Hero({
           <What>{headline}</What>
           {headlineCta && (
             <div className="mt-4 ml-4 flex flex-col items-end font-medium">
-              <span className="block h-0.5 w-1/2 bg-[var(--foreground)]" />
-              <AppLink cta={headlineCta} size={"lg"} />
-              <span className="block h-0.5 w-full bg-[var(--foreground)]" />
+              {/* <span className="block h-0.5 w-1/2 bg-[var(--foreground)]" /> */}
+              <AppLink cta={{ ...headlineCta, variant: "superlink" }} size={"lg"} />
             </div>
           )}
         </WhatCell>
@@ -80,6 +80,6 @@ export function Hero({
           </CtaCell>
         )}
       </Grid>
-    </>
+    </HeroShell>
   );
 }
