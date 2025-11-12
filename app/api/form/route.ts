@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { contactSchema } from "@/lib/schemas/contact";
+
 import { sendContactEmail } from "@/lib/mail";
 import { ZodError } from "zod";
 
@@ -9,10 +9,10 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     // Validate with Zod
-    const validatedData = contactSchema.parse(body);
+    // const validatedData = contactSchema.parse(body);
 
     // Send email
-    const result = await sendContactEmail(validatedData);
+    const result = await sendContactEmail(body);
 
     if (!result.success) {
       return NextResponse.json(

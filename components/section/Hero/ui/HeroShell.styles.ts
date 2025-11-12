@@ -3,7 +3,9 @@ import { styled } from "@/stitches.config";
 
 export const HeroShell = styled("div", {
   position: "relative",
-  width: "100%",
+  // width: "100%",
+  display: "block",
+  minHeight: "calc( 100dvh - var(--footer-height))",
   height: "calc( 100dvh - var(--footer-height))",
   paddingLeft: "2rem",
   paddingRight: "2rem",
@@ -15,6 +17,6 @@ export const HeroShell = styled("div", {
     paddingLeft: "3.5rem",
     paddingRight: "3.5rem",
   },
-  display: "flex",
+  // display: "flex",
   overflow: "hidden",
 });

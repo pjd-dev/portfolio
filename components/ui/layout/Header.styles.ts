@@ -1,5 +1,5 @@
+import Logo from "@/components/layout/Logo";
 import { AppLinkBase } from "@/components/navigation/AppLinkBase";
-import Logo from "@/public/logotype/DB_Master.svg";
 import { styled } from "@/stitches.config";
 export const HeaderRoot = styled("header", {
   position: "absolute",

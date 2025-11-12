@@ -10,21 +10,24 @@ import {
   LegalScroll,
   LegalShell,
   LegalTitle,
+  LegalWrapper,
 } from "./ui";
 
 export function Legal({ title, lastUpdated, content, note }: LegalSection) {
   return (
-    <LegalShell>
-      <LegalBlur position="top" />
-      <LegalBlur position="bottom" />
-      <LegalScroll>
-        <LegalHeader>
-          <LegalTitle>{title}</LegalTitle>
-          <LegalMeta>Dernière mise à jour : {lastUpdated}</LegalMeta>
-        </LegalHeader>
-        {content && <Markdown content={content} />}
-        {note && <LegalFooter>{note}</LegalFooter>}
-      </LegalScroll>
-    </LegalShell>
+    <LegalWrapper>
+      <LegalShell>
+        <LegalBlur position="top" />
+        <LegalBlur position="bottom" />
+        <LegalScroll>
+          <LegalHeader>
+            <LegalTitle>{title}</LegalTitle>
+            <LegalMeta>Dernière mise à jour : {lastUpdated}</LegalMeta>
+          </LegalHeader>
+          {content && <Markdown content={content} />}
+          {note && <LegalFooter>{note}</LegalFooter>}
+        </LegalScroll>
+      </LegalShell>
+    </LegalWrapper>
   );
 }

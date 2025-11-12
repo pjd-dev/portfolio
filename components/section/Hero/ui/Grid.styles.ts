@@ -3,7 +3,8 @@ import { styled } from "@/stitches.config";
 
 export const Grid = styled("div", {
   position: "relative",
-  minHeight: "100%",
+  // backgroundColor: "Aquamarine",
+
   height: "100%",
   width: "100%",
   display: "grid",

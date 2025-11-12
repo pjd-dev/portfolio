@@ -134,6 +134,7 @@ export default function ParallaxImage(props: Props) {
         fill
         sizes="(max-width: 800px) 80vw, 560px"
         style={{ objectFit: "contain" }}
+        fetchPriority={"high"}
         priority
       />
     </ParallaxImgContainer>
