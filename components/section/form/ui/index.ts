@@ -9,3 +9,4 @@ export * from "./Select.styles";
 export * from "./Shell.styles";
 export * from "./TextArea.styles";
 export * from "./Title.styles";
+export * from "./Wrapper.styles";

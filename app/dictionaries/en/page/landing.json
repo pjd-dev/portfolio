@@ -24,9 +24,9 @@
           "alt": "Bouton See My Work"
         },
         {
-          "type": "external",
+          "type": "internal",
           "label": "Work with me",
-          "href": "https://www.linkedin.com/in/jean-darry-p/",
+          "href": "/en/contact",
           "alt": "Bouton work with me"
         },
         {

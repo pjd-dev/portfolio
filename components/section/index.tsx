@@ -5,17 +5,19 @@ import type { ReactElement } from "react";
 import { Wrapper } from "../ui";
 import { Hero } from "./Hero";
 import { Legal } from "./Legal";
+import { Form } from "./form";
+
 // import others as needed
 // import { FeatureGridSection } from "./FeatureGridSection";
 // import { CtaSection } from "./CtaSection";
-type SectionKind = "hero" | "legal";
+type SectionKind = "hero" | "legal" | "form";
 // type SectionComponentProps = { section: Sections };
 type AnySectionComponent = (props: any) => ReactElement | null;
 
 const SECTION_COMPONENTS: Record<SectionKind, AnySectionComponent> = {
   hero: Hero as AnySectionComponent,
   legal: Legal as AnySectionComponent,
-  // form: null,
+  form: Form as AnySectionComponent,
 };
 
 type SectionRendererProps = {
