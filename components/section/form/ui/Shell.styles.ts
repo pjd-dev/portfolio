@@ -5,7 +5,7 @@ export const Shell = styled("div", {
   // maxWidth: "800px",
   margin: "0 auto",
   // padding: "2rem",
-  backgroundColor: "darkgray",
+  // backgroundColor: "darkgray",
   "@media (max-width: 768px)": {
     padding: "1rem",
   },

@@ -1,18 +1,21 @@
 import { validateFieldValueFromConfig } from "@/lib/form/fieldValidation";
-import { TextAreaFormField } from "@/lib/validation/section/formDictionarySchema";
+import { NumberFormField } from "@/lib/validation/section/formDictionarySchema";
 import { useCallback, useState, type ChangeEvent } from "react";
-import { ErrorMessage, FieldGroup, Label, TextArea } from "../ui";
+import { ErrorMessage, FieldGroup, Input, Label } from "../ui";
 import type { FormFieldComponentProps } from "./shared";
 
-export type TextAreaFieldProps = FormFieldComponentProps & {
-  config: TextAreaFormField;
+export type NumberFieldProps = FormFieldComponentProps & {
+  config: NumberFormField;
 };
 
-export function TextAreaField({ value, onChange, config, onError }: TextAreaFieldProps) {
-  const { id, name, label, placeholder, width, messages, rows } = config;
+export function NumberField({ value, onChange, config, onError }: NumberFieldProps) {
+  const { id, name, label, placeholder, width, messages } = config;
   const [localError, setLocalError] = useState<string | null>(null);
   const controlName = name ?? id;
+
+  // Keep value as string in the form state, validation layer handles numeric checks
   const currentValue = value ?? "";
+
   const runValidation = useCallback(
     (raw: string) => {
       const errorMessage = validateFieldValueFromConfig(config, raw);
@@ -23,11 +26,11 @@ export function TextAreaField({ value, onChange, config, onError }: TextAreaFiel
   );
 
   const handleBlur = useCallback(() => {
-    runValidation(currentValue);
+    runValidation(String(currentValue));
   }, [runValidation, currentValue]);
 
   const handleChange = useCallback(
-    (e: ChangeEvent<HTMLTextAreaElement>) => {
+    (e: ChangeEvent<HTMLInputElement>) => {
       const next = e.target.value;
       onChange?.(next);
       runValidation(next);
@@ -45,15 +48,15 @@ export function TextAreaField({ value, onChange, config, onError }: TextAreaFiel
         <p className="text-muted-foreground text-xs">{messages.description}</p>
       )}
 
-      <TextArea
+      <Input
         id={id}
         name={controlName}
-        value={currentValue}
+        type="number"
+        value={currentValue as string}
         onChange={handleChange}
         onBlur={handleBlur}
         placeholder={placeholder ?? ""}
         hasError={hasError}
-        rows={rows ?? 4}
       />
 
       {localError ? (
@@ -66,3 +69,5 @@ export function TextAreaField({ value, onChange, config, onError }: TextAreaFiel
     </FieldGroup>
   );
 }
+
+export default NumberField;

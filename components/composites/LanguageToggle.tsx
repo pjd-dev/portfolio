@@ -24,24 +24,17 @@ export default function LanguageToggle({ locale }: Props) {
   return (
     <Switch
       type="button"
-      className={"glass"}
       disabled={isPending}
       aria-label={`fr / en – ${ariaLabel}`}
       onClick={() => {
         startTransition(() => router.replace(targetHref));
       }}
     >
-      <SwitchPart
-        active={!isEN}
-        className={!isEN ? "font-bold uppercase" : "lowercase"}
-      >
+      <SwitchPart active={!isEN} className={!isEN ? "font-bold uppercase" : "lowercase"}>
         fr
       </SwitchPart>
       <span className="split">/</span>
-      <SwitchPart
-        active={isEN}
-        className={isEN ? "font-bold uppercase" : "lowercase"}
-      >
+      <SwitchPart active={isEN} className={isEN ? "font-bold uppercase" : "lowercase"}>
         en
       </SwitchPart>
     </Switch>

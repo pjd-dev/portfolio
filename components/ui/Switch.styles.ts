@@ -16,12 +16,15 @@ export const Switch = styled("button", {
   transition: "background-color 200ms ease, color 200ms ease",
   userSelect: "none",
   glassButton: true,
+  "&:hover": {
+    cursor: "pointer",
+  },
 });
 
 export const SwitchPart = styled("span", {
   paddingLeft: 2,
   paddingRight: 2,
-
+  transition: "color 200ms ease, color 200ms ease",
   variants: {
     active: {
       true: {

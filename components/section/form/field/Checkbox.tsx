@@ -1,22 +1,21 @@
 import { validateFieldValueFromConfig } from "@/lib/form/fieldValidation";
-import {
-  EmailFormField,
-  TextFormField,
-  UrlFormField,
-} from "@/lib/validation/section/formDictionarySchema";
+import { CheckboxFormField } from "@/lib/validation/section/formDictionarySchema";
 import { useCallback, useState, type ChangeEvent } from "react";
 import { ErrorMessage, FieldGroup, Input, Label } from "../ui";
 import type { FormFieldComponentProps } from "./shared";
 
-export type TextFieldProps = FormFieldComponentProps & {
-  config: TextFormField | EmailFormField | UrlFormField;
+export type CheckboxFieldProps = FormFieldComponentProps & {
+  config: CheckboxFormField;
 };
 
-export function TextField({ value, onChange, config, onError }: TextFieldProps) {
-  const { id, type, name, label, placeholder, width, messages } = config;
+export function CheckboxField({ value, onChange, config, onError }: CheckboxFieldProps) {
+  const { id, name, label, width, messages } = config;
   const [localError, setLocalError] = useState<string | null>(null);
   const controlName = name ?? id;
-  const currentValue = value ?? "";
+
+  // We store checkbox value as a string ("true" or "") to keep the same value type as other fields.
+  const checked = value === "true" || value === "on" || value === "1" || value === true;
+
   const runValidation = useCallback(
     (raw: string) => {
       const errorMessage = validateFieldValueFromConfig(config, raw);
@@ -27,14 +26,16 @@ export function TextField({ value, onChange, config, onError }: TextFieldProps) 
   );
 
   const handleBlur = useCallback(() => {
-    runValidation(currentValue);
-  }, [runValidation, currentValue]);
+    const raw = checked ? "true" : "";
+    runValidation(raw);
+  }, [checked, runValidation]);
 
   const handleChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
-      const next = e.target.value;
-      onChange?.(next);
-      runValidation(next);
+      const nextChecked = e.target.checked;
+      const raw = nextChecked ? "true" : "";
+      onChange?.(raw);
+      runValidation(raw);
     },
     [onChange, runValidation],
   );
@@ -43,22 +44,22 @@ export function TextField({ value, onChange, config, onError }: TextFieldProps) 
 
   return (
     <FieldGroup width={width}>
-      {label && <Label htmlFor={controlName}>{label}</Label>}
-
       {messages?.description && (
         <p className="text-muted-foreground text-xs">{messages.description}</p>
       )}
 
-      <Input
-        id={id}
-        name={controlName}
-        type={type}
-        value={currentValue}
-        onChange={handleChange}
-        onBlur={handleBlur}
-        placeholder={placeholder ?? ""}
-        hasError={hasError}
-      />
+      <Label htmlFor={controlName} className="inline-flex items-center gap-2">
+        <Input
+          id={id}
+          name={controlName}
+          type="checkbox"
+          checked={checked}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          hasError={hasError}
+        />
+        {label && <span>{label}</span>}
+      </Label>
 
       {localError ? (
         <ErrorMessage>{localError}</ErrorMessage>

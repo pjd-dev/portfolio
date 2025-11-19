@@ -4,8 +4,8 @@
   "meta": { "version": 1, "locale": "en" },
   "sections": [
     {
-      "kind": "form",
       "id": "contact_form_en",
+      "kind": "form",
       "meta": {
         "api": {
           "endpoint": "/api/form",
@@ -24,33 +24,45 @@
       "fields": [
         {
           "id": "name",
+          "name": "name",
           "label": "Name",
           "type": "text",
           "placeholder": "Your name",
-          "required": true,
           "width": "1/2",
-          "messages": {
-            "required": "This field is required",
-            "minLength": "2"
-          }
+          "errors": [
+            {
+              "rule": { "type": "required" },
+              "message": "This field is required"
+            },
+            {
+              "rule": { "type": "minLength", "value": 2 },
+              "message": "Must be at least 2 characters"
+            }
+          ]
         },
         {
           "id": "email",
+          "name": "email",
           "label": "Email",
           "type": "email",
           "placeholder": "your.email@example.com",
-          "required": true,
           "width": "1/2",
-          "messages": {
-            "required": "This field is required",
-            "invalid": "Please enter a valid email address"
-          }
+          "errors": [
+            {
+              "rule": { "type": "required" },
+              "message": "This field is required"
+            },
+            {
+              "rule": { "type": "email" },
+              "message": "Please enter a valid email address"
+            }
+          ]
         },
         {
           "id": "subject",
+          "name": "subject",
           "label": "Subject",
           "type": "select",
-          "required": true,
           "width": "full",
           "options": [
             { "value": "recruitment", "label": "Job Opportunity" },
@@ -58,23 +70,36 @@
             { "value": "collab", "label": "Collaboration" },
             { "value": "other", "label": "Other" }
           ],
-          "messages": { "required": "Please select a subject" }
+          "errors": [
+            {
+              "rule": { "type": "required" },
+              "message": "Please select a subject"
+            }
+          ]
         },
         {
           "id": "company",
+          "name": "company",
           "label": "Company",
           "type": "text",
           "placeholder": "Your company name",
-          "required": false,
           "width": "1/3",
-          "showWhen": { "subject": ["freelance"] },
-          "messages": { "minLength": "2" }
+          "showWhen": {
+            "mode": "and",
+            "conditions": [{ "fieldId": "subject", "op": "in", "values": ["freelance"] }]
+          },
+          "errors": [
+            {
+              "rule": { "type": "minLength", "value": 2 },
+              "message": "Must be at least 2 characters"
+            }
+          ]
         },
         {
           "id": "budget",
+          "name": "budget",
           "label": "Budget",
           "type": "select",
-          "required": false,
           "width": "1/3",
           "options": [
             { "value": "<1k", "label": "< $1,000" },
@@ -83,48 +108,71 @@
             { "value": "5k-10k", "label": "$5,000 – $10,000" },
             { "value": "10k+", "label": "$10,000 +" }
           ],
-          "showWhen": { "subject": ["freelance"] }
+          "showWhen": {
+            "mode": "and",
+            "conditions": [{ "fieldId": "subject", "op": "in", "values": ["freelance"] }]
+          }
         },
         {
           "id": "deadline",
+          "name": "deadline",
           "label": "Deadline",
           "type": "text",
           "placeholder": "e.g., 2 weeks, 1 month",
-          "required": false,
           "width": "1/3",
-          "showWhen": { "subject": ["freelance"] }
+          "showWhen": {
+            "mode": "and",
+            "conditions": [{ "fieldId": "subject", "op": "in", "values": ["freelance"] }]
+          }
         },
         {
           "id": "projectLink",
+          "name": "projectLink",
           "label": "Project Link",
           "type": "url",
           "placeholder": "https://your-project.com",
-          "required": false,
           "width": "full",
-          "showWhen": { "subject": ["collab"] },
-          "messages": { "invalid": "Please enter a valid URL" }
+          "showWhen": {
+            "mode": "and",
+            "conditions": [{ "fieldId": "subject", "op": "in", "values": ["collab"] }]
+          },
+          "errors": [
+            {
+              "rule": { "type": "url" },
+              "message": "Please enter a valid URL"
+            }
+          ]
         },
         {
           "id": "goal",
+          "name": "goal",
           "label": "Project Goal",
           "type": "text",
           "placeholder": "Describe what you want to achieve",
-          "required": false,
           "width": "full",
-          "showWhen": { "subject": ["collab"] }
+          "showWhen": {
+            "mode": "and",
+            "conditions": [{ "fieldId": "subject", "op": "in", "values": ["collab"] }]
+          }
         },
         {
           "id": "message",
+          "name": "message",
           "label": "Message",
           "type": "textarea",
           "placeholder": "Tell me more about your project or inquiry...",
-          "required": true,
           "rows": 5,
           "width": "full",
-          "messages": {
-            "required": "This field is required",
-            "minLength": "10"
-          }
+          "errors": [
+            {
+              "rule": { "type": "required" },
+              "message": "This field is required"
+            },
+            {
+              "rule": { "type": "minLength", "value": 10 },
+              "message": "Message must be at least 10 characters"
+            }
+          ]
         }
       ],
       "privacy": "By submitting this form, you agree to your data being used to contact you.",

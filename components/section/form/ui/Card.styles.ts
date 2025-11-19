@@ -1,7 +1,7 @@
 import { styled } from "@/stitches.config";
 
 export const Card = styled("div", {
-  background: "black",
+  // background: "black",
   //todo changed color to theme background
   borderRadius: "24px",
   padding: "2px",

@@ -1,14 +1,15 @@
 import { validateFieldValueFromConfig } from "@/lib/form/fieldValidation";
-import { TextAreaFormField } from "@/lib/validation/section/formDictionarySchema";
-import { useCallback, useState, type ChangeEvent } from "react";
-import { ErrorMessage, FieldGroup, Label, TextArea } from "../ui";
+import { MarkdownFormField } from "@/lib/validation/section/formDictionarySchema";
+import { useCallback, useState } from "react";
+import { ErrorMessage, FieldGroup, Label, MarkdownEditor } from "../ui";
+
 import type { FormFieldComponentProps } from "./shared";
 
-export type TextAreaFieldProps = FormFieldComponentProps & {
-  config: TextAreaFormField;
+export type MarkdownFieldProps = FormFieldComponentProps & {
+  config: MarkdownFormField;
 };
 
-export function TextAreaField({ value, onChange, config, onError }: TextAreaFieldProps) {
+export function MarkdownField({ value, onChange, config, onError }: MarkdownFieldProps) {
   const { id, name, label, placeholder, width, messages, rows } = config;
   const [localError, setLocalError] = useState<string | null>(null);
   const controlName = name ?? id;
@@ -23,12 +24,12 @@ export function TextAreaField({ value, onChange, config, onError }: TextAreaFiel
   );
 
   const handleBlur = useCallback(() => {
-    runValidation(currentValue);
-  }, [runValidation, currentValue]);
+    runValidation(value ?? "");
+  }, [runValidation, value]);
 
   const handleChange = useCallback(
-    (e: ChangeEvent<HTMLTextAreaElement>) => {
-      const next = e.target.value;
+    (e: string) => {
+      const next = value;
       onChange?.(next);
       runValidation(next);
     },
@@ -38,14 +39,14 @@ export function TextAreaField({ value, onChange, config, onError }: TextAreaFiel
   const hasError = !!localError;
 
   return (
-    <FieldGroup width={width}>
+    <FieldGroup>
       {label && <Label htmlFor={controlName}>{label}</Label>}
 
       {messages?.description && (
         <p className="text-muted-foreground text-xs">{messages.description}</p>
       )}
 
-      <TextArea
+      <MarkdownEditor
         id={id}
         name={controlName}
         value={currentValue}
@@ -53,7 +54,8 @@ export function TextAreaField({ value, onChange, config, onError }: TextAreaFiel
         onBlur={handleBlur}
         placeholder={placeholder ?? ""}
         hasError={hasError}
-        rows={rows ?? 4}
+        width={width}
+        rows={rows ?? 10}
       />
 
       {localError ? (
@@ -66,3 +68,4 @@ export function TextAreaField({ value, onChange, config, onError }: TextAreaFiel
     </FieldGroup>
   );
 }
+export default MarkdownField;

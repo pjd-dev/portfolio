@@ -5,6 +5,7 @@ export * from "./FieldGroup.styles";
 export * from "./Inner.styles";
 export * from "./Input.styles";
 export * from "./Label.styles";
+export * from "./MarkdownEditor";
 export * from "./Select.styles";
 export * from "./Shell.styles";
 export * from "./TextArea.styles";

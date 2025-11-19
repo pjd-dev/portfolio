@@ -2,19 +2,19 @@
   // FONT
   "editor.fontFamily": "FiraCode-Retina, 'Fira Code', Menlo, Monaco, 'Courier New', monospace",
   "editor.fontLigatures": true,
-  "editor.fontSize": 14,
-  "editor.lineHeight": 21, // ~1.4–1.5x font size = easier tracking
-  "editor.letterSpacing": 0.1, // slight spacing so it doesn't feel cramped
+  "editor.fontSize": 16,
+  "editor.lineHeight": 22, // ~1.4–1.5x font size = easier tracking
+  "editor.letterSpacing": 0.08, // slight spacing so it doesn't feel cramped
 
   // FOCUS /
-  "editor.cursorBlinking": "solid", // no blinking distraction
+  // "editor.cursorBlinking": "solid", // no blinking distraction
   "editor.renderLineHighlight": "all", // anchors your eye on current line
   "editor.minimap.enabled": false, // kills useless noise
   "editor.renderWhitespace": "boundary", // shows structure, not every space
   "editor.guides.bracketPairs": "active", // only highlight the pair you’re on
   "editor.wordWrap": "on", // avoids horizontal scrolling hell
   "editor.smoothScrolling": true, // less “jumpy” scroll
-  "workbench.tree.indent": 14, // slightly tighter sidebar
+  "workbench.tree.indent": 16, // slightly tighter sidebar
   "workbench.list.smoothScrolling": true,
 
   // ---------- CORE FORMAT / LINT ----------
@@ -64,7 +64,7 @@
   "breadcrumbs.enabled": false,
   "outline.icons": false,
 
-  // "editor.cursorBlinking": "smooth",
+  "editor.cursorBlinking": "smooth",
   "editor.cursorSmoothCaretAnimation": "on",
   "editor.tabSize": 2,
   "editor.insertSpaces": true,

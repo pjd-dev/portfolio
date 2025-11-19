@@ -4,8 +4,8 @@
   "meta": { "version": 1, "locale": "fr" },
   "sections": [
     {
-      "kind": "form",
       "id": "form_contact_fr",
+      "kind": "form",
       "meta": {
         "api": {
           "endpoint": "/api/form",
@@ -24,33 +24,45 @@
       "fields": [
         {
           "id": "name",
+          "name": "name",
           "label": "Nom",
           "type": "text",
           "placeholder": "Votre nom",
-          "required": true,
           "width": "1/2",
-          "messages": {
-            "required": "Ce champ est requis",
-            "minLength": "2"
-          }
+          "errors": [
+            {
+              "rule": { "type": "required" },
+              "message": "Ce champ est requis"
+            },
+            {
+              "rule": { "type": "minLength", "value": 2 },
+              "message": "Doit contenir au moins 2 caractères"
+            }
+          ]
         },
         {
           "id": "email",
+          "name": "email",
           "label": "Email",
           "type": "email",
           "placeholder": "votre.email@exemple.com",
-          "required": true,
           "width": "1/2",
-          "messages": {
-            "required": "Ce champ est requis",
-            "invalid": "Veuillez entrer une adresse email valide"
-          }
+          "errors": [
+            {
+              "rule": { "type": "required" },
+              "message": "Ce champ est requis"
+            },
+            {
+              "rule": { "type": "email" },
+              "message": "Veuillez entrer une adresse email valide"
+            }
+          ]
         },
         {
           "id": "subject",
+          "name": "subject",
           "label": "Sujet",
           "type": "select",
-          "required": true,
           "width": "full",
           "options": [
             { "value": "recruitment", "label": "Opportunité d'emploi" },
@@ -58,23 +70,36 @@
             { "value": "collab", "label": "Collaboration" },
             { "value": "other", "label": "Autre" }
           ],
-          "messages": { "required": "Veuillez sélectionner un sujet" }
+          "errors": [
+            {
+              "rule": { "type": "required" },
+              "message": "Veuillez sélectionner un sujet"
+            }
+          ]
         },
         {
           "id": "company",
+          "name": "company",
           "label": "Entreprise",
           "type": "text",
           "placeholder": "Nom de votre entreprise",
-          "required": false,
           "width": "1/3",
-          "showWhen": { "subject": ["freelance"] },
-          "messages": { "minLength": "2" }
+          "showWhen": {
+            "mode": "and",
+            "conditions": [{ "fieldId": "subject", "op": "in", "values": ["freelance"] }]
+          },
+          "errors": [
+            {
+              "rule": { "type": "minLength", "value": 2 },
+              "message": "Doit contenir au moins 2 caractères"
+            }
+          ]
         },
         {
           "id": "budget",
+          "name": "budget",
           "label": "Budget",
           "type": "select",
-          "required": false,
           "width": "1/3",
           "options": [
             { "value": "<1k", "label": "< 1 000 €" },
@@ -83,48 +108,71 @@
             { "value": "5k-10k", "label": "5 000 – 10 000 €" },
             { "value": "10k+", "label": "10 000 € +" }
           ],
-          "showWhen": { "subject": ["freelance"] }
+          "showWhen": {
+            "mode": "and",
+            "conditions": [{ "fieldId": "subject", "op": "in", "values": ["freelance"] }]
+          }
         },
         {
           "id": "deadline",
+          "name": "deadline",
           "label": "Délai",
           "type": "text",
           "placeholder": "ex: 2 semaines, 1 mois",
-          "required": false,
           "width": "1/3",
-          "showWhen": { "subject": ["freelance"] }
+          "showWhen": {
+            "mode": "and",
+            "conditions": [{ "fieldId": "subject", "op": "in", "values": ["freelance"] }]
+          }
         },
         {
           "id": "projectLink",
+          "name": "projectLink",
           "label": "Lien du projet",
           "type": "url",
           "placeholder": "https://votre-projet.com",
-          "required": false,
           "width": "full",
-          "showWhen": { "subject": ["collab"] },
-          "messages": { "invalid": "Veuillez entrer une URL valide" }
+          "showWhen": {
+            "mode": "and",
+            "conditions": [{ "fieldId": "subject", "op": "in", "values": ["collab"] }]
+          },
+          "errors": [
+            {
+              "rule": { "type": "url" },
+              "message": "Veuillez entrer une URL valide"
+            }
+          ]
         },
         {
           "id": "goal",
+          "name": "goal",
           "label": "Objectif du projet",
           "type": "text",
           "placeholder": "Décrivez ce que vous souhaitez accomplir",
-          "required": false,
           "width": "full",
-          "showWhen": { "subject": ["collab"] }
+          "showWhen": {
+            "mode": "and",
+            "conditions": [{ "fieldId": "subject", "op": "in", "values": ["collab"] }]
+          }
         },
         {
           "id": "message",
+          "name": "message",
           "label": "Message",
           "type": "textarea",
           "placeholder": "Parlez-moi de votre projet ou de votre demande...",
-          "required": true,
           "rows": 5,
           "width": "full",
-          "messages": {
-            "required": "Ce champ est requis",
-            "minLength": "10"
-          }
+          "errors": [
+            {
+              "rule": { "type": "required" },
+              "message": "Ce champ est requis"
+            },
+            {
+              "rule": { "type": "minLength", "value": 10 },
+              "message": "Le message doit contenir au moins 10 caractères"
+            }
+          ]
         }
       ],
       "privacy": "En envoyant ce formulaire, vous acceptez que vos données soient utilisées pour vous répondre.",

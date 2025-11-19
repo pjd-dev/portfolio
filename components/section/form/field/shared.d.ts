@@ -1,6 +1,7 @@
-export interface FieldConfig {
-  label: string;
-  placeholder: string;
-  error?: string;
-  options?: Array<{ value: string; label: string }>;
-}
+import type { FormSectionField } from "@/lib/validation/section/formDictionarySchema";
+export type FormFieldComponentProps = {
+  config: FormSectionField;
+  value?: PrimitiveValue;
+  onChange?: (value: PrimitiveValue) => void;
+  onError?: (fieldId: string, errorMessage: string | null) => void;
+};
