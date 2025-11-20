@@ -6,7 +6,7 @@ import { cache } from "react";
 
 import { SiteFooter, SiteHead, SiteHeader } from "@/components/layout";
 import { cako, condeSans, spaceGrotesk, wildWorld } from "@/components/ui/font";
-import { getLayoutDictionary } from "@/lib/getDictionary";
+import { loadLayoutDictionary } from "@/lib/dictionary";
 
 import "../globals.css";
 
@@ -21,10 +21,10 @@ export async function generateStaticParams() {
   return [{ lang: "en" }, { lang: "fr" }];
 }
 
-type Locale = "en" | "fr";
-
 // cache to avoid re-fetch jitter across soft navigations
-const getDictCached = cache((lang: Locale) => getLayoutDictionary(lang, "base"));
+const getDictCached = cache((lang: Locale) =>
+  loadLayoutDictionary({ locale: lang, target: "base" }),
+);
 
 type RootLayoutProps = {
   children: ReactNode;

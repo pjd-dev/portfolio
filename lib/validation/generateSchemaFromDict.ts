@@ -1,13 +1,14 @@
 // lib/validation/generateSchemaFromDict.ts
-import { z } from "zod";
 import type {
   FormSection,
   FormSectionField,
 } from "@/lib/validation/section/formDictionarySchema";
+import { z } from "zod";
 
 /**
  * Generate a Zod schema automatically from a FormSection dictionary.
- * Reads field types, required flags, and optional field messages.
+ * Reads field types + error rules and produces a value schema keyed by
+ * `field.name` when present, otherwise `field.id`.
  */
 export function generateSchemaFromDict(dict: FormSection) {
   if (!dict?.fields || !Array.isArray(dict.fields)) {
@@ -17,7 +18,8 @@ export function generateSchemaFromDict(dict: FormSection) {
   const shape: Record<string, z.ZodTypeAny> = {};
 
   for (const field of dict.fields) {
-    shape[field.id] = buildFieldSchema(field);
+    const key = field.name ?? field.id;
+    shape[key] = buildFieldSchema(field);
   }
 
   return z.object(shape);
@@ -45,62 +47,134 @@ export type InferFormDataFromDict<D extends FormSection> = z.infer<
 
 /**
  * Build a single field schema from a FormSectionField definition.
+ * Uses `errors` rules (FieldErrorConfig) to compose constraints.
+ *
+ * - String-like fields → z.string()
+ * - Number field      → z.number()
+ * - Checkbox field    → z.boolean()
+ *
+ * If no `required` rule is present, the field is treated as optional.
  */
 function buildFieldSchema(field: FormSectionField): z.ZodTypeAny {
-  // always start from a plain ZodString
-  let stringSchema: z.ZodString | z.ZodEmail | z.ZodURL;
+  const isStringField =
+    field.type === "text" ||
+    field.type === "email" ||
+    field.type === "url" ||
+    field.type === "textarea" ||
+    field.type === "markdown" ||
+    field.type === "select";
 
-  switch (field.type) {
-    case "email":
-      stringSchema = z.email({ message: "invalid" }).trim();
-      break;
+  const isNumberField = field.type === "number";
+  const isBooleanField = field.type === "checkbox";
 
-    case "url":
-      stringSchema = z.url({ message: "invalid" }).trim();
-      break;
+  let schema: z.ZodTypeAny;
 
-    case "select":
-    case "textarea":
-    case "text":
-    default:
-      stringSchema = z.string().trim();
-      break;
+  if (isStringField) {
+    schema = z.string().trim();
+  } else if (isNumberField) {
+    schema = z.number();
+  } else if (isBooleanField) {
+    schema = z.boolean();
+  } else {
+    // fallback, should not happen given the discriminated union
+    schema = z.any();
   }
 
-  // Required: non-empty string
-  if (field.required) {
-    stringSchema = stringSchema.min(1, { message: "required" });
-  }
+  const errors = field.errors ?? [];
+  let hasRequired = false;
 
-  // Optional: infer min length from message text like "au moins 10 caractères"
-  if (field.messages?.minLength) {
-    const minValue = extractLengthFromMessage(field.messages.minLength);
-    if (minValue) {
-      stringSchema = stringSchema.min(minValue, { message: "minLength" });
+  for (const errorCfg of errors) {
+    const rule = errorCfg.rule;
+    const message = errorCfg.message;
+
+    switch (rule.type) {
+      case "required": {
+        hasRequired = true;
+        break;
+      }
+
+      case "minLength": {
+        if (isStringField) {
+          schema = (schema as z.ZodString).min(rule.value, {
+            message,
+          });
+        }
+        break;
+      }
+
+      case "maxLength": {
+        if (isStringField) {
+          schema = (schema as z.ZodString).max(rule.value, {
+            message,
+          });
+        }
+        break;
+      }
+
+      case "pattern": {
+        if (isStringField) {
+          const re = new RegExp(rule.regex, rule.flags);
+          schema = (schema as z.ZodString).regex(re, {
+            message,
+          });
+        }
+        break;
+      }
+
+      case "email": {
+        if (isStringField) {
+          schema = (schema as z.ZodString).email({
+            message,
+          });
+        }
+        break;
+      }
+
+      case "url": {
+        if (isStringField) {
+          schema = (schema as z.ZodString).url({
+            message,
+          });
+        }
+        break;
+      }
+
+      case "minValue": {
+        if (isNumberField) {
+          schema = (schema as z.ZodNumber).min(rule.value, {
+            message,
+          });
+        }
+        break;
+      }
+
+      case "maxValue": {
+        if (isNumberField) {
+          schema = (schema as z.ZodNumber).max(rule.value, {
+            message,
+          });
+        }
+        break;
+      }
+
+      case "custom": {
+        // Custom rules are not enforced here since we only have a functionName,
+        // not an actual implementation. You can attach custom refinements
+        // manually on top of the generated schema if needed.
+        break;
+      }
+
+      default:
+        // Exhaustiveness guard: in case new rule types are added in the future.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        rule as any;
+        break;
     }
   }
 
-  // Optional: max length from message text like "maximum 200 caractères"
-  if (field.messages?.maxLength) {
-    const maxValue = extractLengthFromMessage(field.messages.maxLength);
-    if (maxValue) {
-      stringSchema = stringSchema.max(maxValue, { message: "maxLength" });
-    }
+  if (!hasRequired) {
+    schema = schema.optional();
   }
 
-  // Only at the end decide if it's optional or not
-  if (field.required) {
-    return stringSchema;
-  }
-
-  return stringSchema.optional();
-}
-
-/**
- * Try to infer a numeric min length from message text.
- * Example: "au moins 10 caractères" → 10
- */
-function extractLengthFromMessage(message: string): number | null {
-  const match = message.match(/\d+/);
-  return match ? Number(match[0]) : null;
+  return schema;
 }

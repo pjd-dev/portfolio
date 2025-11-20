@@ -20,6 +20,7 @@ export const sectionMessagesSchema = z
     loading: z.string().optional(), // e.g. "Sending..."
     empty: z.string().optional(), // optional, for list or text sections
     info: z.string().optional(), // optional, for hints
+    submit: z.string().optional(), // e.g. "Submit"
   })
   .default({});
 

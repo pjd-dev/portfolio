@@ -23,7 +23,7 @@ export function FormFieldRenderer({
   onChange,
   onError,
 }: FormRendererProps) {
-  if (!shouldShowFieldByConfig(config, values)) {
+  if (!shouldShowFieldByConfig(config, values ?? {})) {
     return null;
   }
 

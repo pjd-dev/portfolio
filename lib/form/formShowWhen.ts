@@ -14,7 +14,11 @@ function isEmptyValue(v: PrimitiveValue | null | undefined): boolean {
 }
 
 function evalShowWhenCondition(cond: ShowWhenCondition, allValues: FormValues): boolean {
-  const v = allValues[cond.fieldId] ?? null;
+  if (!cond || !cond.fieldId || !cond.op) return false;
+  if (!allValues) return false;
+  console.log("evalShowWhenCondition", cond, allValues);
+  console.log("value", cond.fieldId, allValues[cond.fieldId]);
+  const v = allValues[cond?.fieldId] ?? null;
 
   switch (cond.op) {
     case "equals":
