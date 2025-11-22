@@ -179,7 +179,13 @@
           "id": "privacy",
           "name": "privacy",
           "label": "En envoyant ce formulaire, vous acceptez que vos données soient utilisées pour vous répondre.",
-          "type": "checkbox"
+          "type": "checkbox",
+          "errors": [
+            {
+              "rule": { "type": "required" },
+              "message": "Ce champ est requis"
+            }
+          ]
         }
       ]
     }

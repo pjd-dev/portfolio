@@ -1,6 +1,6 @@
 import { validateFieldValueFromConfig } from "@/lib/form/fieldValidation";
 import { SelectFormField } from "@/lib/validation/section/formDictionarySchema";
-import { useCallback, useState, type ChangeEvent } from "react";
+import { useCallback, useEffect, useState, type ChangeEvent } from "react";
 import { ErrorMessage, FieldGroup, Label, Select } from "../ui";
 import type { FormFieldComponentProps } from "./shared";
 
@@ -9,7 +9,7 @@ export type SelectFieldProps = FormFieldComponentProps & {
 };
 
 export function SelectField({ value, onChange, config, onError }: SelectFieldProps) {
-  const { id, name, label, placeholder, width, messages, options } = config;
+  const { id, name, label, placeholder, width, messages, options, defaultValue } = config;
   const [localError, setLocalError] = useState<string | null>(null);
   const controlName = name ?? id;
 
@@ -21,6 +21,17 @@ export function SelectField({ value, onChange, config, onError }: SelectFieldPro
     },
     [config, id, onError],
   );
+
+  useEffect(() => {
+    const raw = defaultValue ?? options[0];
+    if (value === undefined || value === null) {
+      onChange?.(raw);
+    }
+    // runValidation(raw);
+    return () => {
+      onChange?.(undefined);
+    };
+  }, []);
 
   const handleBlur = useCallback(() => {
     runValidation(value ?? "");

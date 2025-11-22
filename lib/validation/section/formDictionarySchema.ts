@@ -110,6 +110,7 @@ const baseFieldCommon = z.object({
   name: z.string().optional(),
   label: z.string(),
   placeholder: z.string().optional(),
+  defaultValue: z.union([z.string(), z.number(), z.boolean()]).optional(),
   width: z.enum(["full", "1/2", "1/3"]).default("full"),
   showWhen: showWhenSchema.optional(),
   errors: z.array(fieldErrorSchema).optional(),

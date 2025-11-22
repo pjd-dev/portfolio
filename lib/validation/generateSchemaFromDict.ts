@@ -81,6 +81,7 @@ function buildFieldSchema(field: FormSectionField): z.ZodTypeAny {
   }
 
   const errors = field.errors ?? [];
+  const hasShowWhen = field.showWhen !== undefined && field.showWhen !== null;
   let hasRequired = false;
 
   for (const errorCfg of errors) {
@@ -172,7 +173,7 @@ function buildFieldSchema(field: FormSectionField): z.ZodTypeAny {
     }
   }
 
-  if (!hasRequired) {
+  if (!hasRequired || hasShowWhen) {
     schema = schema.optional();
   }
 

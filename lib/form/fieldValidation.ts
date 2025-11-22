@@ -13,6 +13,9 @@ function checkRule(rule: FieldRule, rawValue: unknown): boolean {
 
   switch (rule.type) {
     case "required":
+      if (typeof rawValue === "boolean") {
+        return rawValue === true;
+      }
       return trimmed.length > 0;
 
     case "minLength":

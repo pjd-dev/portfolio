@@ -1,6 +1,6 @@
 import { validateFieldValueFromConfig } from "@/lib/form/fieldValidation";
 import { TextAreaFormField } from "@/lib/validation/section/formDictionarySchema";
-import { useCallback, useState, type ChangeEvent } from "react";
+import { useCallback, useEffect, useState, type ChangeEvent } from "react";
 import { ErrorMessage, FieldGroup, Label, TextArea } from "../ui";
 import type { FormFieldComponentProps } from "./shared";
 
@@ -9,10 +9,20 @@ export type TextAreaFieldProps = FormFieldComponentProps & {
 };
 
 export function TextAreaField({ value, onChange, config, onError }: TextAreaFieldProps) {
-  const { id, name, label, placeholder, width, messages, rows } = config;
+  const { id, name, label, placeholder, width, messages, rows, defaultValue } = config;
   const [localError, setLocalError] = useState<string | null>(null);
   const controlName = name ?? id;
   const currentValue = value ?? "";
+  useEffect(() => {
+    const raw = defaultValue ?? "";
+    if (value === undefined || value === null) {
+      onChange?.(raw);
+    }
+    // runValidation(raw);
+    return () => {
+      onChange?.(undefined);
+    };
+  }, []);
   const runValidation = useCallback(
     (raw: string) => {
       const errorMessage = validateFieldValueFromConfig(config, raw);

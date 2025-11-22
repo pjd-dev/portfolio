@@ -1,6 +1,6 @@
 import { validateFieldValueFromConfig } from "@/lib/form/fieldValidation";
 import { NumberFormField } from "@/lib/validation/section/formDictionarySchema";
-import { useCallback, useState, type ChangeEvent } from "react";
+import { useCallback, useEffect, useState, type ChangeEvent } from "react";
 import { ErrorMessage, FieldGroup, Input, Label } from "../ui";
 import type { FormFieldComponentProps } from "./shared";
 
@@ -9,12 +9,22 @@ export type NumberFieldProps = FormFieldComponentProps & {
 };
 
 export function NumberField({ value, onChange, config, onError }: NumberFieldProps) {
-  const { id, name, label, placeholder, width, messages } = config;
+  const { id, name, label, placeholder, width, messages, defaultValue } = config;
   const [localError, setLocalError] = useState<string | null>(null);
   const controlName = name ?? id;
 
   // Keep value as string in the form state, validation layer handles numeric checks
   const currentValue = value ?? "";
+  useEffect(() => {
+    const raw = defaultValue ?? "";
+    if (value === undefined || value === null) {
+      onChange?.(raw);
+    }
+    // runValidation(raw);
+    return () => {
+      onChange?.(undefined);
+    };
+  }, []);
 
   const runValidation = useCallback(
     (raw: string) => {

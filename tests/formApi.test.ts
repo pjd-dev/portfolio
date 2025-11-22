@@ -1,27 +1,60 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
 import { POST } from "@/app/api/form/route";
 import { NextRequest } from "next/server";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { ZodError } from "zod";
 
-// Mock the mail module
-vi.mock("@/lib/mail", () => ({
-  sendContactEmail: vi.fn(),
+import type { FormSection } from "@/lib/validation/section";
+// Mock the dictionary module
+vi.mock("@/lib/dictionary", () => ({
+  getSectionById: vi.fn(),
 }));
 
-const { sendContactEmail } = await import("@/lib/mail");
+// Mock the validation module
+vi.mock("@/lib/validation/generateSchemaFromDict", () => ({
+  createFormSchema: vi.fn(),
+}));
+
+const { getSectionById } = await import("@/lib/dictionary");
+const { createFormSchema } = await import("@/lib/validation/generateSchemaFromDict");
 
 describe("Form API Route", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("should return 200 for valid recruitment form data", async () => {
-    vi.mocked(sendContactEmail).mockResolvedValue({ success: true });
+  it("should return 200 for valid form data", async () => {
+    const mockFormSection = {
+      kind: "form",
+      meta: {},
+      fields: [
+        {
+          id: "name",
+          type: "text",
+          label: "Name",
+          width: "full",
+          errors: [{ rule: { type: "required" }, message: "Name is required" }],
+        },
+        {
+          id: "email",
+          type: "email",
+          label: "Email",
+          width: "full",
+          errors: [{ rule: { type: "email" }, message: "Invalid email" }],
+        },
+      ],
+    } as FormSection;
+
+    vi.mocked(getSectionById).mockResolvedValue(mockFormSection);
+    const mockSchema = {
+      parse: vi.fn().mockReturnValue({ name: "John Doe", email: "john@example.com" }),
+    };
+    vi.mocked(createFormSchema).mockReturnValue(mockSchema as any);
 
     const validData = {
-      name: "John Doe",
-      email: "john@example.com",
-      subject: "recruitment",
-      message: "I am interested in a position.",
+      sectionId: "contactForm",
+      lang: "en",
+      page: "contact",
+      values: { name: "John Doe", email: "john@example.com" },
     };
 
     const request = new NextRequest("http://localhost:3000/api/form", {
@@ -34,40 +67,94 @@ describe("Form API Route", () => {
 
     expect(response.status).toBe(200);
     expect(data.ok).toBe(true);
-    expect(sendContactEmail).toHaveBeenCalledWith(validData);
-  });
-
-  it("should return 200 for valid freelance form data", async () => {
-    vi.mocked(sendContactEmail).mockResolvedValue({ success: true });
-
-    const validData = {
-      name: "Jane Smith",
-      email: "jane@example.com",
-      subject: "freelance",
-      company: "Tech Corp",
-      budget: "$5,000",
-      deadline: "2 weeks",
-      message: "We have a project.",
-    };
-
-    const request = new NextRequest("http://localhost:3000/api/form", {
-      method: "POST",
-      body: JSON.stringify(validData),
+    expect(getSectionById).toHaveBeenCalledWith({
+      locale: "en",
+      target: "contact",
+      sectionId: "contactForm",
     });
-
-    const response = await POST(request);
-    const data = await response.json();
-
-    expect(response.status).toBe(200);
-    expect(data.ok).toBe(true);
+    expect(createFormSchema).toHaveBeenCalledWith(mockFormSection);
+    expect(mockSchema.parse).toHaveBeenCalledWith(validData.values);
   });
 
-  it("should return 400 for invalid email", async () => {
+  it("should return 400 for missing required fields in request body", async () => {
     const invalidData = {
-      name: "John Doe",
-      email: "invalid-email",
-      subject: "recruitment",
-      message: "Test message",
+      sectionId: "contactForm",
+      lang: "en",
+      // missing page and values
+    };
+
+    const request = new NextRequest("http://localhost:3000/api/form", {
+      method: "POST",
+      body: JSON.stringify(invalidData),
+    });
+
+    const response = await POST(request);
+    const data = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(data.ok).toBe(false);
+    expect(data.error).toBe("Missing required fields in request body");
+  });
+
+  it("should return 404 for form section not found", async () => {
+    vi.mocked(getSectionById).mockResolvedValue(null);
+
+    const validData = {
+      sectionId: "nonexistent",
+      lang: "en",
+      page: "contact",
+      values: { name: "John Doe" },
+    };
+
+    const request = new NextRequest("http://localhost:3000/api/form", {
+      method: "POST",
+      body: JSON.stringify(validData),
+    });
+
+    const response = await POST(request);
+    const data = await response.json();
+
+    expect(response.status).toBe(404);
+    expect(data.ok).toBe(false);
+    expect(data.error).toBe("Form section not found");
+  });
+
+  it("should return 400 for Zod validation errors", async () => {
+    const mockFormSection = {
+      kind: "form",
+      meta: {},
+      fields: [
+        {
+          id: "email",
+          type: "email",
+          label: "Email",
+          width: "full",
+          errors: [{ rule: { type: "email" }, message: "Invalid email" }],
+        },
+      ],
+    } as FormSection;
+
+    vi.mocked(getSectionById).mockResolvedValue(mockFormSection);
+    const zodError = new ZodError([
+      {
+        code: "custom",
+        // validation: "email",
+        path: ["email"],
+        message: "Invalid email",
+      },
+    ]);
+    const mockSchema = {
+      parse: vi.fn().mockImplementation(() => {
+        throw zodError;
+      }),
+    };
+    vi.mocked(createFormSchema).mockReturnValue(mockSchema as any);
+
+    const invalidData = {
+      sectionId: "contactForm",
+      lang: "en",
+      page: "contact",
+      values: { email: "invalid-email" },
     };
 
     const request = new NextRequest("http://localhost:3000/api/form", {
@@ -81,14 +168,42 @@ describe("Form API Route", () => {
     expect(response.status).toBe(400);
     expect(data.ok).toBe(false);
     expect(data.error).toBe("Validation failed");
-    expect(data.issues).toBeDefined();
-    expect(Array.isArray(data.issues)).toBe(true);
+    expect(data.issues).toEqual([
+      {
+        path: "email",
+        message: "Invalid email",
+      },
+    ]);
   });
 
-  it("should return 400 for missing required fields", async () => {
+  it("should return 500 for other errors", async () => {
+    const mockFormSection = {
+      kind: "form",
+      meta: {},
+      fields: [
+        {
+          id: "email",
+          type: "email",
+          label: "Email",
+          width: "full",
+          errors: [{ rule: { type: "email" }, message: "Invalid email" }],
+        },
+      ],
+    } as FormSection;
+
+    vi.mocked(getSectionById).mockResolvedValue(mockFormSection);
+    const mockSchema = {
+      parse: vi.fn().mockImplementation(() => {
+        throw new Error("Some other error");
+      }),
+    };
+    vi.mocked(createFormSchema).mockReturnValue(mockSchema as any);
+
     const invalidData = {
-      name: "John Doe",
-      email: "john@example.com",
+      sectionId: "contactForm",
+      lang: "en",
+      page: "contact",
+      values: { email: "invalid-email" },
     };
 
     const request = new NextRequest("http://localhost:3000/api/form", {
@@ -99,42 +214,45 @@ describe("Form API Route", () => {
     const response = await POST(request);
     const data = await response.json();
 
-    expect(response.status).toBe(400);
+    expect(response.status).toBe(500);
     expect(data.ok).toBe(false);
-    expect(data.issues).toBeDefined();
+    expect(data.error).toBe("Some other error");
   });
 
-  it("should return 400 for freelance without company", async () => {
-    const invalidData = {
-      name: "Jane Smith",
-      email: "jane@example.com",
-      subject: "freelance",
-      message: "We have a project.",
+  it("should allow missing fields with showWhen", async () => {
+    const mockFormSection = {
+      kind: "form",
+      meta: {},
+      fields: [
+        {
+          id: "name",
+          type: "text",
+          label: "Name",
+          width: "full",
+          errors: [{ rule: { type: "required" }, message: "Name is required" }],
+        },
+        {
+          id: "conditionalField",
+          type: "text",
+          label: "Conditional Field",
+          width: "full",
+          showWhen: { mode: "and", conditions: [] },
+          errors: [{ rule: { type: "required" }, message: "Required" }],
+        },
+      ],
+    } as FormSection;
+
+    vi.mocked(getSectionById).mockResolvedValue(mockFormSection);
+    const mockSchema = {
+      parse: vi.fn().mockReturnValue({ name: "John Doe", conditionalField: undefined }),
     };
-
-    const request = new NextRequest("http://localhost:3000/api/form", {
-      method: "POST",
-      body: JSON.stringify(invalidData),
-    });
-
-    const response = await POST(request);
-    const data = await response.json();
-
-    expect(response.status).toBe(400);
-    expect(data.ok).toBe(false);
-  });
-
-  it("should return 500 when email sending fails", async () => {
-    vi.mocked(sendContactEmail).mockResolvedValue({
-      success: false,
-      error: "SMTP error",
-    });
+    vi.mocked(createFormSchema).mockReturnValue(mockSchema as any);
 
     const validData = {
-      name: "John Doe",
-      email: "john@example.com",
-      subject: "recruitment",
-      message: "Test message for email failure.",
+      sectionId: "contactForm",
+      lang: "en",
+      page: "contact",
+      values: { name: "John Doe" }, // conditionalField is missing
     };
 
     const request = new NextRequest("http://localhost:3000/api/form", {
@@ -145,29 +263,8 @@ describe("Form API Route", () => {
     const response = await POST(request);
     const data = await response.json();
 
-    expect(response.status).toBe(500);
-    expect(data.ok).toBe(false);
-    expect(data.error).toBeDefined();
-  });
-
-  it("should return validation issues for multiple errors", async () => {
-    const invalidData = {
-      name: "J",
-      email: "invalid",
-      subject: "recruitment",
-      message: "Short",
-    };
-
-    const request = new NextRequest("http://localhost:3000/api/form", {
-      method: "POST",
-      body: JSON.stringify(invalidData),
-    });
-
-    const response = await POST(request);
-    const data = await response.json();
-
-    expect(response.status).toBe(400);
-    expect(data.ok).toBe(false);
-    expect(data.issues.length).toBeGreaterThan(0);
+    expect(response.status).toBe(200);
+    expect(data.ok).toBe(true);
+    expect(mockSchema.parse).toHaveBeenCalledWith(validData.values);
   });
 });

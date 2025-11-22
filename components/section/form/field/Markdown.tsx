@@ -1,6 +1,6 @@
 import { validateFieldValueFromConfig } from "@/lib/form/fieldValidation";
 import { MarkdownFormField } from "@/lib/validation/section/formDictionarySchema";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ErrorMessage, FieldGroup, Label, MarkdownEditor } from "../ui";
 
 import type { FormFieldComponentProps } from "./shared";
@@ -10,7 +10,7 @@ export type MarkdownFieldProps = FormFieldComponentProps & {
 };
 
 export function MarkdownField({ value, onChange, config, onError }: MarkdownFieldProps) {
-  const { id, name, label, placeholder, width, messages, rows } = config;
+  const { id, name, label, placeholder, width, messages, rows, defaultValue } = config;
   const [localError, setLocalError] = useState<string | null>(null);
   const controlName = name ?? id;
   const currentValue = value ?? "";
@@ -22,7 +22,16 @@ export function MarkdownField({ value, onChange, config, onError }: MarkdownFiel
     },
     [config, id, onError],
   );
-
+  useEffect(() => {
+    const raw = defaultValue ?? "";
+    if (value === undefined || value === null) {
+      onChange?.(raw);
+    }
+    // runValidation(raw);
+    return () => {
+      onChange?.(undefined);
+    };
+  }, []);
   const handleBlur = useCallback(() => {
     runValidation(value ?? "");
   }, [runValidation, value]);

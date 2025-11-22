@@ -1,3 +1,4 @@
+import { validateFieldValueFromConfig } from "@/lib/form/fieldValidation";
 import { FormValues, shouldShowFieldByConfig } from "@/lib/form/formShowWhen";
 import type { FormSection, FormSectionField } from "@/lib/validation/section";
 import { usePathname } from "next/navigation";
@@ -9,28 +10,10 @@ export function Form({ id, meta, title, description, fields, messages }: FormSec
   const segments = pathname.split("/").filter(Boolean);
   const langFromPath = segments[0] ?? "";
   const pageFromPath = segments.length > 1 ? `/${segments.slice(1).join("/")}` : "/";
+  console.log(" lang ", langFromPath);
+  console.log(" page ", pageFromPath);
 
-  const initialValues: FormValues = useMemo(() => {
-    const acc: FormValues = {};
-    for (const field of fields ?? []) {
-      const key = (field as any).name ?? field.id;
-      switch (field.type) {
-        case "checkbox":
-          acc[key] = false;
-          break;
-        case "number":
-          acc[key] = "";
-          break;
-        case "select":
-          acc[key] = field.options?.[0]?.value ?? "";
-          break;
-        default:
-          acc[key] = "";
-      }
-    }
-    return acc;
-  }, [fields]);
-  const [values, setValues] = useState<FormValues>(initialValues);
+  const [values, setValues] = useState<FormValues>({});
   const [errors, setErrors] = useState<Record<string, string | null>>({});
   const [status, setStatus] = useState<
     "idle" | "submitting" | "success" | "error" | "validation"
@@ -49,11 +32,19 @@ export function Form({ id, meta, title, description, fields, messages }: FormSec
 
   const handleFieldChange = useCallback(
     (field: FormSectionField) => (next: unknown) => {
-      const key = (field as any).name ?? field.id;
-      setValues((prev) => ({
-        ...prev,
-        [key]: next,
-      }));
+      const key = field.name ?? field.id;
+
+      setValues((prev: FormValues) => {
+        if (next === undefined) {
+          const { [key]: _removed, ...rest } = prev ?? {};
+          return rest as FormValues;
+        }
+
+        return {
+          ...prev,
+          [key]: next,
+        } as FormValues;
+      });
     },
     [],
   );
@@ -77,11 +68,15 @@ export function Form({ id, meta, title, description, fields, messages }: FormSec
 
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault();
-
+    console.log(values);
     // Use hoisted errors; consider only visible fields
     const hasError = (fields ?? []).some((field) => {
       if (!shouldShowFieldByConfig(field, values)) return false;
-      const msg = errors[field.id] ?? null;
+      const key = field.name ?? field.id;
+      const msg = validateFieldValueFromConfig(field, values[key]);
+      setErrors({
+        [key]: msg,
+      });
       return !!msg;
     });
 
@@ -138,7 +133,7 @@ export function Form({ id, meta, title, description, fields, messages }: FormSec
             {fields && (
               <form noValidate onSubmit={handleSubmit}>
                 {fields.map((field: FormSectionField) => {
-                  const key = (field as any).name ?? field.id;
+                  const key = field.name ?? field.id;
                   return (
                     <FormFieldRenderer
                       key={field.id}
