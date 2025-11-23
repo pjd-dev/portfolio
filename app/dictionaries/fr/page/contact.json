@@ -6,6 +6,8 @@
     {
       "id": "form_contact_fr",
       "kind": "form",
+      "title": "Envoyez-moi un message",
+      "description": "Vous souhaitez me recruter, lancer un projet freelance ou proposer une collaboration ? Contactez-moi directement via ce formulaire. Réponse rapide, sérieux et expertise en développement Full-Stack JavaScript / TypeScript, Next.js, React et architecture moderne.",
       "meta": {
         "api": {
           "endpoint": "/api/form",

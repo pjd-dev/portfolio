@@ -2,7 +2,7 @@ import { styled } from "@/stitches.config";
 
 export const Description = styled("p", {
   fontSize: "1.125rem",
-  color: "#666",
+  color: "var(--foreground)",
   marginBottom: "2rem",
   lineHeight: "1.6",
 

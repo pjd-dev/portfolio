@@ -2,9 +2,19 @@ import { validateFieldValueFromConfig } from "@/lib/form/fieldValidation";
 import { FormValues, shouldShowFieldByConfig } from "@/lib/form/formShowWhen";
 import type { FormSection, FormSectionField } from "@/lib/validation/section";
 import { usePathname } from "next/navigation";
-import { FormEventHandler, useCallback, useMemo, useState } from "react";
+import {
+  FormEventHandler,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { FormFieldRenderer } from "./FormFieldRenderer";
-import { Card, Description, FormWrapper, Inner, Shell, Title } from "./ui";
+import { Description, FormWrapper, Title } from "./ui";
+import { FormBody, FormCard, FormFooter, FormHeader, SubmitButton } from "./ui/form";
+import { ScrollContainer, ScrollThumb, ScrollTrack, ScrollViewport } from "./ui/scroll";
+
 export function Form({ id, meta, title, description, fields, messages }: FormSection) {
   const pathname = usePathname() ?? "";
   const segments = pathname.split("/").filter(Boolean);
@@ -18,7 +28,58 @@ export function Form({ id, meta, title, description, fields, messages }: FormSec
   const [status, setStatus] = useState<
     "idle" | "submitting" | "success" | "error" | "validation"
   >("idle");
+  const [condensed, setCondensed] = useState(false);
+  const [thumbHeight, setThumbHeight] = useState(100);
+  const [thumbOffset, setThumbOffset] = useState(0);
+  const [showScrollBar, setShowScrollBar] = useState(false);
 
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+
+  const updateScrollMetrics = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = el;
+
+    // no scrolling needed
+    if (scrollHeight <= clientHeight + 1) {
+      setThumbHeight(100);
+      setThumbOffset(0);
+      setShowScrollBar(false);
+      return;
+    }
+
+    const visibleRatio = clientHeight / scrollHeight;
+    const heightPercent = Math.max(visibleRatio * 100, 15); // min 15% thumb
+
+    const scrollable = scrollHeight - clientHeight;
+    const maxOffset = 100 - heightPercent;
+    const offsetPercent = scrollable <= 0 ? 0 : (scrollTop / scrollable) * maxOffset;
+
+    setThumbHeight(heightPercent);
+    setThumbOffset(offsetPercent);
+    setShowScrollBar(true);
+  }, []);
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    updateScrollMetrics();
+    // you can also keep condensed header logic here:
+    const el = e.currentTarget;
+    setCondensed(el.scrollTop > 8);
+  };
+
+  useEffect(() => {
+    updateScrollMetrics();
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const onResize = () => updateScrollMetrics();
+
+    window.addEventListener("resize", onResize);
+    return () => {
+      window.removeEventListener("resize", onResize);
+    };
+  }, [updateScrollMetrics]);
   const statusMessage =
     status === "validation"
       ? (messages?.validation ?? "Please fix the highlighted fields.")
@@ -124,56 +185,60 @@ export function Form({ id, meta, title, description, fields, messages }: FormSec
 
   return (
     <FormWrapper>
-      <Shell>
-        <Card>
-          <Inner>
-            {title && <Title>{title}</Title>}
-            {description && <Description>{description}</Description>}
-
-            {fields && (
-              <form noValidate onSubmit={handleSubmit}>
-                <div className="sticky top-0 h-32 bg-amber-50"></div>
-                {fields.map((field: FormSectionField) => {
-                  const key = field.name ?? field.id;
-                  return (
-                    <FormFieldRenderer
-                      key={field.id}
-                      config={field}
-                      values={values}
-                      value={values[key]}
-                      onChange={handleFieldChange(field)}
-                      onError={handleFieldError}
-                    />
-                  );
-                })}
-                <div className="position bottom-0 h-32 bg-amber-50">
-                  <button
-                    type="submit"
-                    disabled={status === "submitting" || !isFormValid}
-                  >
-                    {messages?.submit}
-                  </button>
-                </div>
-
-                {statusMessage && (
-                  <p
-                    role="status"
-                    className={`mt-2 text-xs ${
-                      status === "error"
-                        ? "text-red-500"
-                        : status === "success"
-                          ? "text-emerald-500"
-                          : "text-muted-foreground"
-                    }`}
-                  >
-                    {statusMessage}
-                  </p>
-                )}
-              </form>
-            )}
-          </Inner>
-        </Card>
-      </Shell>
+      <FormCard noValidate onSubmit={handleSubmit}>
+        <FormHeader condensed={condensed}>
+          <Title>{title}</Title>
+          <Description>{description}</Description>
+        </FormHeader>
+        <ScrollContainer>
+          <ScrollViewport ref={scrollRef} onScroll={handleScroll}>
+            <FormBody>
+              {fields.map((field: FormSectionField) => {
+                const key = field.name ?? field.id;
+                return (
+                  <FormFieldRenderer
+                    key={field.id}
+                    config={field}
+                    values={values}
+                    value={values[key]}
+                    onChange={handleFieldChange(field)}
+                    onError={handleFieldError}
+                  />
+                );
+              })}
+            </FormBody>
+          </ScrollViewport>
+          {showScrollBar && (
+            <ScrollTrack>
+              <ScrollThumb
+                style={{
+                  height: `${thumbHeight}%`,
+                  transform: `translateY(${thumbOffset}%)`,
+                }}
+              />
+            </ScrollTrack>
+          )}
+        </ScrollContainer>
+        <FormFooter>
+          {statusMessage && (
+            <p
+              role="status"
+              className={`mt-2 text-xs ${
+                status === "error"
+                  ? "text-red-500"
+                  : status === "success"
+                    ? "text-emerald-500"
+                    : "text-muted-foreground"
+              }`}
+            >
+              {statusMessage}
+            </p>
+          )}
+          <SubmitButton type="submit" disabled={status === "submitting" || !isFormValid}>
+            {messages?.submit}
+          </SubmitButton>
+        </FormFooter>
+      </FormCard>
     </FormWrapper>
   );
 }

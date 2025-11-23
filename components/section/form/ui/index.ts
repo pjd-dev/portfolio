@@ -11,3 +11,6 @@ export * from "./Shell.styles";
 export * from "./TextArea.styles";
 export * from "./Title.styles";
 export * from "./Wrapper.styles";
+// new form components
+export * from "./form";
+export * from "./scroll";

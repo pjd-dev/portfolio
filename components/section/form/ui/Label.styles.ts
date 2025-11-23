@@ -4,6 +4,5 @@ export const Label = styled("label", {
   fontSize: "0.875rem",
   fontWeight: "600",
   marginBottom: "0.5rem",
-  color: "#333",
-  // TODO: use correct theme token
+  color: "var(--foreground)",
 });

@@ -10,4 +10,5 @@ export const FormWrapper = styled("section", {
   // default: no forced height
   "--section-offset": "0px",
   minHeight: "calc( 100svh - var(--footer-height))",
+  alignItems: "center",
 });

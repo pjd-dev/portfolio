@@ -4,16 +4,17 @@ export const Select = styled("select", {
   width: "100%",
   padding: "0.75rem 1rem",
   fontSize: "1rem",
-  border: "2px solid #e0e0e0",
+  border: "2px solid rgba(var(--foreground-rgb), 0.2)",
   borderRadius: "8px",
   transition: "border-color 0.2s",
   fontFamily: "inherit",
-  backgroundColor: "white",
+  glass: true,
+  // backgroundColor: "white",
   cursor: "pointer",
 
   "&:focus": {
     outline: "none",
-    borderColor: "#000",
+    borderColor: "var(--foreground)",
     // todo Added focus style
   },
 
