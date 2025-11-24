@@ -2,12 +2,14 @@ import { styled } from "@/stitches.config";
 
 export const ScrollTrack = styled("div", {
   position: "absolute",
-  top: "0.75rem",
-  bottom: "0.75rem",
+  // center vertically: 25% gap top + bottom
+  top: "25%",
+  bottom: "25%", // equivalent to height: 50%
   right: "0.25rem",
-  width: "24px",
+  width: "16px",
   borderRadius: "999px",
-  background: "rgba(255,255,255,0.08)",
-  pointerEvents: "none",
-  zIndex: 2,
+  background: "linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.03))",
+  glass: true,
+  border: "1px solid rgba(255,255,255,0.18)",
+  overflow: "hidden",
 });

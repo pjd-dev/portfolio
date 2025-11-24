@@ -1,9 +1,9 @@
 import { styled } from "@/stitches.config";
 export const ScrollViewport = styled("div", {
   position: "relative",
+  height: "100%",
   overflowY: "auto",
-  paddingRight: "1.25rem", // room for the custom bar
-  // optional: hide native scrollbar (modern browsers)
+  padding: "0.75rem 1.5rem 0.75rem 0.75rem", // right padding = room for pill
   scrollbarWidth: "none",
   "&::-webkit-scrollbar": {
     width: 0,

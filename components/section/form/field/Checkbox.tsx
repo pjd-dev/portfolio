@@ -1,7 +1,7 @@
 import { validateFieldValueFromConfig } from "@/lib/form/fieldValidation";
 import { CheckboxFormField } from "@/lib/validation/section/formDictionarySchema";
 import { useCallback, useEffect, useState, type ChangeEvent } from "react";
-import { ErrorMessage, FieldGroup, Input, Label } from "../ui";
+import { ErrorMessage, FieldGroup, Input } from "../ui";
 import type { FormFieldComponentProps } from "./shared";
 
 export type CheckboxFieldProps = FormFieldComponentProps & {
@@ -57,7 +57,7 @@ export function CheckboxField({ value, onChange, config, onError }: CheckboxFiel
         <p className="text-muted-foreground text-xs">{messages.description}</p>
       )}
 
-      <Label htmlFor={controlName} className="inline-flex items-center gap-2">
+      <label htmlFor={controlName} className="inline-flex items-center gap-2">
         <Input
           id={id}
           name={controlName}
@@ -68,7 +68,7 @@ export function CheckboxField({ value, onChange, config, onError }: CheckboxFiel
           hasError={hasError}
         />
         {label && <span>{label}</span>}
-      </Label>
+      </label>
 
       {localError ? (
         <ErrorMessage>{localError}</ErrorMessage>

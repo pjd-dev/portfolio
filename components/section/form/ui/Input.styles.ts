@@ -14,14 +14,13 @@ export const Input = styled("input", {
   },
 
   "&::placeholder": {
-    color: "#999",
+    color: "rgba(var(--foreground-rgb), 0.2)",
   },
 
   variants: {
     hasError: {
       true: {
-        borderColor: "#ef4444",
-        // todo Added error style
+        borderColor: "var(--error)",
       },
     },
   },

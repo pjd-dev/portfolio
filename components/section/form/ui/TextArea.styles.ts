@@ -23,7 +23,7 @@ export const TextArea = styled("textarea", {
   variants: {
     hasError: {
       true: {
-        borderColor: "#ef4444",
+        borderColor: "var(--error)",
         // Added error style
       },
     },

@@ -2,12 +2,10 @@ import { styled } from "@/stitches.config";
 
 export const ScrollThumb = styled("div", {
   position: "absolute",
-  left: 0,
-  width: "30%",
+  top: 0,
+  left: "2px",
+  right: "2px",
   borderRadius: "999px",
-  background: "rgba(255,255,255,0.45)",
-  boxShadow: "0 0 8px rgba(0,0,0,0.6)",
+  background: "linear-gradient(180deg, rgba(37,37,62,1), rgba(16,16,34,1))",
   transformOrigin: "top",
-  pointerEvents: "none",
-  transition: "background 120ms ease-out",
 });

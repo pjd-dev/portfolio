@@ -2,18 +2,12 @@ import { validateFieldValueFromConfig } from "@/lib/form/fieldValidation";
 import { FormValues, shouldShowFieldByConfig } from "@/lib/form/formShowWhen";
 import type { FormSection, FormSectionField } from "@/lib/validation/section";
 import { usePathname } from "next/navigation";
-import {
-  FormEventHandler,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { FormEventHandler, useCallback, useMemo, useRef, useState } from "react";
 import { FormFieldRenderer } from "./FormFieldRenderer";
 import { Description, FormWrapper, Title } from "./ui";
 import { FormBody, FormCard, FormFooter, FormHeader, SubmitButton } from "./ui/form";
-import { ScrollContainer, ScrollThumb, ScrollTrack, ScrollViewport } from "./ui/scroll";
+import { ScrollContainer, ScrollViewport } from "./ui/scroll";
+import { FormScrollbar } from "./ui/Scrollbar";
 
 export function Form({ id, meta, title, description, fields, messages }: FormSection) {
   const pathname = usePathname() ?? "";
@@ -29,57 +23,14 @@ export function Form({ id, meta, title, description, fields, messages }: FormSec
     "idle" | "submitting" | "success" | "error" | "validation"
   >("idle");
   const [condensed, setCondensed] = useState(false);
-  const [thumbHeight, setThumbHeight] = useState(100);
-  const [thumbOffset, setThumbOffset] = useState(0);
-  const [showScrollBar, setShowScrollBar] = useState(false);
 
   const scrollRef = useRef<HTMLDivElement | null>(null);
-
-  const updateScrollMetrics = useCallback(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-
-    const { scrollTop, scrollHeight, clientHeight } = el;
-
-    // no scrolling needed
-    if (scrollHeight <= clientHeight + 1) {
-      setThumbHeight(100);
-      setThumbOffset(0);
-      setShowScrollBar(false);
-      return;
-    }
-
-    const visibleRatio = clientHeight / scrollHeight;
-    const heightPercent = Math.max(visibleRatio * 100, 15); // min 15% thumb
-
-    const scrollable = scrollHeight - clientHeight;
-    const maxOffset = 100 - heightPercent;
-    const offsetPercent = scrollable <= 0 ? 0 : (scrollTop / scrollable) * maxOffset;
-
-    setThumbHeight(heightPercent);
-    setThumbOffset(offsetPercent);
-    setShowScrollBar(true);
-  }, []);
-
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    updateScrollMetrics();
-    // you can also keep condensed header logic here:
     const el = e.currentTarget;
     setCondensed(el.scrollTop > 8);
+    // scrollbar hook listens via scrollRef + resize; no extra call needed
   };
 
-  useEffect(() => {
-    updateScrollMetrics();
-    const el = scrollRef.current;
-    if (!el) return;
-
-    const onResize = () => updateScrollMetrics();
-
-    window.addEventListener("resize", onResize);
-    return () => {
-      window.removeEventListener("resize", onResize);
-    };
-  }, [updateScrollMetrics]);
   const statusMessage =
     status === "validation"
       ? (messages?.validation ?? "Please fix the highlighted fields.")
@@ -208,16 +159,7 @@ export function Form({ id, meta, title, description, fields, messages }: FormSec
               })}
             </FormBody>
           </ScrollViewport>
-          {showScrollBar && (
-            <ScrollTrack>
-              <ScrollThumb
-                style={{
-                  height: `${thumbHeight}%`,
-                  transform: `translateY(${thumbOffset}%)`,
-                }}
-              />
-            </ScrollTrack>
-          )}
+          <FormScrollbar scrollRef={scrollRef} />
         </ScrollContainer>
         <FormFooter>
           {statusMessage && (
