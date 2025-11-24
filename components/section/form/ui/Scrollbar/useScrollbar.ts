@@ -1,7 +1,7 @@
 // useScrollbar.ts
 import { RefObject, useCallback, useEffect, useState } from "react";
 
-export function useFormScrollbar(ref: RefObject<HTMLDivElement>) {
+export function useFormScrollbar(ref: RefObject<HTMLDivElement | null>) {
   const [visible, setVisible] = useState(false);
   const [sizePct, setSizePct] = useState(1);
   const [offsetPct, setOffsetPct] = useState(0);

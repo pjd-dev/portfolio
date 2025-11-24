@@ -5,7 +5,7 @@ import { ScrollbarRoot, ScrollThumb, ScrollTrack } from "../scroll";
 import { useFormScrollbar } from "./useScrollbar";
 
 type Props = {
-  scrollRef: RefObject<HTMLDivElement>;
+  scrollRef: RefObject<HTMLDivElement | null>;
 };
 
 export function FormScrollbar({ scrollRef }: Props) {
