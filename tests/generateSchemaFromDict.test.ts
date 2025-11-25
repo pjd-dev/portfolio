@@ -13,7 +13,7 @@ describe("generateSchemaFromDict", () => {
   });
 
   it("should throw error for invalid FormSection with non-array fields", () => {
-    const invalidDict = { fields: "not an array" } as any;
+    const invalidDict = { fields: "not an array" } as unknown as FormSection;
     expect(() => generateSchemaFromDict(invalidDict)).toThrow(
       "Invalid FormSection: missing fields array",
     );

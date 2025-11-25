@@ -24,7 +24,7 @@ export function CheckboxField({ value, onChange, config, onError }: CheckboxFiel
     return () => {
       onChange?.(undefined);
     };
-  }, []);
+  }, [defaultValue, value, onChange]);
   const runValidation = useCallback(
     (raw: boolean) => {
       const errorMessage = validateFieldValueFromConfig(config, raw);

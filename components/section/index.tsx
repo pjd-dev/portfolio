@@ -12,7 +12,7 @@ import { Form } from "./form";
 // import { CtaSection } from "./CtaSection";
 type SectionKind = "hero" | "legal" | "form";
 // type SectionComponentProps = { section: Sections };
-type AnySectionComponent = (props: any) => ReactElement | null;
+type AnySectionComponent = (props: Sections) => ReactElement | null;
 
 const SECTION_COMPONENTS: Record<SectionKind, AnySectionComponent> = {
   hero: Hero as AnySectionComponent,

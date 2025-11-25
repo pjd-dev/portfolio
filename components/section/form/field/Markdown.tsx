@@ -31,19 +31,16 @@ export function MarkdownField({ value, onChange, config, onError }: MarkdownFiel
     return () => {
       onChange?.(undefined);
     };
-  }, []);
+  }, [defaultValue, value, onChange]);
   const handleBlur = useCallback(() => {
     runValidation(value ?? "");
   }, [runValidation, value]);
 
-  const handleChange = useCallback(
-    (e: string) => {
-      const next = value;
-      onChange?.(next);
-      runValidation(next);
-    },
-    [onChange, runValidation],
-  );
+  const handleChange = useCallback(() => {
+    const next = value;
+    onChange?.(next);
+    runValidation(next);
+  }, [value, onChange, runValidation]);
 
   const hasError = !!localError;
 

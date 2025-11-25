@@ -73,7 +73,7 @@ export function FormRenderer({ config }: FormRendererProps) {
             {statusMessage}
           </FormFooter.Status>
         </FormFooter.Top>
-        {/* <FormFooter.Base>
+        <FormFooter.Base>
           <FormFooter.BaseHint>
             Tous les champs marqués d’un * sont obligatoires.
           </FormFooter.BaseHint>
@@ -84,7 +84,7 @@ export function FormRenderer({ config }: FormRendererProps) {
           >
             Envoyer le message
           </FormFooter.Submit>
-        </FormFooter.Base> */}
+        </FormFooter.Base>
       </FormFooter.Root>
     </FormCard>
   );

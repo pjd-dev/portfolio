@@ -24,7 +24,7 @@ export function NumberField({ value, onChange, config, onError }: NumberFieldPro
     return () => {
       onChange?.(undefined);
     };
-  }, []);
+  }, [defaultValue, value, onChange]);
 
   const runValidation = useCallback(
     (raw: string) => {

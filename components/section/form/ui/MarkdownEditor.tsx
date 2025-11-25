@@ -19,7 +19,6 @@ export function MarkdownEditor({
   value,
   placeholder,
   rows,
-  width,
   hasError,
   onChange,
   onBlur,
@@ -63,7 +62,7 @@ export function MarkdownEditor({
 
     // Apply to whole line of the current selection
     const before = current.slice(0, start);
-    const after = current.slice(end);
+    // const after = current.slice(end);
 
     // find start of the current line
     const lineStart = before.lastIndexOf("\n") + 1;
@@ -154,6 +153,7 @@ export function MarkdownEditor({
             placeholder={placeholder}
             hasError={hasError}
             rows={rows ?? 10}
+            onKeyDown={handleKeyDown}
           />
         </div>
         <div className="border-border bg-muted/40 flex-1 rounded-md border p-2 text-xs md:text-sm">

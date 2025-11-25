@@ -16,7 +16,9 @@ type UseFormReturn = {
   values: FormValues;
   errors: Record<string, string | null>;
   status: FormState;
-  handleFieldChange: (field: FormSectionField) => (next: unknown) => void;
+  handleFieldChange: (
+    field: FormSectionField,
+  ) => (next: FormValues[keyof FormValues] | undefined) => void;
   handleSubmit: FormEventHandler<HTMLFormElement>;
   isFormValid: boolean;
   handleFieldError: (fieldId: string, message: string | null) => void;
@@ -27,20 +29,23 @@ export function useForm({ fields, id, meta }: UseFormProps): UseFormReturn {
   const [errors, setErrors] = useState<Record<string, string | null>>({});
   const [status, setStatus] = useState<FormState>("idle");
 
-  const handleFieldChange = useCallback(
-    (field: FormSectionField) => (next: unknown) => {
-      const key = field.name ?? field.id;
+  // assuming something like: type FormValues = Record<string, unknown>;
 
-      setValues((prev: FormValues) => {
+  const handleFieldChange = useCallback(
+    (field: FormSectionField) => (next: FormValues[keyof FormValues] | undefined) => {
+      const key = (field.name ?? field.id) as keyof FormValues;
+
+      setValues((prev) => {
+        const current: FormValues = { ...(prev ?? {}) };
+
         if (next === undefined) {
-          const { [key]: _removed, ...rest } = prev ?? {};
-          return rest as FormValues;
+          // remove the key when next is undefined
+          delete current[key];
+          return current;
         }
 
-        return {
-          ...prev,
-          [key]: next,
-        } as FormValues;
+        current[key] = next;
+        return current;
       });
     },
     [],

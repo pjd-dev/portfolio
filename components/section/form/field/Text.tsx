@@ -27,7 +27,7 @@ export function TextField({ value, onChange, config, onError }: TextFieldProps) 
     return () => {
       onChange?.(undefined);
     };
-  }, []);
+  }, [defaultValue, value, onChange]);
   const runValidation = useCallback(
     (raw: string) => {
       const errorMessage = validateFieldValueFromConfig(config, raw);

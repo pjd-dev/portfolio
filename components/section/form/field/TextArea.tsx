@@ -22,7 +22,7 @@ export function TextAreaField({ value, onChange, config, onError }: TextAreaFiel
     return () => {
       onChange?.(undefined);
     };
-  }, []);
+  }, [defaultValue, value, onChange]);
   const runValidation = useCallback(
     (raw: string) => {
       const errorMessage = validateFieldValueFromConfig(config, raw);

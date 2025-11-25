@@ -48,7 +48,9 @@ describe("Form API Route", () => {
     const mockSchema = {
       parse: vi.fn().mockReturnValue({ name: "John Doe", email: "john@example.com" }),
     };
-    vi.mocked(createFormSchema).mockReturnValue(mockSchema as any);
+    vi.mocked(createFormSchema).mockReturnValue(
+      mockSchema as unknown as ReturnType<typeof createFormSchema>,
+    );
 
     const validData = {
       sectionId: "contactForm",
@@ -148,7 +150,9 @@ describe("Form API Route", () => {
         throw zodError;
       }),
     };
-    vi.mocked(createFormSchema).mockReturnValue(mockSchema as any);
+    vi.mocked(createFormSchema).mockReturnValue(
+      mockSchema as unknown as ReturnType<typeof createFormSchema>,
+    );
 
     const invalidData = {
       sectionId: "contactForm",
@@ -197,7 +201,9 @@ describe("Form API Route", () => {
         throw new Error("Some other error");
       }),
     };
-    vi.mocked(createFormSchema).mockReturnValue(mockSchema as any);
+    vi.mocked(createFormSchema).mockReturnValue(
+      mockSchema as unknown as ReturnType<typeof createFormSchema>,
+    );
 
     const invalidData = {
       sectionId: "contactForm",
@@ -246,7 +252,10 @@ describe("Form API Route", () => {
     const mockSchema = {
       parse: vi.fn().mockReturnValue({ name: "John Doe", conditionalField: undefined }),
     };
-    vi.mocked(createFormSchema).mockReturnValue(mockSchema as any);
+
+    vi.mocked(createFormSchema).mockReturnValue(
+      mockSchema as unknown as ReturnType<typeof createFormSchema>,
+    );
 
     const validData = {
       sectionId: "contactForm",

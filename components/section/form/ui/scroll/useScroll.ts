@@ -60,7 +60,7 @@ export function useScroll(ref: RefObject<HTMLDivElement | null>) {
     setShowBar(true);
     setSizePct(thumbRatio);
     setOffsetPct(offsetRatio);
-  }, [ref]);
+  }, [ref, canScroll]);
 
   useEffect(() => {
     const el = ref.current;

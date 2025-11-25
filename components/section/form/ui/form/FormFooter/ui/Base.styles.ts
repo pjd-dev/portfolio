@@ -19,7 +19,7 @@ export const Base = styled("div", {
   },
 });
 
-const BaseHint = styled("div", {
+export const BaseHint = styled("div", {
   flex: 1,
   minWidth: 0,
   fontSize: "0.7rem",

@@ -40,7 +40,7 @@ export function SelectField({ value, onChange, config, onError }: SelectFieldPro
     return () => {
       onChange?.(undefined);
     };
-  }, []);
+  }, [defaultValue, value, options, onChange]);
 
   const handleBlur = useCallback(() => {
     runValidation(value ?? "");

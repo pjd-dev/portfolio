@@ -164,12 +164,6 @@ function buildFieldSchema(field: FormSectionField): z.ZodTypeAny {
         // manually on top of the generated schema if needed.
         break;
       }
-
-      default:
-        // Exhaustiveness guard: in case new rule types are added in the future.
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        rule as any;
-        break;
     }
   }
 
