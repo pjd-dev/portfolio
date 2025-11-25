@@ -1,7 +1,6 @@
 // app/[lang]/layout.tsx
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Viewport } from "next";
-import type { ReactNode } from "react";
 import { cache } from "react";
 
 import { SiteFooter, SiteHead, SiteHeader } from "@/components/layout";
@@ -26,16 +25,11 @@ const getDictCached = cache((lang: Locale) =>
   loadLayoutDictionary({ locale: lang, target: "base" }),
 );
 
-type RootLayoutProps = {
-  children: ReactNode;
-  // IMPORTANT: params is NOT a Promise in Next.js App Router
-  params: { lang: Locale };
-};
+type RootLayoutProps = LayoutProps<"/[lang]">;
 
 export default async function RootLayout({ children, params }: RootLayoutProps) {
-  const { lang } = await params;
-  // const raw = params?.lang;
-  // const lang: Locale = raw === "en" || raw === "fr" ? raw : "fr";
+  const { lang: rawLang } = await params;
+  const lang: Locale = rawLang === "en" || rawLang === "fr" ? rawLang : "fr";
 
   const { footer } = await getDictCached(lang);
 

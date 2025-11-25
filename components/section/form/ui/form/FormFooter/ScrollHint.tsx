@@ -1,4 +1,3 @@
-// components/section/form/ui/FormFooter.tsx
 "use client";
 
 import type { FC, ReactNode } from "react";
