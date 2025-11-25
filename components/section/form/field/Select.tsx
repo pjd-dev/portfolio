@@ -9,7 +9,16 @@ export type SelectFieldProps = FormFieldComponentProps & {
 };
 
 export function SelectField({ value, onChange, config, onError }: SelectFieldProps) {
-  const { id, name, label, placeholder, width, messages, options, defaultValue } = config;
+  const {
+    id,
+    name,
+    label,
+    placeholder = "select something",
+    width,
+    messages,
+    options,
+    defaultValue,
+  } = config;
   const [localError, setLocalError] = useState<string | null>(null);
   const controlName = name ?? id;
 

@@ -1,36 +1,32 @@
-import { validateFieldValueFromConfig } from "@/lib/form/fieldValidation";
-import { FormValues, shouldShowFieldByConfig } from "@/lib/form/formShowWhen";
 import type { FormSection, FormSectionField } from "@/lib/validation/section";
-import { usePathname } from "next/navigation";
-import { FormEventHandler, useCallback, useMemo, useRef, useState } from "react";
+
+import { useRef } from "react";
 import { FormFieldRenderer } from "./FormFieldRenderer";
-import { Description, FormWrapper, Title } from "./ui";
-import { FormBody, FormCard, FormFooter, FormHeader, SubmitButton } from "./ui/form";
-import { ScrollContainer, ScrollViewport } from "./ui/scroll";
-import { FormScrollbar } from "./ui/Scrollbar";
+import { Description, Title } from "./ui";
+import { FormBody, FormCard, FormFooter, FormHeader } from "./ui/form";
+import { Scroll, useScroll } from "./ui/scroll";
+import { useForm } from "./useForm";
+type FormRendererProps = {
+  config: FormSection;
+};
 
-export function Form({ id, meta, title, description, fields, messages }: FormSection) {
-  const pathname = usePathname() ?? "";
-  const segments = pathname.split("/").filter(Boolean);
-  const langFromPath = segments[0] ?? "";
-  const pageFromPath = segments.length > 1 ? `/${segments.slice(1).join("/")}` : "/";
-  console.log(" lang ", langFromPath);
-  console.log(" page ", pageFromPath);
-
-  const [values, setValues] = useState<FormValues>({});
-  const [errors, setErrors] = useState<Record<string, string | null>>({});
-  const [status, setStatus] = useState<
-    "idle" | "submitting" | "success" | "error" | "validation"
-  >("idle");
-  const [condensed, setCondensed] = useState(false);
+export function FormRenderer({ config }: FormRendererProps) {
+  const { id, meta, title, description, fields, messages } = config;
+  const {
+    values,
+    status,
+    isFormValid,
+    handleFieldChange,
+    handleSubmit,
+    handleFieldError,
+  } = useForm({
+    fields,
+    id,
+    meta,
+  });
 
   const scrollRef = useRef<HTMLDivElement | null>(null);
-  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    const el = e.currentTarget;
-    setCondensed(el.scrollTop > 8);
-    // scrollbar hook listens via scrollRef + resize; no extra call needed
-  };
-
+  const { haveScroll, showBar, sizePct, offsetPct, canScroll } = useScroll(scrollRef);
   const statusMessage =
     status === "validation"
       ? (messages?.validation ?? "Please fix the highlighted fields.")
@@ -42,145 +38,54 @@ export function Form({ id, meta, title, description, fields, messages }: FormSec
             ? (messages?.error ?? "Something went wrong. Please try again.")
             : null;
 
-  const handleFieldChange = useCallback(
-    (field: FormSectionField) => (next: unknown) => {
-      const key = field.name ?? field.id;
-
-      setValues((prev: FormValues) => {
-        if (next === undefined) {
-          const { [key]: _removed, ...rest } = prev ?? {};
-          return rest as FormValues;
-        }
-
-        return {
-          ...prev,
-          [key]: next,
-        } as FormValues;
-      });
-    },
-    [],
-  );
-
-  const handleFieldError = useCallback((fieldId: string, message: string | null) => {
-    setErrors((prev) => ({
-      ...prev,
-      [fieldId]: message,
-    }));
-  }, []);
-
-  const isFormValid = useMemo(
-    () =>
-      (fields ?? []).every((field) => {
-        if (!shouldShowFieldByConfig(field, values)) return true;
-        const msg = errors[field.id] ?? null;
-        return !msg;
-      }),
-    [fields, values, errors],
-  );
-
-  const handleSubmit: FormEventHandler<HTMLFormElement> = async (event) => {
-    event.preventDefault();
-    console.log(values);
-    // Use hoisted errors; consider only visible fields
-    const hasError = (fields ?? []).some((field) => {
-      if (!shouldShowFieldByConfig(field, values)) return false;
-      const key = field.name ?? field.id;
-      const msg = validateFieldValueFromConfig(field, values[key]);
-      setErrors({
-        [key]: msg,
-      });
-      return !!msg;
-    });
-
-    if (hasError) {
-      setStatus("validation");
-      return;
-    }
-
-    // Fire API call
-    const api = meta?.api;
-    const endpoint = api?.endpoint ?? "/api/form";
-    const method = api?.method ?? "POST";
-    const headers = {
-      "Content-Type": "application/json",
-      ...(api?.headers ?? {}),
-    };
-
-    setStatus("submitting");
-
-    try {
-      const res = await fetch(endpoint, {
-        method,
-        headers,
-        body: JSON.stringify({
-          sectionId: id,
-          lang: langFromPath,
-          page: pageFromPath,
-          values,
-        }),
-      });
-
-      if (!res.ok) {
-        throw new Error(`Form submit failed: ${res.status}`);
-      }
-
-      setStatus("success");
-
-      if (meta?.successRedirect) {
-        window.location.href = meta.successRedirect;
-      }
-    } catch {
-      setStatus("error");
-    }
-  };
-
   return (
-    <FormWrapper>
-      <FormCard noValidate onSubmit={handleSubmit}>
-        <FormHeader condensed={condensed}>
-          <Title>{title}</Title>
-          <Description>{description}</Description>
-        </FormHeader>
-        <ScrollContainer>
-          <ScrollViewport ref={scrollRef} onScroll={handleScroll}>
-            <FormBody>
-              {fields.map((field: FormSectionField) => {
-                const key = field.name ?? field.id;
-                return (
-                  <FormFieldRenderer
-                    key={field.id}
-                    config={field}
-                    values={values}
-                    value={values[key]}
-                    onChange={handleFieldChange(field)}
-                    onError={handleFieldError}
-                  />
-                );
-              })}
-            </FormBody>
-          </ScrollViewport>
-          <FormScrollbar scrollRef={scrollRef} />
-        </ScrollContainer>
-        <FormFooter>
-          {statusMessage && (
-            <p
-              role="status"
-              className={`mt-2 text-xs ${
-                status === "error"
-                  ? "text-red-500"
-                  : status === "success"
-                    ? "text-emerald-500"
-                    : "text-muted-foreground"
-              }`}
-            >
-              {statusMessage}
-            </p>
-          )}
-          <SubmitButton type="submit" disabled={status === "submitting" || !isFormValid}>
-            {messages?.submit}
-          </SubmitButton>
-        </FormFooter>
-      </FormCard>
-    </FormWrapper>
+    <FormCard noValidate onSubmit={handleSubmit}>
+      <FormHeader condensed={haveScroll}>
+        <Title>{title}</Title>
+        <Description>{description}</Description>
+      </FormHeader>
+      <Scroll.Container>
+        <Scroll.Viewport ref={scrollRef}>
+          <FormBody>
+            {fields.map((field: FormSectionField) => {
+              const key = field.name ?? field.id;
+              return (
+                <FormFieldRenderer
+                  key={field.id}
+                  config={field}
+                  values={values}
+                  value={values[key]}
+                  onChange={handleFieldChange(field)}
+                  onError={handleFieldError}
+                />
+              );
+            })}
+          </FormBody>
+        </Scroll.Viewport>
+        <Scroll.Bar visible={showBar} sizePct={sizePct} offsetPct={offsetPct} />
+      </Scroll.Container>
+      <FormFooter.Root>
+        <FormFooter.Top>
+          <FormFooter.ScrollHint visible={canScroll}>
+            Faites défiler pour voir tous les champs du formulaire.
+          </FormFooter.ScrollHint>
+          <FormFooter.Status visible={status !== "idle" && !!statusMessage} tone={status}>
+            {statusMessage}
+          </FormFooter.Status>
+        </FormFooter.Top>
+        {/* <FormFooter.Base>
+          <FormFooter.BaseHint>
+            Tous les champs marqués d’un * sont obligatoires.
+          </FormFooter.BaseHint>
+
+          <FormFooter.Submit
+            submitting={status === "submitting"}
+            disabled={!isFormValid || status === "submitting"}
+          >
+            Envoyer le message
+          </FormFooter.Submit>
+        </FormFooter.Base> */}
+      </FormFooter.Root>
+    </FormCard>
   );
 }

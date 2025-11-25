@@ -1,5 +1,5 @@
 import { styled } from "@/stitches.config";
-export const ScrollViewport = styled("div", {
+export const Viewport = styled("div", {
   position: "relative",
   height: "100%",
   overflowY: "auto",

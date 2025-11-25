@@ -1,7 +1,7 @@
 import { styled } from "@/stitches.config";
 
 export const Inner = styled("div", {
-  background: "white",
+  // background: "white",
   position: "relative",
   glass: true,
   borderRadius: "22px",

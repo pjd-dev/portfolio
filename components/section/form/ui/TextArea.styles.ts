@@ -4,7 +4,7 @@ export const TextArea = styled("textarea", {
   width: "100%",
   padding: "0.75rem 1rem",
   fontSize: "1rem",
-  border: "2px solid rgba(var(--foreground-rgb), 0.2)",
+  border: "2px solid rgba(var(--background-rgb), 0.2)",
   borderRadius: "8px",
   transition: "border-color 0.2s",
   fontFamily: "inherit",
@@ -13,11 +13,11 @@ export const TextArea = styled("textarea", {
   glass: true,
   "&:focus": {
     outline: "none",
-    borderColor: "var(--foreground)",
+    borderColor: "var(--background)",
   },
 
   "&::placeholder": {
-    color: "rgba(var(--foreground-rgb), 0.2)",
+    color: "rgba(var(--background-rgb), 0.2)",
   },
 
   variants: {

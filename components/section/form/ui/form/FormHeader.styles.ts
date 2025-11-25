@@ -6,9 +6,10 @@ export const FormHeader = styled("div", {
   zIndex: 3,
   padding: "1rem 1.25rem",
   glass: true,
-  // background: "rgba(10,10,20,0.85)",
   borderRadius: "1.2rem",
-  border: "1px solid rgba(255,255,255,0.12)",
+  border: "1px solid rgba(var(--foreground-rgb),0.12)",
+  backgroundColor: "rgba(var(--foreground-rgb),0.7)",
+  boxShadow: "0 18px 40px rgba(var(--foreground-rgb),0.45)",
   transition: "all 150ms ease",
   variants: {
     condensed: {

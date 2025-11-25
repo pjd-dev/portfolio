@@ -12,6 +12,8 @@
 
   --background-rgb: 237, 237, 237;
   --foreground-rgb: 10, 10, 10;
+  --error-rgb: 239, 68, 68;
+  --success-rgb: 79, 239, 68;
 
   --footer-height: 4rem;
   --transition-base: 0.3s ease;

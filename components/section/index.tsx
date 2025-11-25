@@ -5,7 +5,7 @@ import type { ReactElement } from "react";
 import { Wrapper } from "../ui";
 import { Hero } from "./Hero";
 import { Legal } from "./Legal";
-import { Form } from "./form/FormRenderer";
+import { Form } from "./form";
 
 // import others as needed
 // import { FeatureGridSection } from "./FeatureGridSection";

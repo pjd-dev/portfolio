@@ -4,5 +4,5 @@ export const Label = styled("label", {
   fontSize: "0.875rem",
   fontWeight: "600",
   marginBottom: "0.5rem",
-  color: "var(--foreground)",
+  color: "var(--background)",
 });

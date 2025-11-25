@@ -1,11 +1,13 @@
 import { styled } from "@/stitches.config";
 
-export const ScrollThumb = styled("div", {
+export const Thumb = styled("div", {
   position: "absolute",
   top: 0,
   left: "2px",
   right: "2px",
   borderRadius: "999px",
-  background: "linear-gradient(180deg, rgba(37,37,62,1), rgba(16,16,34,1))",
+  glass: true,
+  background:
+    "linear-gradient(180deg, rgba(var(--foreground-rgb),0.15), rgba(var(--foreground-rgb),0.3))",
   transformOrigin: "top",
 });

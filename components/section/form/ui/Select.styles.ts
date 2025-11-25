@@ -11,18 +11,16 @@ export const Select = styled("select", {
   glass: true,
   // backgroundColor: "white",
   cursor: "pointer",
-
+  color: "var(--background)",
   "&:focus": {
     outline: "none",
     borderColor: "var(--foreground)",
-    // todo Added focus style
   },
 
   variants: {
     hasError: {
       true: {
-        borderColor: "#ef4444",
-        // todo Added error style
+        borderColor: "var(--error)",
       },
     },
   },

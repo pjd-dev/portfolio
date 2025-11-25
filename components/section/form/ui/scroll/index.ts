@@ -1,5 +1,8 @@
-export * from "./ScrollBarRoot.styles";
-export * from "./ScrollContainer.styles";
-export * from "./ScrollThumb.styles";
-export * from "./ScrollTrack.styles";
-export * from "./ScrollViewport.styles";
+import { Bar } from "./Bar";
+import { Container, Viewport } from "./ui";
+export * from "./useScroll";
+export const Scroll = {
+  Bar,
+  Container,
+  Viewport,
+};

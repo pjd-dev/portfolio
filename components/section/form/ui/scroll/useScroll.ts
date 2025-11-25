@@ -1,8 +1,11 @@
-// useScrollbar.ts
 import { RefObject, useCallback, useEffect, useState } from "react";
 
-export function useFormScrollbar(ref: RefObject<HTMLDivElement | null>) {
-  const [visible, setVisible] = useState(false);
+export function useScroll(ref: RefObject<HTMLDivElement | null>) {
+  const [showThumb, setShowThumb] = useState(false);
+  const [canScroll, setCanScroll] = useState(false);
+  const [haveScroll, setHaveScroll] = useState(false);
+
+  const [showBar, setShowBar] = useState(false);
   const [sizePct, setSizePct] = useState(1);
   const [offsetPct, setOffsetPct] = useState(0);
 
@@ -13,9 +16,16 @@ export function useFormScrollbar(ref: RefObject<HTMLDivElement | null>) {
     const { scrollTop, scrollHeight, clientHeight } = el;
 
     const scrollable = scrollHeight - clientHeight;
-    if (scrollable <= 0) {
+    const scrollableNow = scrollable > 0;
+
+    if (scrollableNow !== canScroll) {
+      setCanScroll(scrollableNow);
+    }
+    if (!scrollableNow) {
       // no scroll → hide pill
-      setVisible(false);
+      setShowBar(false);
+      setHaveScroll(false);
+      setShowThumb(false);
       setSizePct(1);
       setOffsetPct(0);
       return;
@@ -45,7 +55,9 @@ export function useFormScrollbar(ref: RefObject<HTMLDivElement | null>) {
     const maxOffset = 1 - thumbRatio;
     const offsetRatio = scrollProgress * maxOffset;
 
-    setVisible(true);
+    setHaveScroll(scrollTop > 8);
+    setShowThumb(true);
+    setShowBar(true);
     setSizePct(thumbRatio);
     setOffsetPct(offsetRatio);
   }, [ref]);
@@ -68,5 +80,5 @@ export function useFormScrollbar(ref: RefObject<HTMLDivElement | null>) {
     };
   }, [ref, update]);
 
-  return { visible, sizePct, offsetPct };
+  return { showBar, sizePct, offsetPct, canScroll, showThumb, haveScroll };
 }

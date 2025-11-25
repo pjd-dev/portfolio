@@ -1,5 +1,5 @@
 import { styled } from "@/stitches.config";
-export const ScrollbarRoot = styled("div", {
+export const BarRoot = styled("div", {
   position: "absolute",
   inset: 0,
 

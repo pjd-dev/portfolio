@@ -54,7 +54,7 @@ export function CheckboxField({ value, onChange, config, onError }: CheckboxFiel
   return (
     <FieldGroup width={width}>
       {messages?.description && (
-        <p className="text-muted-foreground text-xs">{messages.description}</p>
+        <p className="text-muted-background text-xs">{messages.description}</p>
       )}
 
       <label
@@ -71,7 +71,7 @@ export function CheckboxField({ value, onChange, config, onError }: CheckboxFiel
           className={`border-border bg-background focus-visible:ring-offset-background mt-[2px] h-4 w-4 shrink-0 rounded-md border shadow-sm transition-all duration-150 checked:border-transparent checked:bg-gradient-to-br checked:from-[#5b4bff] checked:to-[#37c6ff] focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2 focus-visible:outline-none ${hasError ? "border-destructive" : ""}`}
         />
         {label && (
-          <span className="text-foreground/80 text-xs leading-snug">{label}</span>
+          <span className="text-background/80 text-xs leading-snug">{label}</span>
         )}
       </label>
 
@@ -79,7 +79,7 @@ export function CheckboxField({ value, onChange, config, onError }: CheckboxFiel
         <ErrorMessage>{localError}</ErrorMessage>
       ) : (
         messages?.helper && (
-          <p className="text-muted-foreground text-[0.7rem]">{messages.helper}</p>
+          <p className="text-muted-background text-[0.7rem]">{messages.helper}</p>
         )
       )}
     </FieldGroup>

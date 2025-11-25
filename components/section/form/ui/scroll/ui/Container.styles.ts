@@ -1,6 +1,6 @@
 import { styled } from "@/stitches.config";
 
-export const ScrollContainer = styled("div", {
+export const Container = styled("div", {
   position: "relative",
   flex: 1,
   display: "grid",
