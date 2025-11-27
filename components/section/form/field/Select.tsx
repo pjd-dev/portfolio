@@ -1,7 +1,7 @@
 import { validateFieldValueFromConfig } from "@/lib/form/fieldValidation";
 import { SelectFormField } from "@/lib/validation/section/formDictionarySchema";
 import { useCallback, useEffect, useState, type ChangeEvent } from "react";
-import { ErrorMessage, FieldGroup, Label, Select } from "../ui";
+import { ErrorMessage, FieldGroup, Label, Select, SelectRoot } from "../ui";
 import type { FormFieldComponentProps } from "./shared";
 
 export type SelectFieldProps = FormFieldComponentProps & {
@@ -32,14 +32,15 @@ export function SelectField({ value, onChange, config, onError }: SelectFieldPro
   );
 
   useEffect(() => {
-    const raw = defaultValue ?? options[0];
-    if (value === undefined || value === null) {
+    // On first mount, if there is no value yet, initialize from defaultValue or first option.
+    if (
+      (value === undefined || value === null) &&
+      (defaultValue !== undefined || options.length > 0)
+    ) {
+      const raw = defaultValue ?? options[0]?.value ?? "";
       onChange?.(raw);
+      // runValidation(raw as string);
     }
-    // runValidation(raw);
-    return () => {
-      onChange?.(undefined);
-    };
   }, [defaultValue, value, options, onChange]);
 
   const handleBlur = useCallback(() => {
@@ -64,23 +65,23 @@ export function SelectField({ value, onChange, config, onError }: SelectFieldPro
       {messages?.description && (
         <p className="text-muted-foreground text-xs">{messages.description}</p>
       )}
-
-      <Select
-        id={id}
-        name={controlName}
-        value={value ?? ""}
-        onChange={handleChange}
-        onBlur={handleBlur}
-        hasError={hasError}
-      >
-        <option value="">{placeholder ?? ""}</option>
-        {options?.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </Select>
-
+      <SelectRoot>
+        <Select
+          id={id}
+          name={controlName}
+          value={value ?? ""}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          hasError={hasError}
+        >
+          <option value="">{placeholder ?? ""}</option>
+          {options?.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </Select>
+      </SelectRoot>
       {localError ? (
         <ErrorMessage>{localError}</ErrorMessage>
       ) : (

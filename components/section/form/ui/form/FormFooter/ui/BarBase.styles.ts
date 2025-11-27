@@ -5,7 +5,7 @@ export const BarBase = styled("div", {
   overflow: "hidden",
   borderRadius: "999px",
   border: "1px solid transparent",
-  backgroundColor: "rgba(var(--foreground-rgb),0.9)",
+  backgroundColor: "rgba(var(--background-rgb),0.5)",
   paddingInline: "0.85rem",
   fontSize: "0.7rem",
   lineHeight: 1.3,

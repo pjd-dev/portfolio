@@ -1,9 +1,8 @@
 import { validateFieldValueFromConfig } from "@/lib/form/fieldValidation";
 import { CheckboxFormField } from "@/lib/validation/section/formDictionarySchema";
 import { useCallback, useEffect, useState, type ChangeEvent } from "react";
-import { ErrorMessage, FieldGroup } from "../ui";
+import { ErrorMessage, FieldGroup, ToggleInput, ToggleLabel, ToggleWrapper } from "../ui";
 import type { FormFieldComponentProps } from "./shared";
-
 export type CheckboxFieldProps = FormFieldComponentProps & {
   config: CheckboxFormField;
 };
@@ -21,9 +20,6 @@ export function CheckboxField({ value, onChange, config, onError }: CheckboxFiel
       onChange?.(raw);
     }
     // runValidation(raw);
-    return () => {
-      onChange?.(undefined);
-    };
   }, [defaultValue, value, onChange]);
   const runValidation = useCallback(
     (raw: boolean) => {
@@ -49,37 +45,34 @@ export function CheckboxField({ value, onChange, config, onError }: CheckboxFiel
     [onChange, runValidation],
   );
 
-  const hasError = !!localError;
-
   return (
-    <FieldGroup width={width}>
+    <FieldGroup width={width} className="flex flex-col items-center justify-center gap-2">
       {messages?.description && (
         <p className="text-muted-background text-xs">{messages.description}</p>
       )}
-
-      <label
-        htmlFor={controlName}
-        className="inline-flex cursor-pointer items-start gap-2"
-      >
-        <input
-          id={id}
-          name={controlName}
-          type="checkbox"
-          checked={checked}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          className={`border-border bg-background focus-visible:ring-offset-background mt-[2px] h-4 w-4 shrink-0 rounded-md border shadow-sm transition-all duration-150 checked:border-transparent checked:bg-gradient-to-br checked:from-[#5b4bff] checked:to-[#37c6ff] focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2 focus-visible:outline-none ${hasError ? "border-destructive" : ""}`}
-        />
+      <div className="bg-background/20 inline-flex w-full max-w-xl items-center gap-3 self-center rounded-full border border-white/10 px-4 py-2 backdrop-blur-md">
+        <ToggleWrapper>
+          <ToggleInput
+            id={id}
+            name={controlName}
+            type="checkbox"
+            checked={checked}
+            onChange={handleChange}
+            onBlur={handleBlur}
+          />
+          <ToggleLabel htmlFor={id} />
+        </ToggleWrapper>
         {label && (
-          <span className="text-background/80 text-xs leading-snug">{label}</span>
+          <span className="flex-1 text-left text-xs leading-snug text-[var(--background)]">
+            {label}
+          </span>
         )}
-      </label>
-
+      </div>
       {localError ? (
         <ErrorMessage>{localError}</ErrorMessage>
       ) : (
         messages?.helper && (
-          <p className="text-muted-background text-[0.7rem]">{messages.helper}</p>
+          <p className="text-muted-background w-full text-[0.7rem]">{messages.helper}</p>
         )
       )}
     </FieldGroup>

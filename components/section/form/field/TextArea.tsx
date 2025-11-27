@@ -19,9 +19,6 @@ export function TextAreaField({ value, onChange, config, onError }: TextAreaFiel
       onChange?.(raw);
     }
     // runValidation(raw);
-    return () => {
-      onChange?.(undefined);
-    };
   }, [defaultValue, value, onChange]);
   const runValidation = useCallback(
     (raw: string) => {

@@ -4,6 +4,7 @@ export function useScroll(ref: RefObject<HTMLDivElement | null>) {
   const [showThumb, setShowThumb] = useState(false);
   const [canScroll, setCanScroll] = useState(false);
   const [haveScroll, setHaveScroll] = useState(false);
+  const [reachedEnd, setReachedEnd] = useState(false);
 
   const [showBar, setShowBar] = useState(false);
   const [sizePct, setSizePct] = useState(1);
@@ -28,6 +29,7 @@ export function useScroll(ref: RefObject<HTMLDivElement | null>) {
       setShowThumb(false);
       setSizePct(1);
       setOffsetPct(0);
+      setReachedEnd(false);
       return;
     }
 
@@ -47,6 +49,7 @@ export function useScroll(ref: RefObject<HTMLDivElement | null>) {
     if (distanceToBottom <= EPS) {
       scrollProgress = 1;
     }
+    setReachedEnd(distanceToBottom <= EPS);
 
     // clamp just in case
     scrollProgress = Math.min(Math.max(scrollProgress, 0), 1);
@@ -80,5 +83,5 @@ export function useScroll(ref: RefObject<HTMLDivElement | null>) {
     };
   }, [ref, update]);
 
-  return { showBar, sizePct, offsetPct, canScroll, showThumb, haveScroll };
+  return { showBar, sizePct, offsetPct, canScroll, showThumb, haveScroll, reachedEnd };
 }

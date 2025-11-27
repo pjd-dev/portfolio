@@ -27,6 +27,12 @@
     var(--font-space-grotesk), system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   --font-display:
     var(--font-space-grotesk), system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  /* section */
+
+  --page-padding-x: 1.5rem;
+  --page-padding-x-md: 2rem;
+  --section-spacing-y: 4rem;
+  --section-spacing-y-md: 5rem;
 
   color-scheme: light;
 }

@@ -19,14 +19,11 @@ export function TextField({ value, onChange, config, onError }: TextFieldProps) 
   const currentValue = value ?? "";
 
   useEffect(() => {
-    const raw = defaultValue ?? "";
     if (value === undefined || value === null) {
+      const raw = defaultValue ?? "";
       onChange?.(raw);
     }
     // runValidation(raw);
-    return () => {
-      onChange?.(undefined);
-    };
   }, [defaultValue, value, onChange]);
   const runValidation = useCallback(
     (raw: string) => {

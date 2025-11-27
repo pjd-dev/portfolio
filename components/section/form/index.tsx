@@ -1,16 +1,24 @@
+import { SectionInner, SectionOuter } from "@/components/ui";
 import type { FormSection } from "@/lib/validation/section";
 import Image from "next/image";
 import { FormRenderer } from "./FormRenderer";
-import { FormWrapper, Shell } from "./ui";
 export function Form(props: FormSection) {
   return (
-    <FormWrapper>
-      <Shell>
-        <div className="hidden h-full w-2xl md:block">
-          <Image src="https://placehold.co/600x400/orange/white" alt="Placeholder" />
+    <SectionOuter bleed="x">
+      <SectionInner layout="single" align="center">
+        <div className="flex h-full flex-row items-center justify-center">
+          <div className="hidden md:block">
+            <Image
+              src="https://placehold.co/400x800/orange/white.png"
+              alt="Placeholder"
+              width={400}
+              height={800}
+            />
+          </div>
+
+          <FormRenderer config={props} />
         </div>
-        <FormRenderer config={props} />
-      </Shell>
-    </FormWrapper>
+      </SectionInner>
+    </SectionOuter>
   );
 }

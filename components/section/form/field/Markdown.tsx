@@ -23,15 +23,14 @@ export function MarkdownField({ value, onChange, config, onError }: MarkdownFiel
     [config, id, onError],
   );
   useEffect(() => {
-    const raw = defaultValue ?? "";
     if (value === undefined || value === null) {
+      const raw = defaultValue ?? "";
       onChange?.(raw);
+      // If you want initial validation, uncomment the next line:
+      // runValidation(raw);
     }
-    // runValidation(raw);
-    return () => {
-      onChange?.(undefined);
-    };
   }, [defaultValue, value, onChange]);
+
   const handleBlur = useCallback(() => {
     runValidation(value ?? "");
   }, [runValidation, value]);

@@ -16,14 +16,11 @@ export function NumberField({ value, onChange, config, onError }: NumberFieldPro
   // Keep value as string in the form state, validation layer handles numeric checks
   const currentValue = value ?? "";
   useEffect(() => {
-    const raw = defaultValue ?? "";
     if (value === undefined || value === null) {
+      const raw = defaultValue ?? "";
       onChange?.(raw);
     }
     // runValidation(raw);
-    return () => {
-      onChange?.(undefined);
-    };
   }, [defaultValue, value, onChange]);
 
   const runValidation = useCallback(

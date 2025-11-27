@@ -3,7 +3,7 @@ export const Viewport = styled("div", {
   position: "relative",
   height: "100%",
   overflowY: "auto",
-  padding: "0.75rem 1.5rem 0.75rem 0.75rem", // right padding = room for pill
+  padding: "0.75rem 1.55rem 0 0.75rem",
   scrollbarWidth: "none",
   "&::-webkit-scrollbar": {
     width: 0,

@@ -4,7 +4,12 @@ const ONE_YEAR = 31536000;
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-
+  images: {
+    remotePatterns: [
+      { protocol: "https", hostname: "placehold.co", port: "", pathname: "/**" },
+      { protocol: "http", hostname: "localhost", port: "3000", pathname: "/**" },
+    ],
+  },
   turbopack: {
     rules: {
       "*.svg": {

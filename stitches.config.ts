@@ -34,6 +34,16 @@ export const { styled, css, theme, config, getCssText } = createStitches({
         borderColor: "rgba(var(--foreground-rgb), 0.3)",
       },
     }),
+    // ✦ Tinted glass surface utility (expects an RGB triplet or CSS var like "var(--accent-rgb)")
+    tintGlass: (value: string) => ({
+      // value should be an RGB triplet or var, e.g. "var(--accent-rgb)" or "255, 0, 128"
+      background: `rgba(${value}, 0.12)`,
+      border: `1px solid rgba(${value}, 0.35)`,
+      boxShadow: `0 1px 2px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(${value}, 0.45) inset`,
+      backdropFilter: "blur(10px)",
+      WebkitBackdropFilter: "blur(10px)",
+      transition: "var(--transition-glass, all 0.25s ease)",
+    }),
     // ✦ Hero headline shadow
     heroText: () => ({
       color: "var(--foreground)",
