@@ -1,0 +1,18 @@
+{
+  "name": "vault-platform-full",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Self-hosted Vault Platform — real-time content vault, MCP worker, LLM adapter, auth, and sync tooling.",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "bootstrap": "pnpm install",
+    "podman:run-all": "bash ./podman/run-all.sh",
+    "podman:run-mcp": "bash ./podman/run-mcp.sh",
+    "podman:run-vault": "bash ./podman/run-vault.sh",
+    "podman:compose": "bash ./podman/podman-compose.sh",
+    "podman:run-mcp-detached": "bash ./podman/run-mcp.sh &",
+    "podman:run-all-detached": "bash ./podman/run-all.sh &"
+  }
+}

@@ -1,0 +1,624 @@
+# Task Dependency Graph & Session Planner - Quick Reference
+
+## Task Dependency Graph
+
+### Core Concepts
+
+**Task Node**: A task with metadata (effort, reward, focus cost, dependencies)
+**Edge**: A dependency relationship (A → B means A must complete before B)
+**DAG**: Directed Acyclic Graph (no cycles allowed by default)
+**Unblocked**: All dependencies are done or dropped
+
+### Task Frontmatter
+
+```yaml
+---
+id: task_2024_0042
+type: task
+title: Implement feature
+status: todo
+effort: 5                    # Abstract units (1-10)
+reward: 10                   # Value units
+focus_cost: 4                # 1-5 scale (1=low, 5=high)
+depends_on:
+  - task_2024_0038           # Prerequisites
+  - task_2024_0040
+blocks:
+  - task_2024_0045           # Tasks blocked by this
+project_id: app_v2
+tags: [backend, critical]
+---
+```
+
+### MCP Tools
+
+#### Get Full Graph
+```typescript
+obsidian_task_graph({
+  projectId?: string,
+  tag?: string,
+  status?: TaskStatus | TaskStatus[],
+  includeDropped?: boolean
+})
+
+// Returns: nodes[], edges[], stats, cycles[]
+```
+
+#### Inspect Dependencies
+```typescript
+obsidian_task_dependencies({
+  id: string,
+  depth?: number,                    // Default 1
+  direction?: 'upstream' | 'downstream' | 'both'
+})
+
+// Returns: task, upstream[], downstream[], cycles[]
+```
+
+#### Add/Remove Dependency
+```typescript
+obsidian_task_set_dependency({
+  fromId: string,                    // Prerequisite
+  toId: string,                      // Dependent
+  action: 'add' | 'remove',
+  bidirectional?: boolean,           // Update blocks field
+  allowCycle?: boolean               // Override cycle prevention
+})
+```
+
+#### Get Next Actions
+```typescript
+obsidian_task_next_actions({
+  projectId?: string,
+  maxEffort?: number,
+  maxFocusCost?: number,
+  statusFilter?: TaskStatus[]
+})
+
+// Returns: ranked unblocked tasks with scores
+```
+
+#### Find Critical Path
+```typescript
+obsidian_task_critical_path({
+  targetId: string,
+  useEffort?: boolean                // Weight by effort
+})
+
+// Returns: path[], totalEffort, hasCycles
+```
+
+### Scoring Formula
+
+```typescript
+score = reward / (effort * focusCost)
+```
+
+Higher score = higher priority
+
+Examples:
+- Task A: reward=10, effort=2, focus=3 → score = 1.67
+- Task B: reward=8, effort=1, focus=2 → score = 4.0
+- **Task B wins** (better score)
+
+---
+
+## Session Planner
+
+### Core Concepts
+
+**Session**: Time-bounded work block with selected tasks
+**Planning**: Choose optimal unblocked tasks based on duration and constraints
+**Packing**: Greedy selection by score until duration filled
+**Tracking**: Monitor progress and calculate actual vs planned
+
+### Session States
+
+- `planned` - Created but not started
+- `active` - Currently in progress
+- `completed` - Finished successfully
+- `aborted` - Terminated early
+
+### Task States (in session)
+
+- `pending` - Not started yet
+- `in_progress` - Currently working on
+- `done` - Completed
+- `skipped` - Skipped during session
+
+### MCP Tools
+
+#### Plan Session
+```typescript
+obsidian_plan_session({
+  durationMinutes: number,           // e.g., 45, 90, 120
+  maxFocusCost?: number,             // Filter high-focus tasks
+  projectId?: string,                // Limit to project
+  tags?: string[],                   // Filter by tags
+  maxTasks?: number                  // Cap number of tasks
+})
+
+// Returns: session, noTasksAvailable?
+```
+
+**Effort-to-Time Mapping**: 15 minutes per effort unit
+- 45 min → 3 effort
+- 90 min → 6 effort
+- 120 min → 8 effort
+
+#### Get Session
+```typescript
+obsidian_get_session({
+  id: string
+})
+
+// Returns: full session with progress
+```
+
+#### List Sessions
+```typescript
+obsidian_list_sessions({
+  status?: SessionStatus | SessionStatus[],
+  since?: string,                    // ISO timestamp
+  limit?: number                     // Default 20
+})
+```
+
+#### Update Task Status
+```typescript
+obsidian_update_session_task({
+  sessionId: string,
+  taskId: string,
+  status: 'pending' | 'in_progress' | 'done' | 'skipped',
+  syncTaskStatus?: boolean           // Update task note
+})
+```
+
+#### Start Session
+```typescript
+obsidian_start_session({
+  sessionId: string
+})
+
+// Marks session active, records start time
+```
+
+#### End Session
+```typescript
+obsidian_end_session({
+  sessionId: string,
+  status?: 'completed' | 'aborted'   // Default: completed
+})
+
+// Calculates actual effort/reward
+```
+
+#### Get Statistics
+```typescript
+obsidian_get_session_stats({})
+
+// Returns: totalSessions, averageCompletionRate, 
+//          totalEffort, totalReward
+```
+
+### Session Storage
+
+```
+.vault-sessions/
+  2024-12-06_session_<uuid>.json
+```
+
+Each file contains full session JSON.
+
+---
+
+## Typical Workflows
+
+### 1. Create Task with Dependencies
+
+```typescript
+// Create task note with frontmatter
+{
+  id: "task_impl_auth",
+  type: "task",
+  status: "todo",
+  effort: 5,
+  reward: 10,
+  focus_cost: 4,
+  depends_on: ["task_design_auth", "task_setup_db"]
+}
+
+// Or add dependency programmatically
+await obsidian_task_set_dependency({
+  fromId: "task_design_auth",
+  toId: "task_impl_auth",
+  action: "add",
+  bidirectional: true
+});
+```
+
+### 2. Plan Daily Work Session
+
+```typescript
+// Morning: Plan 90-minute session
+const result = await obsidian_plan_session({
+  durationMinutes: 90,
+  maxFocusCost: 4,              // Medium focus day
+  projectId: "app_v2"
+});
+
+// Result: 5-6 unblocked tasks, scored by ROI
+```
+
+### 3. Execute Session
+
+```typescript
+// Start session
+await obsidian_start_session({
+  sessionId: result.session.id
+});
+
+// Work on tasks
+for (const task of result.session.tasks) {
+  // Mark in progress
+  await obsidian_update_session_task({
+    sessionId: result.session.id,
+    taskId: task.taskId,
+    status: "in_progress"
+  });
+  
+  // ... do work ...
+  
+  // Mark done (also update task note)
+  await obsidian_update_session_task({
+    sessionId: result.session.id,
+    taskId: task.taskId,
+    status: "done",
+    syncTaskStatus: true
+  });
+}
+
+// End session
+await obsidian_end_session({
+  sessionId: result.session.id,
+  status: "completed"
+});
+```
+
+### 4. Analyze Task Graph
+
+```typescript
+// Get full graph
+const graph = await obsidian_task_graph({
+  projectId: "app_v2"
+});
+
+// Check for cycles
+if (graph.cycles && graph.cycles.length > 0) {
+  console.log("Cycles detected:", graph.cycles);
+}
+
+// Find bottleneck
+const criticalPath = await obsidian_task_critical_path({
+  targetId: "task_launch",
+  useEffort: true
+});
+
+console.log("Critical path:", criticalPath.path.map(t => t.title));
+console.log("Total effort:", criticalPath.totalEffort);
+```
+
+### 5. Get Next Actions
+
+```typescript
+// What should I work on now?
+const nextActions = await obsidian_task_next_actions({
+  maxFocusCost: 3,              // Low focus right now
+  maxEffort: 3,                 // Max ~45 minutes
+  statusFilter: ["todo"]
+});
+
+// Returns: sorted by score, only unblocked
+for (const action of nextActions.slice(0, 5)) {
+  console.log(`${action.task.title} (score: ${action.score})`);
+}
+```
+
+### 6. Review Session History
+
+```typescript
+// List recent sessions
+const sessions = await obsidian_list_sessions({
+  status: "completed",
+  limit: 10
+});
+
+// Get overall stats
+const stats = await obsidian_get_session_stats({});
+
+console.log(`Completed ${stats.completedSessions} sessions`);
+console.log(`Average completion rate: ${stats.averageCompletionRate * 100}%`);
+console.log(`Total effort: ${stats.totalEffort} units`);
+console.log(`Total reward: ${stats.totalReward}`);
+```
+
+---
+
+## Integration with Other Features
+
+### With Pipeline Engine
+
+Create tasks via pipeline:
+
+```typescript
+{
+  steps: [
+    {
+      type: "patch",
+      path: "tasks/new_task.md",
+      operations: [...]
+    },
+    {
+      type: "taskSetDependency",
+      fromId: "existing_task",
+      toId: "new_task"
+    }
+  ]
+}
+```
+
+### With Structure Schema
+
+Validate task notes:
+
+```json
+{
+  "id": "task",
+  "appliesTo": { "frontmatter": { "type": "task" } },
+  "headings": [
+    { "id": "description", "level": 2, "text": "Description", "required": true },
+    { "id": "acceptance", "level": 2, "text": "Acceptance Criteria", "required": true }
+  ]
+}
+```
+
+### With Journal
+
+All task modifications logged:
+
+```typescript
+// View history of task changes
+await obsidian_list_operations({
+  path: "tasks/my_task.md"
+});
+
+// Undo accidental status change
+await obsidian_undo_last_operation({
+  path: "tasks/my_task.md"
+});
+```
+
+---
+
+## Tips & Best Practices
+
+### Task Modeling
+
+**Effort Scale**
+- 1 = 15 minutes (quick win)
+- 2-3 = 30-45 minutes (standard task)
+- 4-5 = 1-1.5 hours (complex task)
+- 6-8 = 2-3 hours (large task, consider breaking down)
+- 9-10 = Half day+ (definitely break down)
+
+**Focus Cost Scale**
+- 1 = Low focus (routine, mechanical)
+- 2 = Light focus (familiar work)
+- 3 = Medium focus (standard concentration)
+- 4 = High focus (deep work, problem-solving)
+- 5 = Maximum focus (complex, creative)
+
+**Reward Scale**
+- Proportional to value delivered
+- Consider: user impact, technical debt reduction, risk mitigation
+- Balance with effort (low effort + high reward = sweet spot)
+
+### Session Planning
+
+**Duration Recommendations**
+- 45 min: Good for mornings or after meetings
+- 90 min: Standard deep work block
+- 120 min: Extended focus session
+
+**Focus Constraints**
+- Morning (fresh): maxFocusCost 4-5
+- Afternoon: maxFocusCost 3-4
+- Late day: maxFocusCost 1-3
+
+**Task Limits**
+- 3-5 tasks per session (avoid overload)
+- Mix high/low focus tasks
+- Include at least one "quick win"
+
+### Dependency Management
+
+**Avoid Cycles**
+- Let cycle detection guide you
+- If cycle detected, rethink dependencies
+- Use `allowCycle: true` only if truly needed
+
+**Granularity**
+- Dependencies should be actionable
+- Don't over-specify (not every task needs dependencies)
+- Focus on critical path items
+
+**Bidirectional Sync**
+- Use `bidirectional: true` to keep `blocks` updated
+- Makes it easier to see downstream impact
+- Essential for good project planning
+
+### Graph Maintenance
+
+**Regular Reviews**
+- Run `task_graph` weekly to check health
+- Look for orphaned tasks (no dependencies, not blocked)
+- Identify bottlenecks via critical path
+
+**Status Hygiene**
+- Mark completed tasks as `done` promptly
+- Use `dropped` for cancelled/deprioritized tasks
+- Update `blocked` when dependencies fail
+
+---
+
+## Common Patterns
+
+### Project Kickoff
+
+```typescript
+// 1. Create task breakdown
+// 2. Set up dependencies
+for (const dep of taskDependencies) {
+  await obsidian_task_set_dependency({
+    fromId: dep.from,
+    toId: dep.to,
+    action: "add"
+  });
+}
+
+// 3. Validate graph
+const graph = await obsidian_task_graph({ projectId: "new_project" });
+if (graph.cycles.length > 0) {
+  // Fix cycles
+}
+
+// 4. Find critical path
+const critical = await obsidian_task_critical_path({
+  targetId: "project_launch"
+});
+```
+
+### Daily Standup
+
+```typescript
+// What did I do yesterday?
+const yesterday = await obsidian_list_sessions({
+  since: new Date(Date.now() - 86400000).toISOString(),
+  status: "completed"
+});
+
+// What will I do today?
+const today = await obsidian_plan_session({
+  durationMinutes: 240,     // 4-hour day
+  maxFocusCost: 4
+});
+
+// Any blockers?
+const myTasks = await obsidian_task_graph({
+  status: ["in_progress", "blocked"]
+});
+```
+
+### Weekly Review
+
+```typescript
+// Sessions this week
+const stats = await obsidian_get_session_stats({});
+
+// Completion rate
+console.log(`Completion: ${stats.averageCompletionRate * 100}%`);
+
+// Project progress
+const projectGraph = await obsidian_task_graph({
+  projectId: "current_project"
+});
+
+console.log(`Done: ${projectGraph.stats.done}/${projectGraph.stats.total}`);
+```
+
+---
+
+## Performance Notes
+
+**Task Graph**
+- Cached for 5 seconds
+- Cycle detection: O(V + E) via DFS
+- Critical path: O(V + E) with memoization
+
+**Session Planning**
+- Scoring: O(n log n) for sorting
+- Packing: O(n) greedy selection
+- Typical: <100ms for 50 tasks
+
+**Scalability**
+- Tested: 1,000 tasks without issue
+- Recommendation: Keep active tasks <500
+- Archive completed/dropped tasks
+
+---
+
+## Troubleshooting
+
+### No Tasks in Session
+
+**Causes**:
+- All tasks blocked by dependencies
+- maxFocusCost too low
+- maxEffort too low
+- No tasks match filters
+
+**Solutions**:
+- Check dependency graph for bottlenecks
+- Increase maxFocusCost or remove constraint
+- Break down large tasks
+- Broaden filters (remove projectId/tags)
+
+### Cycle Detected
+
+**Causes**:
+- A → B → C → A dependency chain
+
+**Solutions**:
+- Review cycle path in error message
+- Remove least important dependency
+- Rethink task breakdown (may need to split)
+
+### Session Completion Rate Low
+
+**Causes**:
+- Overambitious planning
+- Effort estimates too low
+- Interruptions
+
+**Solutions**:
+- Reduce duration or maxTasks
+- Calibrate effort scale (review historical)
+- Block calendar for focus time
+
+---
+
+## Quick Command Reference
+
+```bash
+# Get next actions for low-focus work
+obsidian_task_next_actions({ maxFocusCost: 3, max: 5 })
+
+# Plan 45-minute session
+obsidian_plan_session({ durationMinutes: 45, maxFocusCost: 4 })
+
+# Check for dependency cycles
+obsidian_task_graph({ projectId: "my_project" })
+
+# Find bottleneck
+obsidian_task_critical_path({ targetId: "goal_task" })
+
+# Review recent sessions
+obsidian_list_sessions({ status: "completed", limit: 5 })
+
+# Get overall stats
+obsidian_get_session_stats({})
+```
+
+---
+
+End of Quick Reference

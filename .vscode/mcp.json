@@ -1,0 +1,8 @@
+{
+  "servers": {
+    "vault": {
+      "type": "https",
+      "url": "https://obsimcp.darrybook.fr/mcp"
+    }
+  }
+}

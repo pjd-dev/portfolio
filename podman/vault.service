@@ -1,0 +1,12 @@
+[Unit]
+Description=Vault Podman Container
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Restart=always
+ExecStart=/usr/bin/podman run --rm --name vault --volume vault-data:/vault --env-file /home/YOURUSER/vault-platform/.env -e SYNC_MODE=interval localhost/vault
+ExecStop=/usr/bin/podman stop vault
+
+[Install]
+WantedBy=default.target

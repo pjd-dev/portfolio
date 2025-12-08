@@ -1,0 +1,12 @@
+[Unit]
+Description=MCP Podman Container
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Restart=always
+ExecStart=/usr/bin/podman run --rm --name mcp --volume vault-data:/vault -p 8080:8080 localhost/mcp
+ExecStop=/usr/bin/podman stop mcp
+
+[Install]
+WantedBy=default.target
