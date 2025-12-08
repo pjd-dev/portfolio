@@ -1,3 +1,6 @@
 [submodule "apps/mcp"]
 	path = apps/mcp
 	url = git@github.com:pjd-dev/Vault-mcp.git
+[submodule "vault-data"]
+	path = vault-data
+	url = git@github.com:pjd-dev/obsidianVault.git
