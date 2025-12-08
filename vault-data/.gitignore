@@ -1,0 +1,33 @@
+
+# Ignore Obsidian workspace-specific settings (safe to ignore in multi-device setups)
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+
+# Ignore cache and transient files
+.obsidian/cache
+.obsidian/plugins/*/data.json
+.obsidian/plugins/*/.obsidian-*
+
+# Ignore system-specific metadata
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Ignore attachments if not versioning media files
+attachments/
+media/
+
+# Logs and backups
+.vault-backup/
+log/
+*.log
+
+# Ignore temp files
+*.tmp
+*.swp
+*.bak
+
+# Node or Python related (in case used for scripts or MCP)
+node_modules/
+__pycache__/
+.env

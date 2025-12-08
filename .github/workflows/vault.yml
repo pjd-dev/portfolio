@@ -1,0 +1,38 @@
+
+name: Build and Push Vault Container
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'apps/vault/**'
+      - '.github/workflows/vault.yml'
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Podman
+        uses: uraimo/run-on-arch-action@v2
+        with:
+          arch: amd64
+          distro: alpine_latest
+          run: |
+            apk add --no-cache podman
+            podman --version
+
+      - name: Build Vault Container
+        run: |
+          cd apps/vault
+          podman build -t vault-container .
+
+      # Optional: Login & Push to Registry
+      # - name: Podman Login
+      #   run: podman login <your-registry> -u ${{ secrets.REGISTRY_USER }} -p ${{ secrets.REGISTRY_PASS }}
+
+      # - name: Push Image
+      #   run: podman push vault-container <your-registry>/vault:latest
