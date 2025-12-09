@@ -2,8 +2,6 @@
 
 **A deterministic, graph-aware workflow system for Obsidian**
 
-*Self-hosted Vault Platform — real-time content vault, MCP worker, LLM adapter, auth, and sync tooling.*
-
 [![Tests](https://img.shields.io/badge/tests-37%2F37%20passing-brightgreen)]()
 [![Status](https://img.shields.io/badge/status-production%20ready-brightgreen)]()
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue)]()

@@ -4,3 +4,6 @@
 [submodule "vault-data"]
 	path = vault-data
 	url = git@github.com:pjd-dev/obsidianVault.git
+[submodule "apps/vault-sync"]
+	path = apps/vault-sync
+	url = git@github.com:pjd-dev/vault-sync.git
