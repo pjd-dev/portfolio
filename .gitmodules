@@ -1,9 +1,9 @@
-[submodule "apps/mcp"]
-	path = apps/mcp
-	url = git@github.com:pjd-dev/Vault-mcp.git
-[submodule "vault-data"]
-	path = vault-data
-	url = git@github.com:pjd-dev/obsidianVault.git
 [submodule "apps/vault-sync"]
 	path = apps/vault-sync
 	url = git@github.com:pjd-dev/vault-sync.git
+[submodule "apps/auth"]
+	path = apps/auth
+	url = git@github.com:pjd-dev/vault-auth.git
+[submodule "apps/llm-adapter"]
+	path = apps/llm-adapter
+	url = git@github.com:pjd-dev/vault-llm-adapter.git
