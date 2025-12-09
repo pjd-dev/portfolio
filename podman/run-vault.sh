@@ -11,4 +11,4 @@ if [ -f "$ENV_FILE" ]; then
 fi
 
 podman build -t vault -f "$REPO_ROOT/apps/vault/Dockerfile" "$REPO_ROOT/apps/vault"
-podman run -d --rm --name vault --volume "${VAULT_DATA_VOLUME:-vault-data}":/vault --env-file "$ENV_FILE" vault
+podman run -d --rm --name vault --volume "${VAULT_DATA_VOLUME:-$REPO_ROOT/vault-data}":/vault --volume "$REPO_ROOT/vault-data":/app/vault-data --env-file "$ENV_FILE" vault
