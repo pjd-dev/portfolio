@@ -13,6 +13,20 @@
     "podman:run-vault": "bash ./podman/run-vault.sh",
     "podman:compose": "bash ./podman/podman-compose.sh",
     "podman:run-mcp-detached": "bash ./podman/run-mcp.sh &",
-    "podman:run-all-detached": "bash ./podman/run-all.sh &"
+    "podman:run-all-detached": "bash ./podman/run-all.sh &",
+    "test": "pnpm -w -r run test --filter \"apps/*\"",
+    "build": "pnpm -w -r run build --filter \"apps/*\"",
+    "lint": "pnpm -w -r run lint --filter \"apps/*\"",
+    "typecheck": "pnpm -w -r run typecheck --filter \"apps/*\""
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "vitest": "^4.0.15",
+    "typescript": "^5.4.0",
+    "eslint": "^9.39.1",
+    "prettier": "^3.7.4",
+    "ts-node": "^10.9.1"
   }
 }
