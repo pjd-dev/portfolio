@@ -1,6 +1,5 @@
 packages:
-  - 'apps/*'
+  - "apps/*"
 
-# Note: There is an existing pnpm-workspace.yaml under `apps/mcp/` that contains
-# `onlyBuiltDependencies: [ esbuild ]`. This root workspace file declares workspace
-# packages so `pnpm` will treat `apps/*` as workspace packages.
+onlyBuiltDependencies:
+  - esbuild
