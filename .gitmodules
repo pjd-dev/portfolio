@@ -7,3 +7,9 @@
 [submodule "apps/llm-adapter"]
 	path = apps/llm-adapter
 	url = git@github.com:pjd-dev/vault-llm-adapter.git
+[submodule "apps/mcp"]
+	path = apps/mcp
+	url = git@github.com:pjd-dev/vault-mcp.git
+[submodule "apps/vaulty"]
+	path = apps/vaulty
+	url = git@github.com:pjd-dev/vault-vaulty.git
