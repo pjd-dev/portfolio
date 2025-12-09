@@ -2,4 +2,4 @@
 . "$(dirname -- "$0")/_/husky.sh"
 
 # Run quick tests before allowing a push. Uses Vitest to run tests related to changed files if supported.
-pnpm -w -r exec -- vitest run --changed --threads=false
+pnpm -w -r exec -- vitest run --changed
