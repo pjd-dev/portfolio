@@ -2,7 +2,7 @@
   "name": "vault-platform-full",
   "private": true,
   "version": "0.0.0",
-  "description": "Self-hosted Vault Platform — real-time content vault, MCP worker, LLM adapter, auth, and sync tooling.",
+  "description": "Monorepo for vault-platform-full",
   "workspaces": [
     "apps/*"
   ],
