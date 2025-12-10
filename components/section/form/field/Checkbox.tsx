@@ -63,7 +63,7 @@ export function CheckboxField({ value, onChange, config, onError }: CheckboxFiel
           <ToggleLabel htmlFor={id} />
         </ToggleWrapper>
         {label && (
-          <span className="flex-1 text-left text-xs leading-snug text-[var(--background)]">
+          <span className="flex-1 text-left text-xs leading-snug text-[--background]">
             {label}
           </span>
         )}
