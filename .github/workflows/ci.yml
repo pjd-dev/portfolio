@@ -30,8 +30,8 @@ jobs:
       - name: Build all workspaces
         run: pnpm -w -r build --if-present
 
-      - name: Run Vitest across workspaces (if present)
-        run: pnpm -w -r exec -- vitest run --if-present || true
+      - name: Run Vitest across workspaces
+        run: pnpm -w -r exec -- vitest run || true
 
       - name: Run lint (if present)
         run: pnpm -w -r run lint --if-present
