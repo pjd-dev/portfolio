@@ -1,0 +1,24 @@
+name: Enforce PRs to main only from dev
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened, ready_for_review]
+
+jobs:
+  enforce-main-from-dev:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail if head branch is not dev
+        run: |
+          echo "Base branch: ${{ github.base_ref }}"
+          echo "Head branch: ${{ github.head_ref }}"
+
+          if [ "${{ github.head_ref }}" != "dev" ]; then
+            echo "❌ PRs to 'main' are only allowed from 'dev' branch."
+            echo "Current head branch: '${{ github.head_ref }}'"
+            exit 1
+          fi
+
+          echo "✅ PR from 'dev' → allowed."
