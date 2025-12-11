@@ -14,10 +14,12 @@
     "podman:compose": "bash ./podman/podman-compose.sh",
     "podman:run-mcp-detached": "bash ./podman/run-mcp.sh &",
     "podman:run-all-detached": "bash ./podman/run-all.sh &",
-    "test": "pnpm -w -r run test --filter \"apps/*\"",
     "build": "pnpm -w -r run build --filter \"apps/*\"",
     "lint": "pnpm -w -r run lint --filter \"apps/*\"",
-    "typecheck": "pnpm -w -r run typecheck --filter \"apps/*\""
+    "typecheck": "pnpm -w -r run typecheck --filter \"apps/*\"",
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "test:ci": "vitest --runInBand --coverage"
   },
   "prepare": "husky install",
   "engines": {
@@ -32,7 +34,8 @@
     "husky": "^8.0.0",
     "lint-staged": "^14.0.0",
     "@typescript-eslint/parser": "^6.2.0",
-    "@typescript-eslint/eslint-plugin": "^6.2.0"
+    "@typescript-eslint/eslint-plugin": "^6.2.0",
+    "@vitest/coverage-v8": "^2.0.0"
   },
   "husky": {
     "hooks": {
