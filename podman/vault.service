@@ -5,8 +5,8 @@ After=network-online.target
 
 [Service]
 Restart=always
-ExecStart=/usr/bin/podman run --rm --name vault --volume vault-data:/vault --env-file /home/YOURUSER/vault-platform/.env -e SYNC_MODE=interval localhost/vault
-ExecStop=/usr/bin/podman stop vault
+ExecStart=/usr/bin/podman run --rm --name vaulty --volume vault:/vault --env-file /home/YOURUSER/vault-platform/.env -e SYNC_MODE=interval localhost/vault
+ExecStop=/usr/bin/podman stop vaulty
 
 [Install]
 WantedBy=default.target
