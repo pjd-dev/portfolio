@@ -14,12 +14,20 @@
     "podman:compose": "bash ./podman/podman-compose.sh",
     "podman:run-mcp-detached": "bash ./podman/run-mcp.sh &",
     "podman:run-all-detached": "bash ./podman/run-all.sh &",
+    "script:restart-all": "bash ./script/restart-all.sh",
+    "script:init-volume": "bash ./script/init-volume.sh",
+    "script:sync": "bash ./script/sync-volume-to-local.sh",
+    "script:tunnel": "bash ./script/cloudflared.tunnel.sh",
+    "script:verify": "bash ./script/verify-shared-vault.sh",
     "build": "pnpm -w -r run build --filter \"apps/*\"",
     "lint": "pnpm -w -r run lint --filter \"apps/*\"",
     "typecheck": "pnpm -w -r run typecheck --filter \"apps/*\"",
-    "test": "vitest",
+    "test": "vitest run",
     "test:watch": "vitest --watch",
-    "test:ci": "vitest --runInBand --coverage"
+    "test:ci": "vitest run --runInBand --coverage",
+    "test:all": "pnpm test && pnpm -w -r run test --filter \"apps/*\"",
+    "test:coverage": "vitest run --coverage",
+    "test:podman": "vitest run __tests__/podman/"
   },
   "prepare": "husky install",
   "engines": {
