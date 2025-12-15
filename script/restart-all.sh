@@ -51,6 +51,27 @@ cleanup() {
   done
 }
 
+# Additional cleanup for cloudflared tunnel processes and artifacts
+stop_cloudflared() {
+  # Try graceful shutdown
+  if command -v cloudflared >/dev/null 2>&1; then
+    info "Stopping cloudflared processes..."
+    # attempt to kill specific tunnel runs first
+    pkill -f "cloudflared tunnel" 2>/dev/null || true
+    # fallback: kill any cloudflared process
+    pkill cloudflared 2>/dev/null || true
+    sleep 1
+    # ensure processes are dead
+    pkill -9 -f "cloudflared tunnel" 2>/dev/null || true
+    pkill -9 cloudflared 2>/dev/null || true
+  fi
+  # Optionally remove socket files if present (best-effort)
+  if [ -d "/var/run/cloudflared" ]; then
+    info "Removing /var/run/cloudflared artifacts"
+    rm -rf /var/run/cloudflared 2>/dev/null || true
+  fi
+}
+
 trap cleanup INT TERM EXIT
 
 # Start continuous sync in background
