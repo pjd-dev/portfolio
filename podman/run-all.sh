@@ -19,10 +19,24 @@ podman pod stop "$MCP_POD" 2>/dev/null || true
 podman pod rm "$MCP_POD" 2>/dev/null || true
 
 info "Cleaning up containers..."
-podman container stop vaulty 2>/dev/null || true
-podman container rm vaulty 2>/dev/null || true
-podman container stop mcp 2>/dev/null || true
-podman container rm mcp 2>/dev/null || true
+# Load app-level .env files so CONTAINER_NAME overrides are respected
+for app in vaulty mcp; do
+	app_env="$REPO_ROOT/../apps/$app/.env"
+	if [ -f "$app_env" ]; then
+		set -o allexport
+		# shellcheck disable=SC1090
+		source "$app_env"
+		set +o allexport
+	fi
+done
+
+VAULT_CONTAINER="${VAULT_CONTAINER_NAME:-${CONTAINER_NAME:-vaulty}}"
+MCP_CONTAINER="${MCP_CONTAINER_NAME:-${CONTAINER_NAME:-mcp}}"
+
+podman container stop "$VAULT_CONTAINER" 2>/dev/null || true
+podman container rm "$VAULT_CONTAINER" 2>/dev/null || true
+podman container stop "$MCP_CONTAINER" 2>/dev/null || true
+podman container rm "$MCP_CONTAINER" 2>/dev/null || true
 
 # Start the services
 ./podman/run-vault.sh
