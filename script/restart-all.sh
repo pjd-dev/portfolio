@@ -4,6 +4,20 @@ set -euo pipefail
 SCRIPT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_ROOT/common.sh"
 
+# Load root .env and make app-level values available
+load_env_files
+
+# Load app-specific .env files (best-effort) so we can pick up CONTAINER_NAME overrides
+for app in vaulty mcp; do
+  app_env="$SCRIPT_ROOT/../apps/$app/.env"
+  if [ -f "$app_env" ]; then
+    set -o allexport
+    # shellcheck disable=SC1090
+    source "$app_env"
+    set +o allexport
+  fi
+done
+
 LOG_DIR="${LOG_DIR:-$SCRIPT_ROOT/../logs}"
 TUNNEL_LOG="${TUNNEL_LOG:-$LOG_DIR/cloudflared.log}"
 SYNC_LOG="${SYNC_LOG:-$LOG_DIR/sync.log}"
@@ -20,12 +34,15 @@ podman pod rm "$VAULTY_POD" 2>/dev/null || true
 podman pod stop "$MCP_POD" 2>/dev/null || true
 podman pod rm "$MCP_POD" 2>/dev/null || true
 
-# Clean up any orphaned containers
+# Clean up any orphaned containers (use configured container names when available)
 info "Cleaning up containers..."
-podman container stop vaulty 2>/dev/null || true
-podman container rm vaulty 2>/dev/null || true
-podman container stop mcp 2>/dev/null || true
-podman container rm mcp 2>/dev/null || true
+VAULT_CONTAINER="${VAULT_CONTAINER_NAME:-${CONTAINER_NAME:-vaulty}}"
+MCP_CONTAINER="${MCP_CONTAINER_NAME:-${CONTAINER_NAME:-mcp}}"
+
+podman container stop "$VAULT_CONTAINER" 2>/dev/null || true
+podman container rm "$VAULT_CONTAINER" 2>/dev/null || true
+podman container stop "$MCP_CONTAINER" 2>/dev/null || true
+podman container rm "$MCP_CONTAINER" 2>/dev/null || true
 
 info "Restarting Vaulty..."
 "$SCRIPT_ROOT/../apps/vaulty/restart-vaulty.sh"
