@@ -1,0 +1,26 @@
+name: Vaulty tests
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: pnpm/action-setup@v2
+        with:
+          version: '8'
+      - name: Install Node deps
+        run: pnpm install
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install Python deps
+        run: |
+          python -m venv .venv
+          . .venv/bin/activate
+          pip install -r apps/vaulty/requirements-dev.txt
+      - name: Run Vaulty tests
+        run: pnpm --filter ./apps/vaulty test

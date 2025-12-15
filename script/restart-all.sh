@@ -3,23 +3,29 @@ set -euo pipefail
 
 SCRIPT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_ROOT/common.sh"
-[ -f "$SCRIPT_ROOT/../.env" ] && source "$SCRIPT_ROOT/../.env"
 
 LOG_DIR="${LOG_DIR:-$SCRIPT_ROOT/../logs}"
 TUNNEL_LOG="${TUNNEL_LOG:-$LOG_DIR/cloudflared.log}"
 SYNC_LOG="${SYNC_LOG:-$LOG_DIR/sync.log}"
 mkdir -p "$LOG_DIR"
 
-# Pod names from environment
+# Pod names from environment (loaded by common.sh)
 VAULTY_POD="${POD_NAME:-vaulty-pod}"
 MCP_POD="${MCP_POD_NAME:-mcp-pod}"
 
-# Kill existing pods
+# Clean up existing pods FIRST (before app restarts recreate them)
 info "Cleaning up existing pods..."
 podman pod stop "$VAULTY_POD" 2>/dev/null || true
 podman pod rm "$VAULTY_POD" 2>/dev/null || true
 podman pod stop "$MCP_POD" 2>/dev/null || true
 podman pod rm "$MCP_POD" 2>/dev/null || true
+
+# Clean up any orphaned containers
+info "Cleaning up containers..."
+podman container stop vaulty 2>/dev/null || true
+podman container rm vaulty 2>/dev/null || true
+podman container stop mcp 2>/dev/null || true
+podman container rm mcp 2>/dev/null || true
 
 info "Restarting Vaulty..."
 "$SCRIPT_ROOT/../apps/vaulty/restart-vaulty.sh"
@@ -28,7 +34,7 @@ info "Restarting MCP..."
 "$SCRIPT_ROOT/../apps/mcp/restart-mcp.sh"
 
 info "Sync volume -> local (one-shot)..."
-"$SCRIPT_ROOT/sync-volume-to-local.sh"
+"$SCRIPT_ROOT/sync-volume-to-local.sh" "$VAULT_DATA_VOLUME" "$LOCAL_VAULT_PATH" once
 
 info "Starting continuous sync + tunnel (parallel)..."
 
@@ -47,9 +53,9 @@ cleanup() {
 
 trap cleanup INT TERM EXIT
 
-# Start sync in background (continuous script)
-info "Starting sync script..."
-"$SCRIPT_ROOT/sync-local.sh" >>"$SYNC_LOG" 2>&1 &
+# Start continuous sync in background
+info "Starting continuous sync..."
+"$SCRIPT_ROOT/sync-volume-to-local.sh" "$VAULT_DATA_VOLUME" "$LOCAL_VAULT_PATH" "${SYNC_INTERVAL:-60}" >>"$SYNC_LOG" 2>&1 &
 pids+=("$!")
 info "Sync running (pid=${pids[-1]}), logs: $SYNC_LOG"
 
