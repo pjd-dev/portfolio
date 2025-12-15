@@ -25,12 +25,9 @@
 - [x] Create `doc/VITEST_UNIFIED_COMPLETE.md` - Completion status
 - [x] Create `doc/VITEST_CONVERSION.md` - Script conversion notes (existing)
 
-## ✅ Phase 4: Backward Compatibility
+## ✅ Phase 4: Cleanup
 
-- [x] Update `script/tests/run-all-tests.sh` with deprecation warning
-- [x] Keep `script/tests/test-prepare.sh` for reference
-- [x] Keep `script/tests/test-restart-all.sh` for reference
-- [x] Keep `script/tests/test_all.py` for reference
+- [x] Removed deprecated `script/tests/` directory (all tests migrated to Vitest)
 
 ## ✅ Verification Checklist
 
@@ -91,12 +88,6 @@ cd apps/mcp
 pnpm test              # ✅ App tests
 pnpm test:watch       # ✅ Watch mode
 pnpm test:coverage    # ✅ Coverage
-```
-
-Legacy (Deprecated but working):
-
-```bash
-bash script/tests/run-all-tests.sh  # ⚠️ Redirects to pnpm test
 ```
 
 ## 🔄 Continuous Integration Ready

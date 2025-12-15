@@ -2,18 +2,16 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-ENV_FILE="$ROOT_DIR/.env"
+source "$SCRIPT_DIR/common.sh"
 
-LOG_DIR="${LOG_DIR:-$ROOT_DIR/logs}"
+LOG_DIR="${LOG_DIR:-$SCRIPT_DIR/../logs}"
 LOG_FILE="$LOG_DIR/cloudflared.log"
 CF_LOG_LEVEL="${CF_LOG_LEVEL:-info}"
 
-[[ -f "$ENV_FILE" ]] || { echo "❌ Missing .env at: $ENV_FILE"; exit 1; }
-# shellcheck disable=SC1090
-source "$ENV_FILE"
+# Load environment variables
+load_env_files
 
-: "${CF_TUNNEL_NAME:?Missing CF_TUNNEL_NAME in $ENV_FILE}"
+: "${CF_TUNNEL_NAME:?Missing CF_TUNNEL_NAME in .env (or set CF_TUNNEL_CONFIG)}"
 
 command -v cloudflared >/dev/null 2>&1 || { echo "❌ cloudflared not found in PATH"; exit 1; }
 
@@ -24,4 +22,8 @@ echo "  name: $CF_TUNNEL_NAME"
 echo "  loglevel: $CF_LOG_LEVEL"
 echo "  logs: $LOG_FILE"
 
-exec cloudflared tunnel --loglevel "$CF_LOG_LEVEL" run "$CF_TUNNEL_NAME" >>"$LOG_FILE" 2>&1
+# Use CF_TUNNEL_CONFIG as fallback for CF_TUNNEL_NAME
+TUNNEL="${CF_TUNNEL_NAME:-$CF_TUNNEL_CONFIG}"
+
+# Don't redirect here since restart-all.sh already does it
+exec cloudflared tunnel --loglevel "$CF_LOG_LEVEL" run "$TUNNEL"
