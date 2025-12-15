@@ -57,6 +57,10 @@ export VAULT_SESSIONS_DIR=.vault-sessions
 export MINUTES_PER_EFFORT_UNIT=15
 ```
 
+### Podman / SELinux note
+
+On SELinux-enabled systems (Fedora, RHEL, etc.) Podman bind-mounts may deny container write access to host directories. When running the Vault container you must use a relabel option such as `:Z` on the mount so the container can write to `/vault`. The provided `podman/run-vault.sh` script applies `:Z` automatically; if you run `podman` manually, add `-v /host/path:/vault:Z` or use a proper volume.
+
 ---
 
 ## Documentation
