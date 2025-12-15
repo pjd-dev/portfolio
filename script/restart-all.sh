@@ -42,6 +42,8 @@ pids=()
 
 cleanup() {
   info "Stopping background processes..."
+  # Ensure cloudflared is stopped first
+  stop_cloudflared || true
   for pid in "${pids[@]:-}"; do
     kill "$pid" 2>/dev/null || true
   done
