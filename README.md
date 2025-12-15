@@ -1,6 +1,6 @@
 # Obsidian MCP Platform
 
-**A deterministic, graph-aware workflow system for Obsidian**
+## A deterministic, graph-aware workflow system for Obsidian
 
 [![Tests](https://img.shields.io/badge/tests-104%20passing-brightgreen)]()
 [![Status](https://img.shields.io/badge/status-production%20ready-brightgreen)]()
