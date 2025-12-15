@@ -2,9 +2,10 @@
 
 **A deterministic, graph-aware workflow system for Obsidian**
 
-[![Tests](https://img.shields.io/badge/tests-37%2F37%20passing-brightgreen)]()
+[![Tests](https://img.shields.io/badge/tests-104%20passing-brightgreen)]()
 [![Status](https://img.shields.io/badge/status-production%20ready-brightgreen)]()
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue)]()
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.4-blue)]()
+[![Vitest](https://img.shields.io/badge/Vitest-4.0-yellow)]()
 
 ---
 
@@ -26,11 +27,22 @@ The Obsidian MCP Platform transforms Obsidian from a personal knowledge manager 
 ### Installation
 
 ```bash
-cd apps/mcp
-npm install
-npm test      # Run test suite (37 tests)
-npm run build # Build for production
-npm start     # Start MCP server
+pnpm install          # Install all dependencies
+pnpm test             # Run all tests (104 tests)
+pnpm build            # Build all apps
+```
+
+### Running Services
+
+```bash
+# Podman containers
+pnpm podman:run-all           # Start all containers
+pnpm podman:compose           # Full compose with sync
+
+# Scripts
+pnpm script:restart-all       # Restart all services
+pnpm script:tunnel            # Start Cloudflare tunnel
+pnpm script:sync              # Sync volume to local
 ```
 
 ### Configuration
@@ -88,8 +100,8 @@ obsidian_apply_pipeline({ pipelineId: "...", confirm: true })  // Apply
 Complete audit trail with undo capability:
 
 ```typescript
-obsidian_list_operations({ limit: 20 })
-obsidian_undo_last_operation({ dryRun: true })
+obsidian_list_operations({ limit: 20 });
+obsidian_undo_last_operation({ dryRun: true });
 ```
 
 ### ✅ Task Graph
@@ -97,8 +109,8 @@ obsidian_undo_last_operation({ dryRun: true })
 DAG-based task management with dependency resolution:
 
 ```typescript
-obsidian_task_next_actions({ max: 10, maxFocusCost: 3 })
-obsidian_task_set_dependency({ fromId: "A", toId: "B" })
+obsidian_task_next_actions({ max: 10, maxFocusCost: 3 });
+obsidian_task_set_dependency({ fromId: 'A', toId: 'B' });
 ```
 
 ### ✅ Session Planner
@@ -106,9 +118,9 @@ obsidian_task_set_dependency({ fromId: "A", toId: "B" })
 Focus-aware work sessions:
 
 ```typescript
-obsidian_plan_session({ durationMinutes: 45, maxFocusCost: 2 })
-obsidian_start_session({ sessionId: "..." })
-obsidian_update_session_task({ taskId: "...", status: "done" })
+obsidian_plan_session({ durationMinutes: 45, maxFocusCost: 2 });
+obsidian_start_session({ sessionId: '...' });
+obsidian_update_session_task({ taskId: '...', status: 'done' });
 ```
 
 ### ✅ Schema Validation
@@ -116,8 +128,8 @@ obsidian_update_session_task({ taskId: "...", status: "done" })
 Enforce note structure contracts:
 
 ```typescript
-obsidian_validate_note_structure({ path: "meetings/standup.md" })
-obsidian_fix_note_structure({ path: "...", previewOnly: true })
+obsidian_validate_note_structure({ path: 'meetings/standup.md' });
+obsidian_fix_note_structure({ path: '...', previewOnly: true });
 ```
 
 ---
@@ -125,21 +137,29 @@ obsidian_fix_note_structure({ path: "...", previewOnly: true })
 ## Test Coverage
 
 ```
-✅ Test Suites: 2 passed, 2 total
-✅ Tests:       37 passed, 37 total
-✅ Time:        1.175 s
+✅ Test Suites: 6 passed
+✅ Tests:       104 passed
+✅ Framework:   Vitest 4.0.15
 ```
 
 ### Test Files
 
-- `apps/mcp/src/__tests__/services/task-graph.service.test.ts` — 18 tests
-- `apps/mcp/src/__tests__/services/session-planner.service.test.ts` — 19 tests
+| Location | File                                       | Tests |
+| -------- | ------------------------------------------ | ----- |
+| Root     | `__tests__/monorepo-integration.test.ts`   | 10    |
+| Root     | `__tests__/podman/podman-scripts.test.ts`  | 35    |
+| mcp      | `services/task-graph.service.test.ts`      | 19    |
+| mcp      | `services/session-planner.service.test.ts` | 18    |
+| mcp      | `scripts/prepare.test.ts`                  | 11    |
+| mcp      | `scripts/restart-all.test.ts`              | 14    |
 
 Run tests:
+
 ```bash
-cd apps/mcp
-npm test
-npm test -- --coverage  # With coverage report
+pnpm test              # All tests
+pnpm test:watch        # Watch mode
+pnpm test:coverage     # With coverage
+pnpm test:podman       # Podman tests only
 ```
 
 ---
@@ -180,18 +200,23 @@ npm test -- --coverage  # With coverage report
 **23 tools across 5 categories:**
 
 ### Pipeline Tools (4)
+
 `obsidian_run_pipeline_simulation` • `obsidian_apply_pipeline` • `obsidian_list_pipelines` • `obsidian_save_pipeline`
 
 ### Journal Tools (4)
+
 `obsidian_list_operations` • `obsidian_get_operation` • `obsidian_undo_operation` • `obsidian_undo_last_operation`
 
 ### Task Graph Tools (5)
+
 `obsidian_task_graph` • `obsidian_task_dependencies` • `obsidian_task_set_dependency` • `obsidian_task_next_actions` • `obsidian_task_critical_path`
 
 ### Session Planner Tools (6)
+
 `obsidian_plan_session` • `obsidian_get_session` • `obsidian_list_sessions` • `obsidian_start_session` • `obsidian_end_session` • `obsidian_update_session_task`
 
 ### Structure Validation Tools (4)
+
 `obsidian_list_schemas` • `obsidian_get_schema` • `obsidian_validate_note_structure` • `obsidian_fix_note_structure`
 
 ---
@@ -201,24 +226,38 @@ npm test -- --coverage  # With coverage report
 ```
 vault-platform-full/
 ├── apps/
-│   └── mcp/                          # MCP server
-│       ├── src/
-│       │   ├── services/             # Core services (9 files)
-│       │   ├── tools/                # MCP tool definitions
-│       │   ├── __tests__/            # Test suite (37 tests)
-│       │   └── index.ts              # Server entrypoint
-│       ├── package.json
-│       └── jest.config.js
+│   ├── auth/                         # Auth service
+│   ├── mcp/                          # MCP server
+│   │   ├── src/
+│   │   │   ├── services/             # Core services
+│   │   │   ├── tools/                # MCP tool definitions
+│   │   │   └── __tests__/            # Test suite
+│   │   └── vitest.config.ts
+│   ├── llm-adapter/                  # LLM adapter service
+│   └── vaulty/                       # Vault sync service
 │
-├── vault-data/                       # Example vault
+├── __tests__/                        # Root integration tests
+│   ├── monorepo-integration.test.ts
+│   └── podman/podman-scripts.test.ts
 │
-├── Documentation (30+ files)
-│   ├── COMPLETE_IMPLEMENTATION_REPORT.md
-│   ├── IMPLEMENTATION_COMPLETE.md
-│   ├── *_QUICK_REF.md files
-│   └── System documentation
+├── podman/                           # Container scripts
+│   ├── run-all.sh
+│   ├── run-mcp.sh
+│   ├── run-vault.sh
+│   └── podman-compose.sh
 │
-└── README.md (this file)
+├── script/                           # Utility scripts
+│   ├── restart-all.sh
+│   ├── cloudflared.tunnel.sh
+│   ├── sync-volume-to-local.sh
+│   └── init-volume.sh
+│
+├── doc/                              # Documentation
+│   ├── TESTING_GUIDE.md
+│   └── *_QUICK_REF.md files
+│
+├── vitest.config.base.ts             # Shared test config
+└── package.json
 ```
 
 ---
@@ -226,23 +265,31 @@ vault-platform-full/
 ## Use Cases
 
 ### 1. Automated Workflows
+
 Execute multi-step vault refactors with atomic safety:
+
 - Refactor note → auto-link → validate structure → move to archive
 
 ### 2. Task Management
+
 Manage complex project dependencies:
+
 - Unblock tasks when prerequisites complete
 - Find critical path to goals
 - Plan optimal work sessions
 
 ### 3. Knowledge Curation
+
 Enforce structure across note types:
+
 - Meeting notes require decisions + actions
 - Project notes require scope + risks
 - Auto-fix missing sections
 
 ### 4. Session Planning
+
 Optimize work based on time and energy:
+
 - 45-minute low-focus afternoon session
 - 90-minute deep work sprint
 - Security-focused maintenance batch
@@ -274,19 +321,31 @@ Optimize work based on time and energy:
 ### Running Tests
 
 ```bash
-cd apps/mcp
-npm test                  # Run all tests
-npm test -- --watch       # Watch mode
-npm test -- --coverage    # Coverage report
+pnpm test                 # Run all tests
+pnpm test:watch           # Watch mode
+pnpm test:coverage        # Coverage report
+pnpm test:podman          # Podman script tests
+pnpm test:ci              # CI mode (sequential)
 ```
 
 ### Development
 
 ```bash
-npm run dev               # Watch mode
-npm run typecheck         # Type checking
-npm run build             # Production build
+pnpm build                # Build all apps
+pnpm lint                 # Lint all apps
+pnpm typecheck            # Type checking
 ```
+
+### Available Scripts
+
+| Command                   | Description               |
+| ------------------------- | ------------------------- |
+| `pnpm podman:run-all`     | Start all containers      |
+| `pnpm podman:compose`     | Full compose with sync    |
+| `pnpm script:restart-all` | Restart all services      |
+| `pnpm script:tunnel`      | Start Cloudflare tunnel   |
+| `pnpm script:sync`        | Sync volume to local      |
+| `pnpm script:verify`      | Verify shared vault mount |
 
 ---
 
@@ -317,4 +376,4 @@ MIT
 
 ---
 
-*Version 1.0.0 — December 6, 2024*
+_Version 1.1.0 — December 15, 2025_
