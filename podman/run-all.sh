@@ -10,18 +10,15 @@ load_env_files
 
 # Pod names from environment (loaded by common.sh)
 VAULTY_POD="${POD_NAME:-vaulty-pod}"
-MCP_POD="${MCP_POD_NAME:-mcp-pod}"
 
 info "Cleaning up existing pods..."
 podman pod stop "$VAULTY_POD" 2>/dev/null || true
 podman pod rm "$VAULTY_POD" 2>/dev/null || true
-podman pod stop "$MCP_POD" 2>/dev/null || true
-podman pod rm "$MCP_POD" 2>/dev/null || true
 
 info "Cleaning up containers..."
 # Load app-level .env files so CONTAINER_NAME overrides are respected
 for app in vaulty mcp; do
-	app_env="$REPO_ROOT/../apps/$app/.env"
+	app_env="$REPO_ROOT/apps/$app/.env"
 	if [ -f "$app_env" ]; then
 		set -o allexport
 		# shellcheck disable=SC1090

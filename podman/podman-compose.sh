@@ -27,17 +27,22 @@ podman build -t vault -f "$REPO_ROOT/apps/vaulty/Dockerfile" "$REPO_ROOT/apps/va
 echo "Building mcp image..."
 podman build -t mcp -f "$REPO_ROOT/apps/mcp/Dockerfile" "$REPO_ROOT"
 
+# Create pod with port bindings
+echo "Creating pod with port bindings..."
+podman pod create --name vaulty-pod -p "${MCP_PORT:-4000}":4000 || true
+
 # Start Vaulty container
 podman run -d --rm --name vaulty \
+  --pod vaulty-pod \
   --volume "$VOLUME_NAME":/vault \
   --env-file "$ENV_FILE" \
   -e SYNC_MODE="${SYNC_MODE:-interval}" \
   localhost/vault
 
-# Start MCP container (placeholder image)
+# Start MCP container in vaulty-pod
 podman run -d --rm --name mcp \
+  --pod vaulty-pod \
   --volume "$VOLUME_NAME":/vault \
-  -p "${MCP_PORT:-4000}":4000 \
   localhost/mcp
 
 # Start volume->local sync (background process)
