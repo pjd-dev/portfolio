@@ -37,6 +37,8 @@ podman run -d --rm --name vaulty \
   --volume "$VOLUME_NAME":/vault \
   --env-file "$ENV_FILE" \
   -e SYNC_MODE="${SYNC_MODE:-interval}" \
+  -e GIT_USER_NAME="${GIT_USER_NAME}" \
+  -e GIT_USER_EMAIL="${GIT_USER_EMAIL}" \
   localhost/vault
 
 # Start MCP container in vaulty-pod
