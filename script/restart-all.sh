@@ -25,14 +25,11 @@ mkdir -p "$LOG_DIR"
 
 # Pod names from environment (loaded by common.sh)
 VAULTY_POD="${POD_NAME:-vaulty-pod}"
-MCP_POD="${MCP_POD_NAME:-mcp-pod}"
 
 # Clean up existing pods FIRST (before app restarts recreate them)
 info "Cleaning up existing pods..."
 podman pod stop "$VAULTY_POD" 2>/dev/null || true
 podman pod rm "$VAULTY_POD" 2>/dev/null || true
-podman pod stop "$MCP_POD" 2>/dev/null || true
-podman pod rm "$MCP_POD" 2>/dev/null || true
 
 # Clean up any orphaned containers (use configured container names when available)
 info "Cleaning up containers..."
