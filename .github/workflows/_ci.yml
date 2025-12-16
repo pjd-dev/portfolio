@@ -28,13 +28,13 @@ jobs:
         run: pnpm install -w
 
       - name: Build all workspaces
-        run: pnpm -w -r build --if-present
+        run: pnpm run build
 
       - name: Run Vitest across workspaces
-        run: pnpm -w -r exec -- vitest run || true
+        run: pnpm test
 
       - name: Run lint (if present)
-        run: pnpm -w -r run lint --if-present
+        run: pnpm run lint --if-present
 
       - name: Typecheck (if present)
-        run: pnpm -w -r run typecheck --if-present
+        run: pnpm run typecheck --if-present
