@@ -17,6 +17,12 @@ export default defineConfig({
       '**/dist/**',
       // Exclude MCP service tests from root - they need MCP's setup file
       'apps/mcp/src/__tests__/services/**',
+      // Exclude submodule tests as they have separate test configs
+      'apps/*/node_modules/**',
+      'apps/auth/**',
+      'apps/mcp/**',
+      'apps/llm-adapter/**',
+      'apps/vaulty/**',
     ],
   },
 });

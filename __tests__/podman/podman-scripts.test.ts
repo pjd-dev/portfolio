@@ -31,10 +31,10 @@ describe('Podman Scripts - File Existence', () => {
 
 describe('Podman Scripts - Script Content Validation', () => {
   describe('run-all.sh', () => {
-    it('should call run-vault.sh and run-mcp.sh', () => {
+    it('should delegate to podman-compose.sh', () => {
       const content = readFileSync(join(PODMAN_DIR, 'run-all.sh'), 'utf-8');
-      expect(content).toContain('run-vault.sh');
-      expect(content).toContain('run-mcp.sh');
+      expect(content).toContain('podman-compose.sh');
+      expect(content).toContain('cleanup');
     });
   });
 
@@ -57,8 +57,9 @@ describe('Podman Scripts - Script Content Validation', () => {
       expect(content).toContain('${VAULT_DATA_VOLUME:-vault}');
     });
 
-    it('should use MCP_PORT with default 4000', () => {
-      expect(content).toContain('${MCP_PORT:-4000}');
+    it('should not use port binding in individual script', () => {
+      expect(content).not.toContain('${MCP_PORT:-4000}');
+      expect(content).not.toContain('-p 4000');
     });
 
     it('should mount /vault volume', () => {
@@ -106,15 +107,15 @@ describe('Podman Scripts - Script Content Validation', () => {
     });
 
     it('should source .env file', () => {
-      expect(content).toContain('source "$ENV_FILE"');
+      expect(content).toContain('load_env_files');
     });
 
     it('should accept volume name as first argument', () => {
-      expect(content).toContain('VOLUME_NAME="${1:-');
+      expect(content).toContain('VOLUME_NAME="${2:-');
     });
 
     it('should accept local path as second argument', () => {
-      expect(content).toContain('LOCAL_PATH="${2:-');
+      expect(content).toContain('LOCAL_PATH="${3:-');
     });
 
     it('should call init-volume.sh', () => {
@@ -128,11 +129,11 @@ describe('Podman Scripts - Script Content Validation', () => {
 
     it('should start vaulty container with SYNC_MODE', () => {
       expect(content).toContain('SYNC_MODE');
-      expect(content).toContain('--name vaulty');
+      expect(content).toContain('$VAULT_CONTAINER');
     });
 
     it('should start mcp container with port mapping', () => {
-      expect(content).toContain('--name mcp');
+      expect(content).toContain('$MCP_CONTAINER');
       expect(content).toContain('${MCP_PORT:-4000}');
     });
 

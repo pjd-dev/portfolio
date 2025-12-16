@@ -1,8 +1,22 @@
 #!/bin/bash
-# Multi-container Podman setup script
-# Usage: ./podman-compose.sh [volume_name] [local_path]
+# Multi-container Podman orchestration script
+# Unified script combining setup, cleanup, build, and container management
+# Usage: ./podman-compose.sh [cleanup|skip-cleanup] [volume_name] [local_path]
 
-# Resolve script and repo root directories and source root .env if present
+set -euo pipefail
+
+# Colors for output
+RED='\033[0;31m'
+YELLOW='\033[0;33m'
+GREEN='\033[0;32m'
+NC='\033[0m'
+
+# Utility functions
+info() { echo -e "${GREEN}[podman-compose]${NC} $*"; }
+warn() { echo -e "${YELLOW}[podman-compose] WARN:${NC} $*"; }
+fail() { echo -e "${RED}[podman-compose] ERROR:${NC} $*" >&2; exit 1; }
+
+# Resolve script and repo root directories
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 ENV_FILE="$REPO_ROOT/.env"

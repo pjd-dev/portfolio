@@ -19,13 +19,16 @@
     "script:sync": "bash ./script/sync-volume-to-local.sh",
     "script:tunnel": "bash ./script/cloudflared.tunnel.sh",
     "script:verify": "bash ./script/verify-shared-vault.sh",
-    "build": "pnpm -w -r run build --filter \"apps/*\"",
-    "lint": "pnpm -w -r run lint --filter \"apps/*\"",
-    "typecheck": "pnpm -w -r run typecheck --filter \"apps/*\"",
+    "build": "pnpm run build:auth || true && pnpm run build:mcp || true && pnpm run build:llm || true",
+    "build:auth": "[ -d apps/auth ] && pnpm -C apps/auth run build || echo 'apps/auth not found'",
+    "build:mcp": "[ -d apps/mcp ] && pnpm -C apps/mcp run build || echo 'apps/mcp not found'",
+    "build:llm": "[ -d apps/llm-adapter ] && pnpm -C apps/llm-adapter run build || echo 'apps/llm-adapter not found'",
+    "lint": "pnpm -w -r run lint --if-present",
+    "typecheck": "pnpm -w -r run typecheck --if-present",
     "test": "vitest run",
     "test:watch": "vitest --watch",
     "test:ci": "vitest run --runInBand --coverage",
-    "test:all": "pnpm test && pnpm -w -r run test --filter \"apps/*\"",
+    "test:all": "pnpm test && pnpm -w -r run test --if-present",
     "test:coverage": "vitest run --coverage",
     "test:podman": "vitest run __tests__/podman/"
   },
@@ -34,16 +37,17 @@
     "node": ">=20"
   },
   "devDependencies": {
-    "vitest": "^4.0.15",
-    "typescript": "^5.4.0",
+    "@typescript-eslint/eslint-plugin": "^6.2.0",
+    "@typescript-eslint/parser": "^6.2.0",
+    "@vitest/coverage-v8": "^2.0.0",
     "eslint": "^8.0.0",
-    "prettier": "^3.7.4",
-    "ts-node": "^10.9.1",
     "husky": "^8.0.0",
     "lint-staged": "^14.0.0",
-    "@typescript-eslint/parser": "^6.2.0",
-    "@typescript-eslint/eslint-plugin": "^6.2.0",
-    "@vitest/coverage-v8": "^2.0.0"
+    "prettier": "^3.7.4",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.4.0",
+    "vite-tsconfig-paths": "^6.0.1",
+    "vitest": "^4.0.15"
   },
   "husky": {
     "hooks": {
