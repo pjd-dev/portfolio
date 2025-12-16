@@ -11,4 +11,6 @@ if [ -f "$ENV_FILE" ]; then
 fi
 
 podman build -t mcp -f "$REPO_ROOT/apps/mcp/Dockerfile" "$REPO_ROOT"
-podman run -d --rm --name mcp --volume "${VAULT_DATA_VOLUME:-vault}":/vault -p "${MCP_PORT:-4000}":4000 mcp
+
+POD_NAME="${POD_NAME:-vaulty-pod}"
+podman run -d --rm --name mcp --pod "$POD_NAME" --volume "${VAULT_DATA_VOLUME:-vault}":/vault mcp
