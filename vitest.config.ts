@@ -13,6 +13,13 @@ export default mergeConfig(
         '**/dist/**',
         // Exclude MCP service tests from root - run them with `pnpm --filter @vault/mcp test`
         'apps/mcp/src/__tests__/services/**',
+        // Exclude app-level tests - run with pnpm --filter
+        'apps/auth/**/*.test.ts',
+        'apps/auth/**/*.spec.ts',
+        'apps/mcp/**/*.test.ts',
+        'apps/mcp/**/*.spec.ts',
+        'apps/llm-adapter/**/*.test.ts',
+        'apps/llm-adapter/**/*.spec.ts',
       ],
     },
   })
