@@ -64,6 +64,10 @@ describe('Podman Scripts - Script Content Validation', () => {
     it('should mount /vault volume', () => {
       expect(content).toContain(':/vault');
     });
+
+    it('should pass env-file to mcp container', () => {
+      expect(content).toContain('--env-file');
+    });
   });
 
   describe('run-vault.sh', () => {
@@ -217,11 +221,30 @@ describe('Podman Scripts - Dockerfile References', () => {
 });
 
 describe('Podman Scripts - Service Files', () => {
+  let mcpService: string;
+  let vaultService: string;
+
+  beforeEach(() => {
+    mcpService = readFileSync(join(PODMAN_DIR, 'mcp.service'), 'utf-8');
+    vaultService = readFileSync(join(PODMAN_DIR, 'vault.service'), 'utf-8');
+  });
+
   it('should have mcp.service systemd unit', () => {
     expect(existsSync(join(PODMAN_DIR, 'mcp.service'))).toBe(true);
   });
 
   it('should have vault.service systemd unit', () => {
     expect(existsSync(join(PODMAN_DIR, 'vault.service'))).toBe(true);
+  });
+
+  it('should mount the same vault volume to /vault with SELinux relabel', () => {
+    expect(mcpService).toContain('--volume vault:/vault:Z');
+    expect(vaultService).toContain('--volume vault:/vault:Z');
+  });
+
+  it('should load the shared env file for both services', () => {
+    const envFilePath = '/home/YOURUSER/vault-platform/.env';
+    expect(mcpService).toContain(`--env-file ${envFilePath}`);
+    expect(vaultService).toContain(`--env-file ${envFilePath}`);
   });
 });

@@ -34,7 +34,7 @@ podman pod create --name vaulty-pod -p "${MCP_PORT:-4000}":4000 || true
 # Start Vaulty container
 podman run -d --rm --name vaulty \
   --pod vaulty-pod \
-  --volume "$VOLUME_NAME":/vault \
+  --volume "$VOLUME_NAME":/vault:Z \
   --env-file "$ENV_FILE" \
   -e SYNC_MODE="${SYNC_MODE:-interval}" \
   localhost/vault
@@ -42,7 +42,8 @@ podman run -d --rm --name vaulty \
 # Start MCP container in vaulty-pod
 podman run -d --rm --name mcp \
   --pod vaulty-pod \
-  --volume "$VOLUME_NAME":/vault \
+  --volume "$VOLUME_NAME":/vault:Z \
+  --env-file "$ENV_FILE" \
   localhost/mcp
 
 # Start volume->local sync (background process)
