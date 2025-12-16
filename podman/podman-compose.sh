@@ -75,6 +75,25 @@ VOLUME_SOURCE="$(resolve_volume_source)"
 POD_NAME="${POD_NAME:-vaulty-pod}"
 VAULT_CONTAINER="${VAULT_CONTAINER_NAME:-${CONTAINER_NAME:-vaulty}}"
 MCP_CONTAINER="${MCP_CONTAINER_NAME:-${CONTAINER_NAME:-mcp}}"
+CONTAINER_USER="${CONTAINER_USER:-$(id -u):$(id -g)}"
+USER_FLAG=()
+if [ -n "$CONTAINER_USER" ]; then
+  USER_FLAG=(--user "$CONTAINER_USER")
+fi
+
+VAULT_ENV_FILES=()
+for env_file in "$REPO_ROOT/.env" "$REPO_ROOT/apps/vaulty/.env"; do
+  if [ -f "$env_file" ]; then
+    VAULT_ENV_FILES+=(--env-file "$env_file")
+  fi
+done
+
+MCP_ENV_FILES=()
+for env_file in "$REPO_ROOT/.env" "$REPO_ROOT/apps/mcp/.env"; do
+  if [ -f "$env_file" ]; then
+    MCP_ENV_FILES+=(--env-file "$env_file")
+  fi
+done
 
 info "Configuration:"
 info "  Pod: $POD_NAME"
@@ -138,7 +157,8 @@ main() {
     --name "$VAULT_CONTAINER" \
     --pod "$POD_NAME" \
     --volume "$VOLUME_SOURCE":/vault:Z \
-    --env-file "$REPO_ROOT/.env" \
+    "${VAULT_ENV_FILES[@]}" \
+    "${USER_FLAG[@]}" \
     -e SYNC_MODE="${SYNC_MODE:-interval}" \
     -e GIT_USER_NAME="${GIT_USER_NAME:-}" \
     -e GIT_USER_EMAIL="${GIT_USER_EMAIL:-}" \
@@ -150,6 +170,8 @@ main() {
     --name "$MCP_CONTAINER" \
     --pod "$POD_NAME" \
     --volume "$VOLUME_SOURCE":/vault:Z \
+    "${MCP_ENV_FILES[@]}" \
+    "${USER_FLAG[@]}" \
     mcp || fail "Failed to start mcp container"
 
   # Start volume->local sync if local path is configured
