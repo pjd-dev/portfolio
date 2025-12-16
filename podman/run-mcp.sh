@@ -40,4 +40,29 @@ if [ "${VOLUME_SOURCE#~}" != "$VOLUME_SOURCE" ]; then
   VOLUME_SOURCE="$(eval echo "$VOLUME_SOURCE")"
 fi
 
-podman run -d --rm --name "$MCP_CONTAINER" --pod "$POD_NAME" --volume "$VOLUME_SOURCE":/vault:Z mcp
+# If the expanded path does not exist or is not readable, fall back to named volume
+if [ "${VOLUME_SOURCE:0:1}" = "/" ] || [ "${VOLUME_SOURCE:0:1}" = "~" ]; then
+  if [ ! -d "$VOLUME_SOURCE" ] || [ ! -r "$VOLUME_SOURCE" ]; then
+    echo "[mcp] WARNING: LOCAL_VAULT_PATH '$VOLUME_SOURCE' not accessible, falling back to named volume 'vault'"
+    VOLUME_SOURCE="vault"
+  fi
+fi
+
+CONTAINER_USER="${CONTAINER_USER:-$(id -u):$(id -g)}"
+USER_FLAG=()
+if [ -n "$CONTAINER_USER" ]; then
+  USER_FLAG=(--user "$CONTAINER_USER")
+fi
+
+ENV_FILES=()
+for env_file in "$REPO_ROOT/.env" "$REPO_ROOT/apps/mcp/.env"; do
+  if [ -f "$env_file" ]; then
+    ENV_FILES+=(--env-file "$env_file")
+  fi
+done
+
+podman run -d --rm --name "$MCP_CONTAINER" --pod "$POD_NAME" \
+  --volume "$VOLUME_SOURCE":/vault:Z \
+  "${ENV_FILES[@]}" \
+  "${USER_FLAG[@]}" \
+  mcp
