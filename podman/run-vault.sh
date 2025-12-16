@@ -53,4 +53,21 @@ POD_NAME="${POD_NAME:-vaulty-pod}"
 VAULT_CONTAINER="${VAULT_CONTAINER_NAME:-vaulty}"
 podman pod create --name "$POD_NAME" -p "${MCP_PORT:-4000}":4000 || true
 
-podman run -d --rm --name "$VAULT_CONTAINER" --pod "$POD_NAME" --volume "$VOLUME_SOURCE":/vault:Z --env-file "$REPO_ROOT/.env" vault
+CONTAINER_USER="${CONTAINER_USER:-$(id -u):$(id -g)}"
+USER_FLAG=()
+if [ -n "$CONTAINER_USER" ]; then
+  USER_FLAG=(--user "$CONTAINER_USER")
+fi
+
+ENV_FILES=()
+for env_file in "$REPO_ROOT/.env" "$REPO_ROOT/apps/vaulty/.env"; do
+  if [ -f "$env_file" ]; then
+    ENV_FILES+=(--env-file "$env_file")
+  fi
+done
+
+podman run -d --rm --name "$VAULT_CONTAINER" --pod "$POD_NAME" \
+  --volume "$VOLUME_SOURCE":/vault:Z \
+  "${ENV_FILES[@]}" \
+  "${USER_FLAG[@]}" \
+  vault
