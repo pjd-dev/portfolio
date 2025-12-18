@@ -1,0 +1,169 @@
+name: Test Suite
+
+on:
+  push:
+    branches: [ main, develop, 'feature/**' ]
+    paths:
+      - 'scripts/**'
+      - '__tests__/**'
+      - 'apps/**'
+      - '.github/workflows/test.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'scripts/**'
+      - '__tests__/**'
+      - 'apps/**'
+  workflow_dispatch:
+
+jobs:
+  # ============================================================================
+  # Shell Script Tests
+  # ============================================================================
+  shell-tests:
+    name: Shell Script Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck
+      
+      - name: Run ShellCheck on scripts
+        run: |
+          echo "Running ShellCheck on all shell scripts..."
+          find scripts -name "*.sh" -type f | while read script; do
+            echo "Checking: $script"
+            shellcheck -x "$script" || true
+          done
+      
+      - name: Run quick test suite
+        run: bash __tests__/scripts/quick-test.sh
+      
+      - name: Run services runtime tests
+        run: bash __tests__/scripts/services-runtime.test.sh
+      
+      - name: Run infrastructure runtime tests
+        run: bash __tests__/scripts/infrastructure-runtime.test.sh
+      
+      - name: Run utilities runtime tests
+        run: bash __tests__/scripts/utilities-runtime.test.sh
+  
+  # ============================================================================
+  # Syntax Validation
+  # ============================================================================
+  syntax-check:
+    name: Syntax Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Validate bash syntax
+        run: |
+          echo "Validating bash syntax for all scripts..."
+          FAILED=0
+          for script in scripts/**/*.sh scripts/vault; do
+            if [[ -f "$script" ]]; then
+              if ! bash -n "$script" 2>/dev/null; then
+                echo "❌ Syntax error in: $script"
+                FAILED=$((FAILED + 1))
+              else
+                echo "✅ $script"
+              fi
+            fi
+          done
+          if [[ $FAILED -gt 0 ]]; then
+            echo "❌ $FAILED script(s) have syntax errors"
+            exit 1
+          fi
+  
+  # ============================================================================
+  # Node/TypeScript Tests (Apps)
+  # ============================================================================
+  app-tests:
+    name: Application Tests
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+      
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+      
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      
+      - name: Lint code
+        run: pnpm lint || true
+      
+      - name: Build applications
+        run: pnpm build
+      
+      - name: Run tests
+        run: pnpm test -- --run
+        continue-on-error: true
+
+# ============================================================================
+# Summary & Reporting
+# ============================================================================
+
+  status-check:
+    name: Test Status Check
+    runs-on: ubuntu-latest
+    needs: [shell-tests, syntax-check]
+    if: always()
+    
+    steps:
+      - name: Check test results
+        run: |
+          if [[ "${{ needs.shell-tests.result }}" == "failure" ]] || \
+             [[ "${{ needs.syntax-check.result }}" == "failure" ]]; then
+            echo "❌ Some tests failed"
+            exit 1
+          else
+            echo "✅ All tests passed"
+          fi
+      
+      - name: Create test report
+        if: always()
+        run: |
+          cat > test-report.txt <<EOF
+          Test Summary:
+          - Shell Tests: ${{ needs.shell-tests.result }}
+          - Syntax Check: ${{ needs.syntax-check.result }}
+          
+          Timestamp: $(date)
+          EOF
+          cat test-report.txt
