@@ -580,14 +580,14 @@ apps/mcp/src/
 
 ### 🔄 IN PROGRESS / REMAINING
 
-6. **MEDIUM: Document Environment Strategy** → **COMPLETE** ✅
+1. **MEDIUM: Document Environment Strategy** → **COMPLETE** ✅
    - Created comprehensive ENVIRONMENT_STRATEGY.md
    - Hierarchy: Runtime > Container > App .env > Root .env > Code defaults
    - Per-app variable documentation
    - Security best practices defined
    - CI/CD secret management documented
 
-7. **MEDIUM: Fix Docker Build Context** → **COMPLETE** ✅
+2. **MEDIUM: Fix Docker Build Context** → **COMPLETE** ✅
    - Fixed MCP Dockerfile to work with root build context
    - Updated deploy.yml: MCP builds from root (`.`), vaulty from app context
    - Added `file` parameter for explicit dockerfile paths

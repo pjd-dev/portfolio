@@ -307,7 +307,7 @@ Run `scripts/infrastructure/validate.sh` to check all variables:
 
 Output:
 
-```
+```text
 ✓ VAULT_PATH=/vault
 ✓ GIT_USERNAME=pjd-dev
 ✗ GIT_TOKEN not set (required for git operations)
@@ -342,7 +342,7 @@ Output:
 
 ### apps/mcp/
 
-```
+```text
 Required: VAULT_ROOT
 Optional: MCP_PORT, MCP_HOST, MAX_WORKERS, CACHE_TTL, ENABLE_TRACING, LOG_LEVEL
 ```
@@ -351,7 +351,7 @@ See: [apps/mcp/.env.example](apps/mcp/.env.example)
 
 ### apps/vaulty/
 
-```
+```text
 Required: VAULT_PATH, GIT_USERNAME, GIT_EMAIL, GIT_REPO, GIT_TOKEN
 Optional: SYNC_MODE, GIT_SYNC_INTERVAL, GIT_SYNC_PUSH, HEALTH_CHECK_MAX_AGE, MAX_DELETIONS, MAX_DELETE_RATIO, VAULTY_ENABLE_GIT
 ```
@@ -360,7 +360,7 @@ See: [apps/vaulty/.env.example](apps/vaulty/.env.example)
 
 ### apps/auth/
 
-```
+```text
 Required: SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY, JWT_SECRET
 Optional: AUTH_PORT, SESSION_TIMEOUT, LOG_LEVEL
 ```
@@ -369,7 +369,7 @@ See: [apps/auth/.env.example](apps/auth/.env.example)
 
 ### apps/llm-adapter/
 
-```
+```text
 Required: (none - uses all defaults)
 Optional: PORT, MCP_AUTH_TYPE, MCP_API_KEY, MCP_TOKEN, PROVIDER_URL, MCP_BASE_PATH
 ```

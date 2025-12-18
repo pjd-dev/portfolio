@@ -86,9 +86,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build]
     if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
-    environment:
-      name: staging
-      url: https://staging.example.com
+    environment: staging
 
     steps:
       - name: Checkout code
@@ -129,9 +127,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    environment:
-      name: production
-      url: https://example.com
+    environment: 'production'
 
     steps:
       - name: Checkout code
