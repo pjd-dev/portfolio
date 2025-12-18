@@ -4,7 +4,7 @@ Centralized script management for the Vault Platform Full project.
 
 ## Structure
 
-```
+```text
 scripts/
 ├── vault                    # Main entry point (central orchestrator)
 ├── common.sh               # Shared utilities and functions
@@ -117,7 +117,7 @@ This consolidation replaces the following locations:
 | `./script/verify-shared-vault.sh`  | `scripts/vault verify-vault`  | Verify vault           |
 | `./script/cloudflared.tunnel.sh`   | `scripts/vault tunnel`        | Start tunnel           |
 
-## Development
+## Script Development
 
 ### Adding New Scripts
 
