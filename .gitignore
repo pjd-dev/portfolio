@@ -63,6 +63,8 @@ temp/
 
 # IDEs and editors
 .vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
 .idea/
 *.sublime-workspace
 *.sublime-project
@@ -72,8 +74,6 @@ temp/
 *.swo
 *.DS_Store
 Thumbs.db
-
-*.vscode/
 # OS files
 .DS_Store
 .AppleDouble
