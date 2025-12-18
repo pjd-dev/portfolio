@@ -3,6 +3,7 @@
 ## One-Page Cheatsheet
 
 ### Basic Flow
+
 ```
 Validate → Simulate → Review Diff → Apply
 ```
@@ -36,28 +37,35 @@ obsidian_apply_pipeline({
 
 ### Five Step Types
 
-| Type | Purpose | Key Fields |
-|------|---------|------------|
-| `patch` | Edit content | `path`, `operations[]` |
-| `move` | Rename/move | `from`, `to`, `updateLinks` |
-| `autoLink` | Create links | `path`, `options` |
+| Type       | Purpose            | Key Fields                     |
+| ---------- | ------------------ | ------------------------------ |
+| `patch`    | Edit content       | `path`, `operations[]`         |
+| `move`     | Rename/move        | `from`, `to`, `updateLinks`    |
+| `autoLink` | Create links       | `path`, `options`              |
 | `metadata` | Update frontmatter | `path`, `frontmatter`, `merge` |
-| `refactor` | Restructure | `path`, `operations[]` |
+| `refactor` | Restructure        | `path`, `operations[]`         |
 
 ### Minimal Examples
 
 #### Patch Step
+
 ```json
 {
   "type": "patch",
   "path": "note.md",
   "operations": [
-    { "type": "replace", "search": "old", "replacement": "new", "matchCount": 1 }
+    {
+      "type": "replace",
+      "search": "old",
+      "replacement": "new",
+      "matchCount": 1
+    }
   ]
 }
 ```
 
 #### Move Step
+
 ```json
 {
   "type": "move",
@@ -68,6 +76,7 @@ obsidian_apply_pipeline({
 ```
 
 #### AutoLink Step
+
 ```json
 {
   "type": "autoLink",
@@ -77,6 +86,7 @@ obsidian_apply_pipeline({
 ```
 
 #### Metadata Step
+
 ```json
 {
   "type": "metadata",
@@ -87,6 +97,7 @@ obsidian_apply_pipeline({
 ```
 
 #### Refactor Step
+
 ```json
 {
   "type": "refactor",
@@ -140,13 +151,13 @@ Archive a project with cleanup:
 
 ### Patch Operations Reference
 
-| Operation | Purpose | Required Fields |
-|-----------|---------|-----------------|
-| `replace` | Find & replace | `search`, `replacement` |
-| `insert` | Add line at position | `line`, `replacement` |
-| `delete` | Remove text | `search` |
-| `update_frontmatter` | Merge frontmatter | `frontmatter` |
-| `replace_section` | Replace entire section | `section`, `replacement` |
+| Operation            | Purpose                | Required Fields          |
+| -------------------- | ---------------------- | ------------------------ |
+| `replace`            | Find & replace         | `search`, `replacement`  |
+| `insert`             | Add line at position   | `line`, `replacement`    |
+| `delete`             | Remove text            | `search`                 |
+| `update_frontmatter` | Merge frontmatter      | `frontmatter`            |
+| `replace_section`    | Replace entire section | `section`, `replacement` |
 
 ### AutoLink Options
 
@@ -167,11 +178,11 @@ Archive a project with cleanup:
 
 ### Refactor Operations
 
-| Operation | Purpose | Fields |
-|-----------|---------|--------|
-| `renameSection` | Change heading | `section`, `newName` |
-| `deleteSection` | Remove section | `section` |
-| `moveSection` | Reorder (future) | `section`, `newPosition` |
+| Operation       | Purpose          | Fields                   |
+| --------------- | ---------------- | ------------------------ |
+| `renameSection` | Change heading   | `section`, `newName`     |
+| `deleteSection` | Remove section   | `section`                |
+| `moveSection`   | Reorder (future) | `section`, `newPosition` |
 
 ### Safety Features
 
@@ -180,13 +191,13 @@ Archive a project with cleanup:
 ✅ **Locking**: Prevents concurrent changes  
 ✅ **Journal**: Records all changes  
 ✅ **Validation**: Catches errors early  
-✅ **Diff Preview**: See before apply  
+✅ **Diff Preview**: See before apply
 
 ### Error Handling
 
 ```json
 {
-  "stopOnError": true   // Stop on first error
+  "stopOnError": true // Stop on first error
 }
 ```
 
@@ -195,6 +206,7 @@ If `stopOnError: false`, pipeline continues and collects all errors.
 ### Output Structure
 
 #### Simulation Result
+
 ```typescript
 {
   pipelineId: string,
@@ -211,6 +223,7 @@ If `stopOnError: false`, pipeline continues and collects all errors.
 ```
 
 #### Application Result
+
 ```typescript
 {
   applied: boolean,
@@ -221,6 +234,7 @@ If `stopOnError: false`, pipeline continues and collects all errors.
 ```
 
 ### File Mutation
+
 ```typescript
 {
   path: string,
@@ -240,6 +254,7 @@ If `stopOnError: false`, pipeline continues and collects all errors.
 ### Common Patterns
 
 #### Multi-File Update
+
 ```json
 {
   "steps": [
@@ -251,6 +266,7 @@ If `stopOnError: false`, pipeline continues and collects all errors.
 ```
 
 #### Template → Instance
+
 ```json
 {
   "steps": [
@@ -258,7 +274,11 @@ If `stopOnError: false`, pipeline continues and collects all errors.
       "type": "patch",
       "path": "new-note.md",
       "operations": [
-        { "type": "replace", "search": "{{TITLE}}", "replacement": "Real Title" },
+        {
+          "type": "replace",
+          "search": "{{TITLE}}",
+          "replacement": "Real Title"
+        },
         { "type": "replace", "search": "{{DATE}}", "replacement": "2024-12-06" }
       ]
     },
@@ -272,6 +292,7 @@ If `stopOnError: false`, pipeline continues and collects all errors.
 ```
 
 #### Bulk Archive
+
 ```json
 {
   "steps": [
@@ -284,12 +305,12 @@ If `stopOnError: false`, pipeline continues and collects all errors.
 
 ### Troubleshooting
 
-| Error | Solution |
-|-------|----------|
-| "File not loaded" | Check path exists and is correct |
-| "Pipeline not found" | Re-run simulation |
-| "Failed to acquire lock" | Wait or remove `.vault-lock` |
-| "Step X failed" | Check step validation |
+| Error                    | Solution                         |
+| ------------------------ | -------------------------------- |
+| "File not loaded"        | Check path exists and is correct |
+| "Pipeline not found"     | Re-run simulation                |
+| "Failed to acquire lock" | Wait or remove `.vault-lock`     |
+| "Step X failed"          | Check step validation            |
 
 ### File Locations
 
@@ -307,12 +328,14 @@ If `stopOnError: false`, pipeline continues and collects all errors.
 ### When to Use Pipeline vs. Individual Tools
 
 **Use Pipeline when:**
+
 - Multiple files need coordinated changes
 - Operations depend on each other
 - You need atomic all-or-nothing behavior
 - Changes should be previewed as a unit
 
 **Use Individual Tools when:**
+
 - Single file, single operation
 - Interactive/exploratory changes
 - Immediate feedback needed
@@ -320,13 +343,13 @@ If `stopOnError: false`, pipeline continues and collects all errors.
 
 ### Pipeline vs. Batch Tools
 
-| Feature | Pipeline | Batch Tools |
-|---------|----------|-------------|
-| Atomicity | ✅ All-or-nothing | ❌ Best effort |
-| Diff Preview | ✅ Unified for all | ❌ Per operation |
-| Rollback | ✅ Automatic | ❌ Manual |
-| Mixed Operations | ✅ Patches + moves + links | ❌ Single type |
-| Journal | ✅ Yes | ❌ No |
+| Feature          | Pipeline                   | Batch Tools      |
+| ---------------- | -------------------------- | ---------------- |
+| Atomicity        | ✅ All-or-nothing          | ❌ Best effort   |
+| Diff Preview     | ✅ Unified for all         | ❌ Per operation |
+| Rollback         | ✅ Automatic               | ❌ Manual        |
+| Mixed Operations | ✅ Patches + moves + links | ❌ Single type   |
+| Journal          | ✅ Yes                     | ❌ No            |
 
 ### Next Steps
 

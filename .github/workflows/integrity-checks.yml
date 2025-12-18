@@ -16,25 +16,25 @@ jobs:
     name: Daily Integrity Check
     runs-on: ubuntu-latest
     if: github.event.schedule == '0 2 * * *' || github.event_name == 'workflow_dispatch'
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      
+
       - name: Run comprehensive test suite
         id: tests
         run: |
           echo "Running comprehensive daily integrity checks..."
-          
+
           FAILED_TESTS=0
-          
+
           # Test 1: Shell syntax
           echo "## Daily Integrity Report" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Shell Syntax Check" >> $GITHUB_STEP_SUMMARY
-          
+
           for script in scripts/**/*.sh scripts/vault; do
             if [[ -f "$script" ]]; then
               if bash -n "$script" 2>/dev/null; then
@@ -45,7 +45,7 @@ jobs:
               fi
             fi
           done
-          
+
           # Test 2: Quick test suite
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Quick Test Suite" >> $GITHUB_STEP_SUMMARY
@@ -56,11 +56,11 @@ jobs:
             cat /tmp/quick-test.log >> $GITHUB_STEP_SUMMARY
             FAILED_TESTS=$((FAILED_TESTS + 1))
           fi
-          
+
           # Test 3: Runtime tests
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Runtime Tests" >> $GITHUB_STEP_SUMMARY
-          
+
           for test in __tests__/scripts/{services,infrastructure,utilities}-runtime.test.sh; do
             if [[ -f "$test" ]]; then
               TEST_NAME=$(basename "$test" .test.sh)
@@ -73,16 +73,16 @@ jobs:
               fi
             fi
           done
-          
+
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "tests_failed=$FAILED_TESTS" >> $GITHUB_OUTPUT
-      
+
       - name: Send results
         if: always()
         run: |
           echo "Daily integrity check completed"
           echo "Failed tests: ${{ steps.tests.outputs.tests_failed }}"
-  
+
   # ============================================================================
   # Weekly Deep Analysis
   # ============================================================================
@@ -90,98 +90,98 @@ jobs:
     name: Weekly Deep Analysis
     runs-on: ubuntu-latest
     if: github.event.schedule == '0 8 * * 1'
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      
+
       - name: Analyze code metrics
         run: |
           echo "## Weekly Code Analysis" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           echo "### Script Statistics" >> $GITHUB_STEP_SUMMARY
           TOTAL_LINES=$(find scripts -name "*.sh" -type f -exec wc -l {} + | tail -1 | awk '{print $1}')
           TOTAL_FILES=$(find scripts -name "*.sh" -type f | wc -l)
           AVG_LINES=$((TOTAL_LINES / TOTAL_FILES))
-          
+
           echo "- Total scripts: $TOTAL_FILES" >> $GITHUB_STEP_SUMMARY
           echo "- Total lines: $TOTAL_LINES" >> $GITHUB_STEP_SUMMARY
           echo "- Average lines per script: $AVG_LINES" >> $GITHUB_STEP_SUMMARY
-          
+
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Function Count" >> $GITHUB_STEP_SUMMARY
           TOTAL_FUNCTIONS=$(find scripts -name "*.sh" -type f -exec grep -c "^[a-z_]*() {" {} + | paste -sd+ | bc)
           echo "- Total functions: ${TOTAL_FUNCTIONS:-0}" >> $GITHUB_STEP_SUMMARY
-          
+
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Common Library Dependencies" >> $GITHUB_STEP_SUMMARY
           SCRIPTS_SOURCING=$(find scripts -name "*.sh" -type f -exec grep -l "source.*common.sh" {} + | wc -l)
           echo "- Scripts sourcing common.sh: $SCRIPTS_SOURCING" >> $GITHUB_STEP_SUMMARY
-          
+
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Recent Changes" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           git log --oneline -10 -- scripts/ >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-      
+
       - name: Check for deprecated patterns
         run: |
           echo "### Deprecated Pattern Check" >> $GITHUB_STEP_SUMMARY
-          
+
           # Check for old script references
           OLD_SCRIPTS=("run-mcp.sh" "run-vault.sh" "init-volume.sh" "sync-volume-to-local.sh" "cloudflared.tunnel.sh" "verify-shared-vault.sh")
-          
+
           for old_script in "${OLD_SCRIPTS[@]}"; do
             if grep -r "$old_script" apps/ --include="*.sh" --include="*.yml" --include="*.yaml" 2>/dev/null; then
               echo "⚠️ Found reference to deprecated script: $old_script" >> $GITHUB_STEP_SUMMARY
             fi
           done
-  
+
   # ============================================================================
   # Dependency Check
   # ============================================================================
   dependency-check:
     name: Dependency & Security Check
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Check for missing dependencies
         run: |
           echo "## Dependency Check" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           MISSING_DEPS=()
           REQUIRED_COMMANDS=("docker" "podman" "git" "bash" "jq" "curl" "grep")
-          
+
           for cmd in "${REQUIRED_COMMANDS[@]}"; do
             if ! command -v "$cmd" &> /dev/null; then
               MISSING_DEPS+=("$cmd")
             fi
           done
-          
+
           if [[ ${#MISSING_DEPS[@]} -eq 0 ]]; then
             echo "✅ All required commands available" >> $GITHUB_STEP_SUMMARY
           else
             echo "⚠️ Missing commands: ${MISSING_DEPS[*]}" >> $GITHUB_STEP_SUMMARY
           fi
-      
+
       - name: Scan for secrets
         run: |
           echo "### Secret Scanning" >> $GITHUB_STEP_SUMMARY
-          
+
           # Check for common secret patterns
           if grep -r "password\|secret\|api.key\|token" scripts/ --include="*.sh" | grep -v "^Binary"; then
             echo "⚠️ Potential hardcoded secrets found" >> $GITHUB_STEP_SUMMARY
           else
             echo "✅ No obvious hardcoded secrets detected" >> $GITHUB_STEP_SUMMARY
           fi
-  
+
   # ============================================================================
   # Report Summary
   # ============================================================================
@@ -190,14 +190,14 @@ jobs:
     runs-on: ubuntu-latest
     needs: [daily-check]
     if: always()
-    
+
     steps:
       - name: Create GitHub Issue
         uses: actions/github-script@v7
         with:
           script: |
             const date = new Date().toISOString().split('T')[0];
-            
+
             github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,

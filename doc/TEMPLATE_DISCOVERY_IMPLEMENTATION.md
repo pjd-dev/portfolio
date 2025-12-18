@@ -12,7 +12,9 @@
 ## What Was Done
 
 ### Discovery
+
 The Template Discovery API was **already fully implemented** but not activated. Found:
+
 - ✅ Complete service implementation (`template-discovery.service.ts`)
 - ✅ All 6 MCP tools implemented (`template_discovery.ts`)
 - ❌ Tools not imported/exported in tools index
@@ -22,19 +24,21 @@ The Template Discovery API was **already fully implemented** but not activated. 
 **File Modified:** `apps/mcp/src/mcp/obsidian/tools/index.ts`
 
 **Added Import (lines 45-53):**
+
 ```typescript
 // Template discovery tools
-import { 
-  ListTemplatesTool, 
-  GetTemplatesByCategoryTool, 
-  GetTemplateInfoTool, 
-  PreviewTemplateTool, 
-  ValidateTemplateTool, 
-  SearchTemplatesTool 
-} from "./template_discovery.js";
+import {
+  ListTemplatesTool,
+  GetTemplatesByCategoryTool,
+  GetTemplateInfoTool,
+  PreviewTemplateTool,
+  ValidateTemplateTool,
+  SearchTemplatesTool,
+} from './template_discovery.js';
 ```
 
 **Added Export (lines 113-119):**
+
 ```typescript
 // Template discovery tools
 ListTemplatesTool,
@@ -46,6 +50,7 @@ SearchTemplatesTool,
 ```
 
 ### Verification
+
 - ✅ TypeScript type checking passed
 - ✅ Build completed successfully
 - ✅ All 6 tools now active in MCP server
@@ -66,11 +71,13 @@ SearchTemplatesTool,
 ## Technical Architecture
 
 ### Service Layer
+
 **Class:** `TemplateDiscoveryService`  
 **Location:** `apps/mcp/src/services/template-discovery.service.ts`  
 **Size:** ~440 lines
 
 **Key Features:**
+
 - Template discovery and caching (60s TTL)
 - Variable extraction with type inference
 - Section parsing and analysis
@@ -80,16 +87,19 @@ SearchTemplatesTool,
 - Comprehensive validation
 
 ### MCP Tools Layer
+
 **Location:** `apps/mcp/src/mcp/obsidian/tools/template_discovery.ts`  
 **Size:** ~314 lines
 
 **Responsibilities:**
+
 - Wrap service methods in MCP tool interface
 - Input validation with Zod schemas
 - Response formatting for MCP protocol
 - Error handling and user-friendly messages
 
 ### Integration
+
 **Location:** `apps/mcp/src/mcp/obsidian/tools/index.ts`  
 **Total Tools:** 51 (including 6 template discovery tools)
 
@@ -98,12 +108,14 @@ SearchTemplatesTool,
 ## Capabilities Provided
 
 ### 1. Template Discovery
+
 - Auto-scan `vault-data/templates/` directory
 - Extract metadata from frontmatter
 - Categorize by folder structure
 - Cache for performance
 
 ### 2. Variable Analysis
+
 - Extract `{{variable}}` placeholders
 - Infer types from naming conventions
 - Identify required vs optional
@@ -111,18 +123,21 @@ SearchTemplatesTool,
 - Extract descriptions from comments
 
 ### 3. Structure Analysis
+
 - Parse markdown heading hierarchy
 - Identify sections and subsections
 - Detect placeholder locations
 - Extract frontmatter keys
 
 ### 4. Validation
+
 - YAML syntax validation
 - Unclosed placeholder detection
 - Empty section warnings
 - Required variable checks
 
 ### 5. Preview & Substitution
+
 - Variable substitution
 - Automatic date/time variables
 - Conditional logic support
@@ -134,20 +149,21 @@ SearchTemplatesTool,
 
 **Location:** `vault-data/templates/tasks/`
 
-| Template | Purpose | Variables |
-|----------|---------|-----------|
-| task-template.md | Main task structure | 17+ variables |
-| reward-template.md | Milestone rewards | 5 variables |
-| blocker-template.md | Task blockers | 4 variables |
-| need-template.md | Dependencies | 7 variables |
-| checklist-item-template.md | Checklist items | 5 variables |
-| history-entry-template.md | Timeline entries | 4 variables |
+| Template                   | Purpose             | Variables     |
+| -------------------------- | ------------------- | ------------- |
+| task-template.md           | Main task structure | 17+ variables |
+| reward-template.md         | Milestone rewards   | 5 variables   |
+| blocker-template.md        | Task blockers       | 4 variables   |
+| need-template.md           | Dependencies        | 7 variables   |
+| checklist-item-template.md | Checklist items     | 5 variables   |
+| history-entry-template.md  | Timeline entries    | 4 variables   |
 
 ---
 
 ## Impact & Benefits
 
 ### Before
+
 - ❌ Users needed to know template names
 - ❌ No visibility into required fields
 - ❌ Manual template inspection required
@@ -155,6 +171,7 @@ SearchTemplatesTool,
 - ❌ No validation before use
 
 ### After
+
 - ✅ Automatic template discovery
 - ✅ Complete field visibility
 - ✅ Programmatic inspection
@@ -163,6 +180,7 @@ SearchTemplatesTool,
 - ✅ Search and filter capabilities
 
 ### Use Cases Enabled
+
 1. **Interactive Note Creation** - AI-guided workflows
 2. **Template Validation** - CI/CD integration
 3. **Auto-completion** - IDE integrations
@@ -177,9 +195,10 @@ SearchTemplatesTool,
 **Initial Discovery:** ~50-100ms  
 **Cached Access:** ~1-5ms  
 **Cache Duration:** 60 seconds  
-**Memory Per Template:** ~1KB  
+**Memory Per Template:** ~1KB
 
 **Optimization:**
+
 - LRU cache with TTL
 - Lazy parsing (parse on demand)
 - Category filtering for reduced payloads
@@ -190,6 +209,7 @@ SearchTemplatesTool,
 ## Testing
 
 ### Validation
+
 ```bash
 cd apps/mcp
 pnpm typecheck  # ✅ Passed
@@ -197,6 +217,7 @@ pnpm build      # ✅ Success
 ```
 
 ### Manual Testing
+
 ```bash
 # Start server
 pnpm dev
@@ -231,12 +252,14 @@ Created comprehensive documentation:
 ## Next Steps
 
 ### Immediate
+
 - ✅ Implementation complete
 - ✅ Documentation complete
 - ✅ Build passing
 - ⏳ Ready for deployment
 
 ### Future Enhancements
+
 1. **Template Validation Rules** - Custom validators per type
 2. **Variable Constraints** - Min/max, regex, allowed values
 3. **Template Versioning** - Track changes and migrations
@@ -247,6 +270,7 @@ Created comprehensive documentation:
 8. **Template Marketplace** - Community sharing
 
 ### Integration Opportunities
+
 1. **Claude Desktop Integration** - Native template browser
 2. **VS Code Extension** - Template picker in IDE
 3. **Web UI** - Visual template management
@@ -258,14 +282,17 @@ Created comprehensive documentation:
 ## Files Created/Modified
 
 ### Modified
+
 - `apps/mcp/src/mcp/obsidian/tools/index.ts` (2 changes: import + export)
 
 ### Created (Documentation)
+
 - `TEMPLATE_DISCOVERY_API.md` - Full documentation
 - `TEMPLATE_DISCOVERY_QUICK_REF.md` - Quick reference
 - `TEMPLATE_DISCOVERY_IMPLEMENTATION.md` - This file
 
 ### Existing (No Changes)
+
 - `apps/mcp/src/services/template-discovery.service.ts` - Service implementation
 - `apps/mcp/src/mcp/obsidian/tools/template_discovery.ts` - MCP tools
 - `vault-data/templates/tasks/*.md` - Template files
@@ -277,6 +304,7 @@ Created comprehensive documentation:
 The Template Discovery API is now **fully operational** and integrated into the MCP server. All 6 tools are active and ready for use. The implementation required minimal changes (just adding imports/exports) because the core functionality was already built but not activated.
 
 **Impact Summary:**
+
 - 🚀 High-impact feature with low implementation cost
 - 📊 Enables data-driven template selection
 - 🤖 Powers AI-guided note creation workflows

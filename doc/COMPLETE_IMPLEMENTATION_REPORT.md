@@ -69,6 +69,7 @@ Executes multi-step vault operations as **atomic transactions** with preview-bef
 ### Features Implemented
 
 #### Pipeline Step Types
+
 - `PatchStep` — Structured content patches
 - `MoveStep` — File relocations
 - `AutoLinkStep` — Automatic link discovery/insertion
@@ -79,6 +80,7 @@ Executes multi-step vault operations as **atomic transactions** with preview-bef
 #### MCP Tools
 
 **`obsidian_run_pipeline_simulation`**
+
 ```typescript
 Input:  { pipeline: VaultPipeline }
 Output: {
@@ -89,6 +91,7 @@ Output: {
 ```
 
 **`obsidian_apply_pipeline`**
+
 ```typescript
 Input:  { pipelineId: string; confirm: boolean }
 Output: {
@@ -146,9 +149,9 @@ Provides **git-like history and rollback** for all vault mutations.
 
 ```typescript
 interface OperationEntry {
-  id: string;               // UUID
-  timestamp: string;        // ISO
-  type: "single_tool" | "pipeline" | "system";
+  id: string; // UUID
+  timestamp: string; // ISO
+  type: 'single_tool' | 'pipeline' | 'system';
   toolName: string;
   pipelineId?: string;
   user?: string;
@@ -178,18 +181,21 @@ interface FileChange {
 ### MCP Tools
 
 **`obsidian_list_operations`**
+
 ```typescript
 Input:  { limit?, beforeId?, toolName?, path?, since?, until? }
 Output: OperationEntry[]
 ```
 
 **`obsidian_get_operation`**
+
 ```typescript
 Input:  { id: string }
 Output: Full OperationEntry with file contents + diffs
 ```
 
 **`obsidian_undo_operation`**
+
 ```typescript
 Input:  { id: string; dryRun?: boolean }
 Output: {
@@ -200,6 +206,7 @@ Output: {
 ```
 
 **`obsidian_undo_last_operation`**
+
 ```typescript
 Input:  { toolName?, path?, dryRun? }
 Output: Same as undo_operation
@@ -214,12 +221,13 @@ Output: Same as undo_operation
 ### Integration Points
 
 Every mutation flows through:
+
 ```typescript
 async function applyMutationsWithJournal(
   toolName: string,
   mutations: FileMutation[],
   context?: Metadata
-): Promise<OperationEntry>
+): Promise<OperationEntry>;
 ```
 
 **Result**: Automatic logging of all changes across all services.
@@ -231,6 +239,7 @@ async function applyMutationsWithJournal(
 ### What It Does
 
 Implements a **directed acyclic graph (DAG)** of tasks with:
+
 - Dependency tracking (`depends_on` / `blocks`)
 - Blocked/unblocked computation
 - Cycle detection
@@ -243,14 +252,14 @@ Implements a **directed acyclic graph (DAG)** of tasks with:
 id: task_2024_00123
 type: task
 status: todo | in_progress | done | blocked | dropped
-effort: 2                 # abstract units
-reward: 5                 # value score
-focus_cost: 3             # cognitive load
+effort: 2 # abstract units
+reward: 5 # value score
+focus_cost: 3 # cognitive load
 depends_on:
   - task_2024_00098
   - task_2024_00045
 blocks:
-  - task_2024_00180       # optional reverse links
+  - task_2024_00180 # optional reverse links
 ---
 ```
 
@@ -258,9 +267,9 @@ blocks:
 
 ```typescript
 interface TaskGraph {
-  nodes: TaskNode[];      // all tasks
-  edges: TaskEdge[];      // from → to relationships
-  cycles?: string[][];    // detected cycles
+  nodes: TaskNode[]; // all tasks
+  edges: TaskEdge[]; // from → to relationships
+  cycles?: string[][]; // detected cycles
 }
 
 interface TaskNode {
@@ -275,15 +284,16 @@ interface TaskNode {
 }
 
 interface TaskEdge {
-  from: string;           // prerequisite
-  to: string;             // dependent
-  type: "depends_on";
+  from: string; // prerequisite
+  to: string; // dependent
+  type: 'depends_on';
 }
 ```
 
 ### MCP Tools
 
 **`obsidian_task_graph`**
+
 ```typescript
 Input:  { projectId?, tag?, status?, includeDropped? }
 Output: {
@@ -294,6 +304,7 @@ Output: {
 ```
 
 **`obsidian_task_dependencies`**
+
 ```typescript
 Input:  { id: string; depth?: number; direction? }
 Output: {
@@ -305,12 +316,14 @@ Output: {
 ```
 
 **`obsidian_task_set_dependency`**
+
 ```typescript
 Input:  { fromId, toId, action: "add" | "remove", bidirectional? }
 Output: { success: boolean; errorCode?, cycles? }
 ```
 
 **`obsidian_task_next_actions`**
+
 ```typescript
 Input:  {
   projectId?, max?, maxEffort?, maxFocusCost?,
@@ -327,6 +340,7 @@ Output: {
 ```
 
 **`obsidian_task_critical_path`**
+
 ```typescript
 Input:  { targetId: string; useEffort? }
 Output: {
@@ -347,6 +361,7 @@ Tasks sorted by **reward-per-effort-per-focus** ratio.
 ### Blocked/Unblocked Logic
 
 A task is **unblocked** if:
+
 1. `status ∈ {todo, in_progress}`
 2. All `depends_on` tasks are `done` or `dropped`
 
@@ -372,8 +387,8 @@ interface WorkSession {
   createdAt: string;
   startedAt?: string;
   endedAt?: string;
-  status: "planned" | "active" | "completed" | "aborted";
-  
+  status: 'planned' | 'active' | 'completed' | 'aborted';
+
   params: {
     durationMinutes: number;
     maxFocusCost?: number;
@@ -381,7 +396,7 @@ interface WorkSession {
     tags?: string[];
     maxTasks?: number;
   };
-  
+
   totals: {
     plannedEffort: number;
     plannedReward: number;
@@ -389,7 +404,7 @@ interface WorkSession {
     actualEffort?: number;
     actualReward?: number;
   };
-  
+
   tasks: SessionTask[];
 }
 ```
@@ -406,6 +421,7 @@ interface WorkSession {
 ### MCP Tools
 
 **`obsidian_plan_session`**
+
 ```typescript
 Input:  {
   durationMinutes: number;
@@ -427,6 +443,7 @@ Output: {
 **`obsidian_end_session`**
 
 **`obsidian_update_session_task`**
+
 ```typescript
 Input:  {
   sessionId: string;
@@ -449,16 +466,16 @@ Output: Updated WorkSession
 ```
 1. "Plan a 45-minute low-focus session on project X"
    → obsidian_plan_session({ durationMinutes: 45, maxFocusCost: 2, projectId: "X" })
-   
+
 2. Start session
    → obsidian_start_session({ sessionId })
-   
+
 3. Mark tasks done
    → obsidian_update_session_task({ sessionId, taskId, status: "done", syncTaskStatus: true })
-   
+
 4. End session
    → obsidian_end_session({ sessionId, status: "completed" })
-   
+
 5. Review stats
    → session.totals.actualEffort, session.totals.actualReward
 ```
@@ -478,12 +495,12 @@ interface NoteStructureSchema {
   id: string;
   title: string;
   description?: string;
-  
+
   appliesTo?: {
-    frontmatter?: { type?, tags?, status? };
-    pathPattern?: string;  // glob
+    frontmatter?: { type?; tags?; status? };
+    pathPattern?: string; // glob
   };
-  
+
   headings: HeadingRule[];
   allowUnknownHeadings?: boolean;
 }
@@ -491,9 +508,9 @@ interface NoteStructureSchema {
 interface HeadingRule {
   id: string;
   title: string;
-  level: number;              // 1 = #, 2 = ##, etc.
-  text: string;               // "Decisions"
-  matchMode?: "equals" | "startsWith" | "regex";
+  level: number; // 1 = #, 2 = ##, etc.
+  text: string; // "Decisions"
+  matchMode?: 'equals' | 'startsWith' | 'regex';
   required?: boolean;
   unique?: boolean;
   order?: number;
@@ -563,6 +580,7 @@ interface HeadingRule {
 **`obsidian_get_schema`**
 
 **`obsidian_validate_note_structure`**
+
 ```typescript
 Input:  { path: string; schemaId?: string }
 Output: {
@@ -573,6 +591,7 @@ Output: {
 ```
 
 **`obsidian_fix_note_structure`**
+
 ```typescript
 Input:  {
   path: string;
@@ -634,6 +653,7 @@ reward: 8
 ```
 
 Categories:
+
 - `security` — Baseline requirements
 - `security-maintenance` — Recurring tasks (rotation, reviews)
 - `security-incident` — Generated from suspicious activity
@@ -661,47 +681,52 @@ depends_on:
 ### Maintenance Tasks
 
 **Token Rotation** (recurring)
+
 ```yaml
 id: sec-rotate-secrets
 category: security-maintenance
 status: todo
-description: "Rotate MCP_SECRET / JWT_SECRET"
+description: 'Rotate MCP_SECRET / JWT_SECRET'
 ```
 
 **Journal Review** (monthly)
+
 ```yaml
 id: sec-review-journal
 category: security-review
 status: todo
-description: "Review MCP journal for anomalies"
+description: 'Review MCP journal for anomalies'
 ```
 
 ### Incident Response
 
 When MCP detects suspicious activity (e.g., repeated auth failures):
 → Auto-create incident task
+
 ```yaml
 id: sec-incident-2024-12-07-001
 category: security-incident
 status: todo
-description: "Investigate repeated auth failures for client X"
+description: 'Investigate repeated auth failures for client X'
 ```
 
 ### Session Planner Integration
 
 **Security-focused sessions**:
+
 ```typescript
 obsidian_plan_session({
   durationMinutes: 45,
-  tags: ["security"],
-  maxTasks: 3
-})
+  tags: ['security'],
+  maxTasks: 3,
+});
 ```
 
 **Priority biasing**:
+
 ```yaml
 category: security
-reward: 10        # higher than "fun" tasks
+reward: 10 # higher than "fun" tasks
 effortScore: 2
 ```
 
@@ -720,6 +745,7 @@ effortScore: 2
 ### What's Tested
 
 #### Task Graph Service (18 tests)
+
 1. ✅ Build graph with nodes + edges
 2. ✅ Blocked/unblocked computation
 3. ✅ Filter by project
@@ -740,6 +766,7 @@ effortScore: 2
 18. ✅ Cache invalidation
 
 #### Session Planner Service (19 tests)
+
 1. ✅ Plan session with duration constraint
 2. ✅ Plan session with focus constraint
 3. ✅ Plan session with project filter
@@ -912,22 +939,26 @@ vault/
 ## Performance Characteristics
 
 ### Task Graph Service
+
 - **Graph Build**: O(n) where n = number of task notes
 - **Cycle Detection**: O(V + E) where V = nodes, E = edges
 - **Next Actions**: O(n log n) for sorting
 - **Caching**: Invalidated on vault changes
 
 ### Session Planner
+
 - **Task Selection**: O(n) filtering + O(n log n) sorting
 - **Packing**: O(n) greedy algorithm
 - **Session Persistence**: O(1) JSON write
 
 ### Pipeline Engine
+
 - **Simulation**: O(steps × files) in-memory
 - **Diff Generation**: O(total content size)
 - **Apply**: O(files) with vault lock
 
 ### Journal Service
+
 - **Append**: O(1) JSONL append
 - **List**: O(log n) with indexing
 - **Undo**: O(1) lookup + O(files) restore
@@ -953,6 +984,7 @@ MAX_JOURNAL_DAYS=90
 ### Runtime Configuration
 
 #### Journal Retention
+
 ```json
 {
   "maxDays": 90,
@@ -961,6 +993,7 @@ MAX_JOURNAL_DAYS=90
 ```
 
 #### Session Planning
+
 ```json
 {
   "minutesPerEffortUnit": 15,
@@ -974,16 +1007,19 @@ MAX_JOURNAL_DAYS=90
 ## Security Considerations
 
 ### Access Control
+
 - **Vault Lock**: Prevents concurrent writes during pipelines
 - **Operation Journal**: Full audit trail of all mutations
 - **Undo Protection**: Hash-based conflict detection
 
 ### Data Integrity
+
 - **Atomic Writes**: All-or-nothing semantics
 - **Validation**: Pre-flight checks before apply
 - **Rollback**: Undo capability for all operations
 
 ### Security-as-Tasks
+
 - Security requirements block risky features via task dependencies
 - Maintenance tasks surface security work in planning
 - Incident tasks auto-created from suspicious activity
@@ -1003,6 +1039,7 @@ MAX_JOURNAL_DAYS=90
 ## Future Enhancements
 
 ### Phase 2 (Q1 2025)
+
 - [ ] Real-time graph updates (file watchers)
 - [ ] Multi-user collaboration (distributed locking)
 - [ ] Schema versioning & migration
@@ -1010,6 +1047,7 @@ MAX_JOURNAL_DAYS=90
 - [ ] Session analytics & insights
 
 ### Phase 3 (Q2 2025)
+
 - [ ] Graph visualization tools
 - [ ] Machine learning task scoring
 - [ ] Predictive session planning
@@ -1160,11 +1198,12 @@ The Obsidian MCP Platform transforms a collection of tools into a **cohesive, de
 
 **Test Status**: 37/37 passing (100%)  
 **Production Ready**: ✅ Yes  
-**Documentation**: ✅ Complete  
+**Documentation**: ✅ Complete
 
 ---
 
 **Next Steps**:
+
 1. Deploy to production
 2. Monitor journal for optimization opportunities
 3. Iterate on schema definitions
@@ -1173,6 +1212,6 @@ The Obsidian MCP Platform transforms a collection of tools into a **cohesive, de
 
 ---
 
-*Report generated: December 6, 2024*  
-*Platform version: 1.0.0*  
-*Author: Obsidian MCP Team*
+_Report generated: December 6, 2024_  
+_Platform version: 1.0.0_  
+_Author: Obsidian MCP Team_

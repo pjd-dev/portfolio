@@ -7,6 +7,7 @@ The Atomic Batch Pipeline Engine has been successfully implemented as specified.
 ## Files Created
 
 ### Core Service
+
 - **`apps/mcp/src/services/pipeline.service.ts`** (18KB)
   - `PipelineService` class with simulation and apply methods
   - In-memory file system for safe simulation
@@ -15,6 +16,7 @@ The Atomic Batch Pipeline Engine has been successfully implemented as specified.
   - Step executors for all five step types
 
 ### MCP Tools
+
 - **`apps/mcp/src/mcp/obsidian/tools/pipeline.ts`** (8KB)
   - `obsidian_run_pipeline_simulation` - Simulate with diff preview
   - `obsidian_apply_pipeline` - Atomic application with rollback
@@ -23,15 +25,18 @@ The Atomic Batch Pipeline Engine has been successfully implemented as specified.
   - `obsidian_validate_pipeline` - Pre-flight validation
 
 ### Documentation
+
 - **`PIPELINE_ENGINE.md`** (11KB) - Complete documentation
 - **`PIPELINE_ENGINE_QUICK_REF.md`** (8KB) - Quick reference guide
 
 ### Integration
+
 - **`apps/mcp/src/mcp/obsidian/tools/index.ts`** - Tools registered
 
 ## Architecture
 
 ### In-Memory Simulation
+
 ```typescript
 class InMemoryFileSystem {
   - Load files before execution
@@ -43,6 +48,7 @@ class InMemoryFileSystem {
 ```
 
 ### Atomic Apply
+
 ```typescript
 1. Acquire vault lock (.vault-lock)
 2. Write all mutations atomically
@@ -62,12 +68,14 @@ class InMemoryFileSystem {
 ## Key Features Implemented
 
 ### ✅ ACID Semantics
+
 - **Atomic**: All-or-nothing writes
 - **Consistent**: Validation before execution
 - **Isolated**: Vault locking prevents concurrent modifications
 - **Durable**: Journal entries record all changes
 
 ### ✅ Safety Guarantees
+
 - In-memory simulation before disk writes
 - Unified diff preview of all changes
 - Automatic rollback on write failure
@@ -75,6 +83,7 @@ class InMemoryFileSystem {
 - Error collection without stopping (configurable)
 
 ### ✅ Integration with Existing Services
+
 - **DiffPreviewService**: Powers unified diff generation
 - **FileSystemService**: Handles move operations and link updates
 - **AutoLinkService**: Provides link suggestion and application
@@ -123,6 +132,7 @@ obsidian_apply_pipeline({
 ## Technical Highlights
 
 ### Composability
+
 All existing tools become pipeline steps. The engine orchestrates them without reimplementing logic:
 
 ```typescript
@@ -134,12 +144,14 @@ All existing tools become pipeline steps. The engine orchestrates them without r
 ```
 
 ### Type Safety
+
 - TypeScript interfaces for all step types
 - Discriminated unions for type narrowing
 - Index signatures for MCP compatibility
 - Zod schemas for runtime validation
 
 ### Error Handling
+
 ```typescript
 {
   stopOnError: true,  // Stop on first error
@@ -150,6 +162,7 @@ All existing tools become pipeline steps. The engine orchestrates them without r
 ```
 
 ### Performance Optimization
+
 - Only loads files referenced by pipeline steps
 - Mutations tracked efficiently with Map
 - Diff generation uses existing service
@@ -158,12 +171,14 @@ All existing tools become pipeline steps. The engine orchestrates them without r
 ## File System Operations
 
 ### Lock File
+
 - Location: `.vault-lock` in vault root
 - Contents: Timestamp of lock acquisition
 - Auto-expires after 5 minutes
 - Prevents concurrent pipeline execution
 
 ### Journal Directory
+
 - Location: `.vault-journal/` in vault root
 - Format: JSON files named by UUID
 - Contents: Pipeline ID, mutations, stats, timestamp
@@ -172,12 +187,14 @@ All existing tools become pipeline steps. The engine orchestrates them without r
 ## Integration Points
 
 ### Services Used
+
 - `DiffPreviewService` - Diff generation and operation simulation
 - `FileSystemService` - Move operations and link updates
 - `AutoLinkService` - Link suggestion and application
 - `VAULT_ROOT` - Vault path resolution
 
 ### Services Extended
+
 - Pipeline service is standalone
 - No modifications to existing services
 - Clean adapter pattern for step execution
@@ -185,6 +202,7 @@ All existing tools become pipeline steps. The engine orchestrates them without r
 ## Testing Recommendations
 
 ### Unit Tests
+
 1. In-memory file system operations
 2. Each step executor independently
 3. Diff generation from mutations
@@ -192,6 +210,7 @@ All existing tools become pipeline steps. The engine orchestrates them without r
 5. Rollback mechanism
 
 ### Integration Tests
+
 1. Complete pipeline simulation
 2. Apply with success path
 3. Apply with failure and rollback
@@ -199,6 +218,7 @@ All existing tools become pipeline steps. The engine orchestrates them without r
 5. Multi-file operations
 
 ### End-to-End Tests
+
 1. Archive project workflow
 2. Bulk refactor workflow
 3. Template instantiation workflow
@@ -207,17 +227,20 @@ All existing tools become pipeline steps. The engine orchestrates them without r
 ## Performance Characteristics
 
 ### Simulation Phase
+
 - **File Loading**: O(n) where n = unique files in pipeline
 - **Step Execution**: O(s) where s = number of steps
 - **Diff Generation**: O(m) where m = total mutations
 - **Memory**: Linear with file sizes loaded
 
 ### Apply Phase
+
 - **Write Operations**: O(m) where m = mutations
 - **Link Updates**: Can be O(n²) for move with backlinks in large vaults
 - **Lock Overhead**: Minimal (file I/O)
 
 ### Optimization Opportunities
+
 1. Parallel file loading
 2. Incremental diff generation
 3. Link update caching
@@ -226,12 +249,14 @@ All existing tools become pipeline steps. The engine orchestrates them without r
 ## Future Enhancements
 
 ### Planned (Mentioned in Spec)
+
 - `obsidian_save_pipeline` - Save named pipelines
 - Undo support using journal entries
 - Pipeline templates for common workflows
 - Dry-run mode (execute against live vault without writes)
 
 ### Possible Extensions
+
 - Pipeline composition (pipelines calling pipelines)
 - Conditional steps (execute if condition met)
 - Variables and templating in steps
@@ -242,12 +267,14 @@ All existing tools become pipeline steps. The engine orchestrates them without r
 ## Code Quality
 
 ### TypeScript
+
 - ✅ Full type coverage
 - ✅ No `any` types except for Zod schemas
 - ✅ Interface documentation
 - ✅ Error handling with proper types
 
 ### Documentation
+
 - ✅ Inline code comments
 - ✅ JSDoc for public methods
 - ✅ README with examples
@@ -255,6 +282,7 @@ All existing tools become pipeline steps. The engine orchestrates them without r
 - ✅ Step type reference
 
 ### Patterns
+
 - ✅ Service singleton pattern
 - ✅ Adapter pattern for steps
 - ✅ Builder pattern for results
@@ -273,12 +301,14 @@ Despite being "Medium–High" complexity, the implementation was simplified by:
 ## Impact Assessment
 
 ### Extreme ROI (As Specified)
+
 This feature transforms the tool collection from "a big toolbox" into "a coherent platform":
 
 - **Before**: Individual operations, manual coordination, no rollback
 - **After**: Declarative workflows, atomic execution, automatic preview
 
 ### Use Cases Enabled
+
 1. **Project archival** - Update metadata, create links, move to archive atomically
 2. **Bulk refactors** - Rename sections, update references across files
 3. **Template instantiation** - Fill placeholders, set metadata, establish links
@@ -290,11 +320,12 @@ This feature transforms the tool collection from "a big toolbox" into "a coheren
 ✅ **TypeScript compilation**: Success  
 ✅ **No type errors**: Confirmed  
 ✅ **Tools registered**: 5 new MCP tools  
-✅ **Service exported**: Available for use  
+✅ **Service exported**: Available for use
 
 ## Next Steps
 
 ### For Users
+
 1. Read `PIPELINE_ENGINE.md` for complete documentation
 2. Try `PIPELINE_ENGINE_QUICK_REF.md` for quick start
 3. Validate a simple pipeline with `obsidian_validate_pipeline`
@@ -303,6 +334,7 @@ This feature transforms the tool collection from "a big toolbox" into "a coheren
 6. Build complex workflows
 
 ### For Developers
+
 1. Add unit tests for pipeline service
 2. Add integration tests for all step types
 3. Test error scenarios and rollback

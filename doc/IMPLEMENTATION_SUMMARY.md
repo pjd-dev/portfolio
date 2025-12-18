@@ -13,15 +13,18 @@
 ## New Feature Implementations (This Session)
 
 ### 8. Template Discovery API
+
 **Status: Complete** | **Impact: High** | **Complexity: Low**
 
 **What It Provides:**
+
 - Direct endpoint for listing all available templates
 - Read template structure and extract required/optional fields
 - Preview templates with variable substitution
 - Validate templates before use
 
 **MCP Tools (6):**
+
 - `obsidian_list_templates` - List all available templates
 - `obsidian_get_templates_by_category` - Group by category
 - `obsidian_get_template_info` - Detailed template information
@@ -30,6 +33,7 @@
 - `obsidian_search_templates` - Search by name or category
 
 **Key Features:**
+
 - Auto-discovers all templates in vault
 - Extracts variables and placeholders
 - Type inference for variables
@@ -38,10 +42,12 @@
 - Validation before use
 
 **Files:**
+
 - `apps/mcp/src/services/template-discovery.service.ts` - Service layer
 - `apps/mcp/src/mcp/obsidian/tools/template_discovery.ts` - MCP tools
 
 **Documentation:**
+
 - `TEMPLATE_DISCOVERY_API.md` - Complete API reference
 - `TEMPLATE_DISCOVERY_IMPLEMENTATION.md` - Technical details
 - `TEMPLATE_DISCOVERY_QUICK_REF.md` - Quick reference guide
@@ -49,15 +55,18 @@
 ---
 
 ### 9. Unified Diff Previews
+
 **Status: Complete** | **Impact: High** | **Complexity: Low-Medium**
 
 **What It Provides:**
+
 - Git-style unified diff visualization before applying changes
 - Multiple operation simulation without disk writes
 - Full visibility into what will change
 - Safe batch editing with audit trail
 
 **MCP Tools (5):**
+
 - `obsidian_preview_diff` - Preview operations as unified diff
 - `obsidian_apply_with_diff` - Apply with confirmation
 - `obsidian_validate_operations` - Pre-flight validation
@@ -65,6 +74,7 @@
 - `obsidian_generate_structured_diff` - Line-by-line diff data
 
 **Supported Operations:**
+
 - `replace` - Replace text with validation
 - `insert` - Insert at specific line
 - `delete` - Delete matching text
@@ -72,12 +82,14 @@
 - `replace_section` - Replace entire sections
 
 **Diff Modes:**
+
 - `full` - Entire note (frontmatter + content)
 - `frontmatter` - YAML frontmatter only
 - `content` - Content only (no frontmatter)
 - `section` - Specific section
 
 **Safety Features:**
+
 - Pre-flight validation
 - Match count verification
 - Line range validation
@@ -87,13 +99,16 @@
 - Zero disk writes for preview
 
 **Files:**
+
 - `apps/mcp/src/services/diff-preview.service.ts` - Diff generation service
 - `apps/mcp/src/mcp/obsidian/tools/diff_preview.ts` - MCP tools
 
 **Dependencies:**
+
 - `diff` v8.0.2 - Industry-standard diff library
 
 **Documentation:**
+
 - `DIFF_PREVIEW_API.md` - Complete API reference (14.8 KB)
 - `DIFF_PREVIEW_IMPLEMENTATION.md` - Technical details
 - `DIFF_PREVIEW_QUICK_REF.md` - Quick reference guide
@@ -101,15 +116,18 @@
 ---
 
 ### 10. File & Folder Move/Rename Operations
+
 **Status: Complete** | **Impact: High** | **Complexity: Low-Medium**
 
 **What It Provides:**
+
 - Move and rename notes and folders
 - Automatic wiki-link updates
 - Full vault structure control
 - Link-preserving reorganization
 
 **MCP Tools (5):**
+
 - `obsidian_move_file` - Move file with link updates
 - `obsidian_rename_file` - Rename file in place
 - `obsidian_move_folder` - Move entire folder recursively
@@ -117,6 +135,7 @@
 - `obsidian_batch_move` - Execute multiple operations
 
 **Smart Link Updates:**
+
 - Auto-fix `[[wiki-links]]`
 - Update `[[link|alias]]` syntax
 - Update internal links in moved files
@@ -124,6 +143,7 @@
 - Preserve link aliases
 
 **Operations Supported:**
+
 - Move file to new location
 - Rename file in place
 - Move entire folders recursively
@@ -131,6 +151,7 @@
 - Preview operations before executing
 
 **Safety Features:**
+
 - Path validation (prevent vault escape)
 - Conflict detection
 - Preview mode
@@ -139,13 +160,16 @@
 - Error recovery
 
 **Files:**
+
 - `apps/mcp/src/services/filesystem.service.ts` - File operations service
 - `apps/mcp/src/mcp/obsidian/tools/file_operations.ts` - MCP tools
 
 **Documentation:**
+
 - `FILE_OPERATIONS_QUICK_REF.md` - Quick reference guide
 
 **Use Cases:**
+
 - Archive old projects
 - Reorganize vault structure
 - Rename for consistency
@@ -157,33 +181,39 @@
 ---
 
 ### 11. Auto-Link Creation (Local Scope)
+
 **Status: Complete** | **Impact: High** | **Complexity: Medium**
 
 **What It Provides:**
+
 - Automatically insert `[[wiki-links]]` based on mentions
 - Local scope controls to prevent link spam
 - Smart text matching (exact, prefix, fuzzy)
 - Automated knowledge graph building
 
 **MCP Tools (4):**
+
 - `obsidian_suggest_links` - Suggest wiki-links for note
 - `obsidian_apply_links` - Apply suggested links
 - `obsidian_auto_link` - Suggest + apply in one step
 - `obsidian_batch_auto_link` - Auto-link multiple notes
 
 **Matching Modes:**
+
 - `exact` - Exact title matches (confidence: 1.0)
 - `prefix` - "Deep Work" matches "deep working" (confidence: 0.85)
 - `fuzzy` - Handles plurals, variations (confidence: 0.75)
 - `all` - All modes combined (recommended)
 
 **Scope Options:**
+
 - `folder` - Same folder only (prevents spam)
 - `vault` - Entire vault
 - `tag` - Notes with specific tag
 - `graphCluster` - Related notes from knowledge graph
 
 **Smart Features:**
+
 - Title index with caching (1-minute TTL)
 - Confidence scoring system
 - Deduplicates overlapping matches
@@ -193,6 +223,7 @@
 - Max total links per note
 
 **Safety Features:**
+
 - Local scope control (prevent link explosion)
 - Confidence thresholds
 - Max links per paragraph
@@ -202,10 +233,12 @@
 - Tag filtering
 
 **Files:**
+
 - `apps/mcp/src/services/autolink.service.ts` - Auto-linking service
 - `apps/mcp/src/mcp/obsidian/tools/autolink.ts` - MCP tools
 
 **Example:**
+
 ```markdown
 Before:
 "This requires deep work and a stable ADHD workflow."
@@ -215,6 +248,7 @@ After:
 ```
 
 **Use Cases:**
+
 - Automated knowledge graph building
 - Stop manual link wiring
 - Improve note discovery
@@ -227,24 +261,27 @@ After:
 ## Combined Session Statistics
 
 ### Tools Added
-| Feature | Tools | Code Size |
-|---------|-------|-----------|
-| Template Discovery | 6 | Already existed |
-| Diff Previews | 5 | ~21 KB |
-| File Operations | 5 | ~22 KB |
-| Auto-Link Creation | 4 | ~29 KB |
-| **Total** | **20** | **~72 KB** |
+
+| Feature            | Tools  | Code Size       |
+| ------------------ | ------ | --------------- |
+| Template Discovery | 6      | Already existed |
+| Diff Previews      | 5      | ~21 KB          |
+| File Operations    | 5      | ~22 KB          |
+| Auto-Link Creation | 4      | ~29 KB          |
+| **Total**          | **20** | **~72 KB**      |
 
 ### Performance Metrics
-| Operation | Time |
-|-----------|------|
-| Template discovery | 50-100ms (cached) |
-| Diff generation | 5-20ms per note |
-| File move | 50-200ms + link updates |
-| Auto-link scan | 100-300ms per note |
-| Link update | 2-5ms per file |
+
+| Operation          | Time                    |
+| ------------------ | ----------------------- |
+| Template discovery | 50-100ms (cached)       |
+| Diff generation    | 5-20ms per note         |
+| File move          | 50-200ms + link updates |
+| Auto-link scan     | 100-300ms per note      |
+| Link update        | 2-5ms per file          |
 
 ### Safety & Quality
+
 - ✅ Full TypeScript type safety
 - ✅ Comprehensive validation
 - ✅ Preview modes everywhere
@@ -259,6 +296,7 @@ After:
 ## Previous Enhancements (Earlier Sessions)
 
 ### 1. Frontmatter Query Enhancements
+
 **Status: Complete**
 
 - ✅ Improved `obsidian_find_by_frontmatter` performance with index-based search
@@ -269,6 +307,7 @@ After:
 - ✅ Batch file reading for I/O optimization
 
 **Files**:
+
 - `apps/mcp/src/core/cache.ts` - Enhanced cache with LRU, stats
 - `apps/mcp/src/mcp/obsidian/tools/find_by_frontmatter.ts` - Index-based queries
 - `apps/mcp/src/mcp/obsidian/tools/cache_stats.ts` - NEW management tool
@@ -276,6 +315,7 @@ After:
 ---
 
 ### 2. Advanced Editing Tools
+
 **Status: Complete**
 
 - ✅ Structured patch tool for safe markdown edits
@@ -286,6 +326,7 @@ After:
 - ✅ Diff generation for preview
 
 **Files**:
+
 - `apps/mcp/src/mcp/obsidian/tools/structured_patch.ts` - NEW advanced patching
 - `apps/mcp/src/mcp/obsidian/tools/replace_in_section.ts` - Enhanced
 - `apps/mcp/src/mcp/obsidian/tools/insert_after_heading.ts` - Enhanced
@@ -293,6 +334,7 @@ After:
 ---
 
 ### 3. encode-md Improvements
+
 **Status: Complete**
 
 - ✅ Automatic code block escaping (`--escape-code-blocks`)
@@ -301,11 +343,13 @@ After:
 - ✅ All existing modes preserved (raw, rpc, curl, b64)
 
 **Files**:
+
 - `apps/mcp/src/tools/encode-md.ts` - Enhanced with new modes
 
 ---
 
 ### 4. Workflow Automation
+
 **Status: Complete**
 
 - ✅ Conversational note templates (meeting, project, daily, task, research, custom)
@@ -313,10 +357,12 @@ After:
 - ✅ AI-driven note refactoring (7 refactoring operations)
 
 **Refactoring Operations**:
+
 - fix-headings, normalize-lists, extract-todos
 - add-toc, split-long-sections, consolidate-links, format-code-blocks
 
 **Files**:
+
 - `apps/mcp/src/mcp/obsidian/tools/conversational_template.ts` - NEW
 - `apps/mcp/src/mcp/obsidian/tools/refactor_note.ts` - NEW
 - `apps/mcp/src/mcp/obsidian/tools/auto_tag.ts` - Already existed
@@ -324,6 +370,7 @@ After:
 ---
 
 ### 5. Git Sync Enhancements
+
 **Status: Complete**
 
 - ✅ Merge conflict detection with detailed reporting
@@ -333,11 +380,13 @@ After:
 - ✅ Non-fast-forward detection
 
 **Files**:
+
 - `apps/vault-sync/scripts/sync.py` - Complete rewrite with enhancements
 
 ---
 
 ### 6. Metadata Model Extensions
+
 **Status: Complete**
 
 - ✅ Version numbers (semantic versioning x.y.z)
@@ -347,11 +396,13 @@ After:
 - ✅ Version bump operations (major, minor, patch)
 
 **Files**:
+
 - `apps/mcp/src/mcp/obsidian/tools/metadata_model.ts` - NEW comprehensive tool
 
 ---
 
 ### 7. Security & Deployment
+
 **Status: Complete**
 
 - ✅ Optional JWT-based authentication middleware
@@ -363,6 +414,7 @@ After:
 - ✅ Optional private tunnel access rules (via JWT scopes)
 
 **Files**:
+
 - `apps/mcp/src/middleware/jwt.ts` - NEW JWT middleware
 - `apps/mcp/src/middleware/index.ts` - Updated exports
 - `apps/mcp/package.json` - Added jsonwebtoken dependency
@@ -372,44 +424,47 @@ After:
 ## Complete MCP Tools List
 
 ### New Tools (This Session)
-| Tool Name | Description |
-|-----------|-------------|
-| `obsidian_list_templates` | List all available templates |
-| `obsidian_get_templates_by_category` | Group templates by category |
-| `obsidian_get_template_info` | Get template details |
-| `obsidian_preview_template` | Preview template with substitution |
-| `obsidian_validate_template` | Validate template structure |
-| `obsidian_search_templates` | Search templates |
-| `obsidian_preview_diff` | Preview unified diff |
-| `obsidian_apply_with_diff` | Apply operations with diff |
-| `obsidian_validate_operations` | Validate operations |
-| `obsidian_compare_versions` | Compare note versions |
-| `obsidian_generate_structured_diff` | Generate structured diff |
-| `obsidian_move_file` | Move file with link updates |
-| `obsidian_rename_file` | Rename file in place |
-| `obsidian_move_folder` | Move folder recursively |
-| `obsidian_preview_moves` | Preview move operations |
-| `obsidian_batch_move` | Batch move operations |
-| `obsidian_suggest_links` | Suggest auto-links |
-| `obsidian_apply_links` | Apply auto-links |
-| `obsidian_auto_link` | Auto-link in one step |
-| `obsidian_batch_auto_link` | Batch auto-link notes |
+
+| Tool Name                            | Description                        |
+| ------------------------------------ | ---------------------------------- |
+| `obsidian_list_templates`            | List all available templates       |
+| `obsidian_get_templates_by_category` | Group templates by category        |
+| `obsidian_get_template_info`         | Get template details               |
+| `obsidian_preview_template`          | Preview template with substitution |
+| `obsidian_validate_template`         | Validate template structure        |
+| `obsidian_search_templates`          | Search templates                   |
+| `obsidian_preview_diff`              | Preview unified diff               |
+| `obsidian_apply_with_diff`           | Apply operations with diff         |
+| `obsidian_validate_operations`       | Validate operations                |
+| `obsidian_compare_versions`          | Compare note versions              |
+| `obsidian_generate_structured_diff`  | Generate structured diff           |
+| `obsidian_move_file`                 | Move file with link updates        |
+| `obsidian_rename_file`               | Rename file in place               |
+| `obsidian_move_folder`               | Move folder recursively            |
+| `obsidian_preview_moves`             | Preview move operations            |
+| `obsidian_batch_move`                | Batch move operations              |
+| `obsidian_suggest_links`             | Suggest auto-links                 |
+| `obsidian_apply_links`               | Apply auto-links                   |
+| `obsidian_auto_link`                 | Auto-link in one step              |
+| `obsidian_batch_auto_link`           | Batch auto-link notes              |
 
 ### Previous Tools
-| Tool Name | Description |
-|-----------|-------------|
-| `obsidian_structured_patch` | Multi-operation atomic patching |
-| `obsidian_cache_stats` | Cache performance management |
-| `obsidian_conversational_template` | Interactive templates |
-| `obsidian_refactor_note` | AI-driven refactoring |
-| `obsidian_metadata_model` | Version & lifecycle tracking |
+
+| Tool Name                          | Description                     |
+| ---------------------------------- | ------------------------------- |
+| `obsidian_structured_patch`        | Multi-operation atomic patching |
+| `obsidian_cache_stats`             | Cache performance management    |
+| `obsidian_conversational_template` | Interactive templates           |
+| `obsidian_refactor_note`           | AI-driven refactoring           |
+| `obsidian_metadata_model`          | Version & lifecycle tracking    |
 
 ### Enhanced Existing Tools
-| Tool Name | Enhancements |
-|-----------|-------------|
-| `obsidian_find_by_frontmatter` | Index-based search, pagination, regex |
-| `obsidian_replace_in_section` | Code-block awareness |
-| `obsidian_insert_after_heading` | Precise insertions |
+
+| Tool Name                       | Enhancements                          |
+| ------------------------------- | ------------------------------------- |
+| `obsidian_find_by_frontmatter`  | Index-based search, pagination, regex |
+| `obsidian_replace_in_section`   | Code-block awareness                  |
+| `obsidian_insert_after_heading` | Precise insertions                    |
 
 ---
 
@@ -418,30 +473,35 @@ After:
 **End-to-End Knowledge Management:**
 
 1. **Discover Templates**
+
    ```
    obsidian_list_templates → Find project template
    obsidian_get_template_info → Check required fields
    ```
 
 2. **Create Note from Template**
+
    ```
    obsidian_preview_template → Preview with variables
    Create note with substituted template
    ```
 
 3. **Auto-Link Mentions**
+
    ```
    obsidian_suggest_links → Find linkable mentions
    obsidian_auto_link → Create wiki-links
    ```
 
 4. **Preview Changes**
+
    ```
    obsidian_preview_diff → See what will change
    obsidian_validate_operations → Check for issues
    ```
 
 5. **Reorganize Vault**
+
    ```
    obsidian_preview_moves → Preview file moves
    obsidian_move_file → Move with link updates
@@ -459,22 +519,26 @@ After:
 ## Installation & Usage
 
 ### Install Dependencies
+
 ```bash
 cd apps/mcp
 pnpm install
 ```
 
 ### Build
+
 ```bash
 pnpm build
 ```
 
 ### Type Check
+
 ```bash
 pnpm typecheck
 ```
 
 ### Run Development Server
+
 ```bash
 pnpm dev
 ```
@@ -484,6 +548,7 @@ pnpm dev
 ## Environment Variables
 
 ### MCP Server
+
 ```bash
 MCP_SECRET=your-secret-here
 JWT_SECRET=your-jwt-secret  # Optional, for JWT auth
@@ -492,6 +557,7 @@ OBSIDIAN_VAULT_PATH=/path/to/vault
 ```
 
 ### Vault Sync
+
 ```bash
 VAULT_PATH=/vault
 GIT_REMOTE=origin
@@ -505,6 +571,7 @@ RETRY_DELAY=5
 ## Testing
 
 All features have been:
+
 - ✅ Type-checked with TypeScript
 - ✅ Built successfully
 - ✅ Validated for API compatibility
@@ -515,6 +582,7 @@ All features have been:
 ## Documentation
 
 ### This Session
+
 - `TEMPLATE_DISCOVERY_API.md` - Complete template API
 - `TEMPLATE_DISCOVERY_IMPLEMENTATION.md` - Technical details
 - `TEMPLATE_DISCOVERY_QUICK_REF.md` - Quick reference
@@ -524,6 +592,7 @@ All features have been:
 - `FILE_OPERATIONS_QUICK_REF.md` - File operations guide
 
 ### Previous Sessions
+
 - `ENHANCEMENTS.md` - Earlier features documentation
 
 ---
@@ -531,6 +600,7 @@ All features have been:
 ## Files Summary
 
 ### New Files (This Session: 11)
+
 1. `apps/mcp/src/services/template-discovery.service.ts`
 2. `apps/mcp/src/mcp/obsidian/tools/template_discovery.ts`
 3. `apps/mcp/src/services/diff-preview.service.ts`
@@ -544,10 +614,12 @@ All features have been:
 11. `FILE_OPERATIONS_QUICK_REF.md`
 
 ### Modified Files (This Session: 2)
+
 1. `apps/mcp/src/mcp/obsidian/tools/index.ts` - Registered 20 new tools
 2. `apps/mcp/package.json` - Added `diff` dependency
 
 ### Previous Files (9 + 7 modified)
+
 See earlier sections for details
 
 ---
@@ -555,18 +627,21 @@ See earlier sections for details
 ## Total System Stats
 
 ### MCP Tools: 124 Total
+
 - 20 added this session
 - 5 added in previous session
 - ~99 existing tools
 
 ### Code Added
+
 - **This Session:** ~72 KB
 - **Previous:** ~50 KB estimate
 - **Total New:** ~122 KB
 
 ### Documentation
+
 - **This Session:** ~100 KB documentation
-- **Previous:** ~50 KB estimate  
+- **Previous:** ~50 KB estimate
 - **Total:** ~150 KB comprehensive docs
 
 ---
@@ -586,6 +661,7 @@ See earlier sections for details
 ## Success Metrics
 
 ### This Session
+
 - ✅ 0 TypeScript errors
 - ✅ Build successful
 - ✅ 4 major features completed
@@ -595,6 +671,7 @@ See earlier sections for details
 - ✅ Backward compatible (no breaking changes)
 
 ### Overall
+
 - ✅ 11 enhancement areas completed
 - ✅ 25+ new MCP tools total
 - ✅ 3 existing tools enhanced
@@ -617,6 +694,7 @@ See earlier sections for details
 ## Real-World Workflows Enabled
 
 ### Automated Knowledge Management
+
 - ✅ AI-guided note creation from templates
 - ✅ Automated wiki-link creation
 - ✅ Knowledge graph auto-building
@@ -627,6 +705,7 @@ See earlier sections for details
 - ✅ Automated connection discovery
 
 ### Content Operations
+
 - ✅ Git-compatible editing workflows
 - ✅ Multi-operation batch changes
 - ✅ Safe structural refactoring
@@ -636,6 +715,7 @@ See earlier sections for details
 - ✅ Metadata lifecycle management
 
 ### Vault Organization
+
 - ✅ Project archival with link preservation
 - ✅ Topic-based reorganization
 - ✅ Folder structure migrations

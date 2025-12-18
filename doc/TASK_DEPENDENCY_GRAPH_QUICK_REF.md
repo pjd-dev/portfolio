@@ -9,10 +9,10 @@ import { taskGraphService } from './services/task-graph.service.js';
 
 // Build full graph
 const graph = await taskGraphService.buildGraph({
-  projectId: 'project_x',        // optional filter
-  tag: 'important',               // optional filter
+  projectId: 'project_x', // optional filter
+  tag: 'important', // optional filter
   status: ['todo', 'in_progress'], // optional filter
-  includeDropped: false,          // default false
+  includeDropped: false, // default false
 });
 
 // Get next actions
@@ -26,24 +26,24 @@ const actions = await taskGraphService.getNextActions({
 
 // Add dependency (from is prerequisite, to is dependent)
 const result = await taskGraphService.setDependency(
-  'task_A',  // from: prerequisite
-  'task_B',  // to: dependent (B depends on A)
-  'add',     // action: 'add' | 'remove'
-  true,      // bidirectional: also update 'blocks' field
-  false      // allowCycle: reject if creates cycle
+  'task_A', // from: prerequisite
+  'task_B', // to: dependent (B depends on A)
+  'add', // action: 'add' | 'remove'
+  true, // bidirectional: also update 'blocks' field
+  false // allowCycle: reject if creates cycle
 );
 
 // Get task dependencies
 const deps = await taskGraphService.getTaskDependencies(
   'task_id',
-  2,         // depth: how many levels to traverse
-  'both'     // direction: 'upstream' | 'downstream' | 'both'
+  2, // depth: how many levels to traverse
+  'both' // direction: 'upstream' | 'downstream' | 'both'
 );
 
 // Get critical path
 const path = await taskGraphService.getCriticalPath(
   'goal_task_id',
-  true  // useEffort: weight by effort or count tasks
+  true // useEffort: weight by effort or count tasks
 );
 ```
 
@@ -87,7 +87,7 @@ interface TaskGraph {
     inProgress: number;
     dropped: number;
   };
-  cycles?: string[][];  // detected cycles
+  cycles?: string[][]; // detected cycles
 }
 ```
 
@@ -98,7 +98,7 @@ interface RankedTask {
   task: TaskNode;
   blocked: boolean;
   unmetDependencies: string[];
-  score: number;  // reward / (effort × focusCost)
+  score: number; // reward / (effort × focusCost)
 }
 ```
 
@@ -131,19 +131,19 @@ const started = await sessionPlannerService.startSession(sessionId);
 const updated = await sessionPlannerService.updateSessionTask(
   sessionId,
   taskId,
-  'done',  // status: 'pending' | 'in_progress' | 'done' | 'skipped'
-  true     // syncTaskStatus: update task note as well
+  'done', // status: 'pending' | 'in_progress' | 'done' | 'skipped'
+  true // syncTaskStatus: update task note as well
 );
 
 // End session
 const ended = await sessionPlannerService.endSession(
   sessionId,
-  'completed'  // status: 'completed' | 'aborted'
+  'completed' // status: 'completed' | 'aborted'
 );
 
 // List sessions
 const sessions = await sessionPlannerService.listSessions({
-  status: 'active',  // filter by status
+  status: 'active', // filter by status
   limit: 10,
   since: '2024-01-01T00:00:00Z',
 });
@@ -172,8 +172,8 @@ interface WorkSession {
     plannedEffort: number;
     plannedReward: number;
     plannedTasks: number;
-    actualEffort?: number;      // computed on end
-    actualReward?: number;      // computed on end
+    actualEffort?: number; // computed on end
+    actualReward?: number; // computed on end
   };
   tasks: SessionTask[];
 }
@@ -229,6 +229,7 @@ Sessions are stored in `.vault-sessions/<date>_session_<id>.json`:
 Default: `15 minutes per effort unit`
 
 This can be changed in `SessionPlannerService`:
+
 ```typescript
 private readonly MINUTES_PER_EFFORT_UNIT = 15;
 ```
@@ -238,6 +239,7 @@ private readonly MINUTES_PER_EFFORT_UNIT = 15;
 Task graph cache: `5 seconds`
 
 Change in `TaskGraphService`:
+
 ```typescript
 private readonly CACHE_TTL = 5000;
 ```
@@ -251,6 +253,7 @@ score = reward / (effort × focusCost)
 ```
 
 Where defaults are:
+
 - `reward = 1` if not specified
 - `effort = 1` if not specified
 - `focusCost = 1` if not specified
@@ -260,6 +263,7 @@ Higher scores indicate better tasks to work on.
 ## Cycle Detection
 
 When adding dependencies:
+
 - By default, cycles are rejected
 - Pass `allowCycle: true` to permit cycles (not recommended)
 - Cycle detection uses DFS with O(V + E) complexity
@@ -268,6 +272,7 @@ When adding dependencies:
 ## Status Semantics
 
 ### Task Status
+
 - `todo`: not started, can be worked on if unblocked
 - `in_progress`: actively being worked on
 - `done`: completed, unblocks dependents
@@ -275,6 +280,7 @@ When adding dependencies:
 - `dropped`: cancelled, treated as unblocking
 
 ### Session Status
+
 - `planned`: session created but not started
 - `active`: session in progress
 - `completed`: session finished successfully
@@ -283,6 +289,7 @@ When adding dependencies:
 ## Testing
 
 Run tests:
+
 ```bash
 npm test -- task-graph.service.test.ts
 npm test -- session-planner.service.test.ts
@@ -316,7 +323,10 @@ const afternoon = await sessionPlannerService.planSession({
 // Get critical path for project
 const path = await taskGraphService.getCriticalPath('project_goal');
 console.log(`Total effort: ${path.totalEffort} units`);
-console.log(`Critical tasks:`, path.path.map(t => t.title));
+console.log(
+  `Critical tasks:`,
+  path.path.map((t) => t.title)
+);
 
 // Plan sessions for critical tasks
 const session = await sessionPlannerService.planSession({
@@ -331,8 +341,8 @@ const session = await sessionPlannerService.planSession({
 ```typescript
 // Add new task as dependent on existing task
 await taskGraphService.setDependency(
-  'existing_task',  // prerequisite
-  'new_task',       // dependent
+  'existing_task', // prerequisite
+  'new_task', // dependent
   'add',
   true
 );
@@ -357,6 +367,7 @@ console.log('Waiting on:', deps.upstream);
 These services will be exposed via MCP tools:
 
 ### Task Graph Tools
+
 - `obsidian_task_graph` → `taskGraphService.buildGraph()`
 - `obsidian_task_dependencies` → `taskGraphService.getTaskDependencies()`
 - `obsidian_task_set_dependency` → `taskGraphService.setDependency()`
@@ -364,6 +375,7 @@ These services will be exposed via MCP tools:
 - `obsidian_task_critical_path` → `taskGraphService.getCriticalPath()`
 
 ### Session Planner Tools
+
 - `obsidian_plan_session` → `sessionPlannerService.planSession()`
 - `obsidian_get_session` → `sessionPlannerService.getSession()`
 - `obsidian_list_sessions` → `sessionPlannerService.listSessions()`
@@ -374,23 +386,26 @@ These services will be exposed via MCP tools:
 ## Troubleshooting
 
 ### Tasks not appearing in graph
+
 - Check `type: task` in frontmatter
 - Verify task has `id` field
 - Use `includeDropped: true` if looking for dropped tasks
 
 ### Cycles not being detected
+
 - Ensure `allowCycle: false` (default)
 - Check edge direction: `from` is prerequisite, `to` is dependent
 - Verify `setDependency` parameters are correct
 
 ### Session has no tasks
+
 - Check if tasks are blocked by dependencies
 - Reduce `maxFocusCost` constraint
 - Increase `durationMinutes`
 - Check `projectId` and `tags` filters
 
 ### Stats don't match expectations
+
 - Dropped tasks filtered by default (use `includeDropped: true`)
 - Status filter applies before counting
 - Cache may be stale (wait 5s or invalidate manually)
-

@@ -35,6 +35,7 @@ Migration guidance
 If you want, I can continue converting remaining `apps/mcp` tests to Vitest and remove Jest dependencies from that package.
 
 Status: `apps/mcp` Jest migration
- - `jest` / `ts-jest` / `@jest/globals` and related devDependencies were removed from `apps/mcp/package.json`.
- - The `apps/mcp/jest.config.js` file was replaced with a placeholder noting migration to Vitest.
- - Two representative test files were migrated to use `vitest` imports and verified passing.
+
+- `jest` / `ts-jest` / `@jest/globals` and related devDependencies were removed from `apps/mcp/package.json`.
+- The `apps/mcp/jest.config.js` file was replaced with a placeholder noting migration to Vitest.
+- Two representative test files were migrated to use `vitest` imports and verified passing.

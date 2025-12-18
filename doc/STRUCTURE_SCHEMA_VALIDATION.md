@@ -5,6 +5,7 @@ Enforce structural contracts on note bodies. Define required headings, content r
 ## Core Concept
 
 Every note type can have a schema that defines:
+
 - **Required headings** - Sections that must exist
 - **Content rules** - What each section must contain
 - **Structure validation** - Heading hierarchy and order
@@ -31,16 +32,16 @@ interface NoteStructureSchema {
   id: string;
   title: string;
   description?: string;
-  
+
   appliesTo?: {
     frontmatter?: {
       type?: string | string[];
       tags?: string | string[];
       status?: string | string[];
     };
-    pathPattern?: string;  // glob pattern
+    pathPattern?: string; // glob pattern
   };
-  
+
   headings: HeadingRule[];
   allowUnknownHeadings?: boolean;
 }
@@ -52,13 +53,13 @@ interface NoteStructureSchema {
 interface HeadingRule {
   id: string;
   title: string;
-  level: number;              // 1-6 for # to ######
-  text: string;               // Heading text to match
+  level: number; // 1-6 for # to ######
+  text: string; // Heading text to match
   matchMode?: 'equals' | 'startsWith' | 'regex';
   required?: boolean;
   unique?: boolean;
   order?: number;
-  children?: HeadingRule[];   // Nested headings
+  children?: HeadingRule[]; // Nested headings
   contentRules?: ContentRule[];
 }
 ```
@@ -68,12 +69,19 @@ interface HeadingRule {
 ```typescript
 interface ContentRule {
   id: string;
-  type: 'nonEmpty' | 'regex' | 'todoList' | 'bulletList' | 
-        'numberedList' | 'codeBlock' | 'maxLength' | 'minLength';
+  type:
+    | 'nonEmpty'
+    | 'regex'
+    | 'todoList'
+    | 'bulletList'
+    | 'numberedList'
+    | 'codeBlock'
+    | 'maxLength'
+    | 'minLength';
   message?: string;
-  pattern?: string;           // for regex
-  language?: string;          // for codeBlock
-  minItems?: number;          // for lists
+  pattern?: string; // for regex
+  language?: string; // for codeBlock
+  minItems?: number; // for lists
   maxItems?: number;
   maxLength?: number;
   minLength?: number;
@@ -87,11 +95,13 @@ interface ContentRule {
 List all available structure schemas.
 
 **Input:**
+
 ```json
 {}
 ```
 
 **Output:**
+
 ```json
 {
   "schemas": [
@@ -109,6 +119,7 @@ List all available structure schemas.
 Get complete schema definition.
 
 **Input:**
+
 ```json
 {
   "id": "meeting"
@@ -123,14 +134,16 @@ Full `NoteStructureSchema` with all heading rules and content validation.
 Validate note against its schema.
 
 **Input:**
+
 ```json
 {
   "path": "meetings/2024-12-06-standup.md",
-  "schemaId": "meeting"  // optional, auto-detected if omitted
+  "schemaId": "meeting" // optional, auto-detected if omitted
 }
 ```
 
 **Output:**
+
 ```json
 {
   "schemaId": "meeting",
@@ -154,6 +167,7 @@ Validate note against its schema.
 Auto-fix note structure to match schema.
 
 **Input:**
+
 ```json
 {
   "path": "meetings/2024-12-06-standup.md",
@@ -169,6 +183,7 @@ Auto-fix note structure to match schema.
 ```
 
 **Output (preview):**
+
 ```json
 {
   "schemaId": "meeting",
@@ -178,6 +193,7 @@ Auto-fix note structure to match schema.
 ```
 
 **Output (applied):**
+
 ```json
 {
   "schemaId": "meeting",
@@ -192,35 +208,42 @@ Auto-fix note structure to match schema.
 ### Match Modes
 
 **equals** (default)
+
 ```json
 {
   "text": "Context",
   "matchMode": "equals"
 }
 ```
+
 Matches: `## Context` exactly (case-insensitive)
 
 **startsWith**
+
 ```json
 {
   "text": "Meeting",
   "matchMode": "startsWith"
 }
 ```
+
 Matches: `## Meeting Notes`, `## Meeting Summary`, etc.
 
 **regex**
+
 ```json
 {
   "text": "^(Context|Background)$",
   "matchMode": "regex"
 }
 ```
+
 Matches: `## Context` or `## Background`
 
 ### Content Rule Types
 
 **nonEmpty**
+
 ```json
 {
   "type": "nonEmpty",
@@ -229,6 +252,7 @@ Matches: `## Context` or `## Background`
 ```
 
 **regex**
+
 ```json
 {
   "type": "regex",
@@ -238,6 +262,7 @@ Matches: `## Context` or `## Background`
 ```
 
 **todoList**
+
 ```json
 {
   "type": "todoList",
@@ -245,9 +270,11 @@ Matches: `## Context` or `## Background`
   "message": "At least one action item required"
 }
 ```
+
 Validates: `- [ ] task` or `- [x] completed`
 
 **bulletList**
+
 ```json
 {
   "type": "bulletList",
@@ -255,18 +282,22 @@ Validates: `- [ ] task` or `- [x] completed`
   "message": "List at least two items"
 }
 ```
+
 Validates: `- item` or `* item`
 
 **numberedList**
+
 ```json
 {
   "type": "numberedList",
   "minItems": 1
 }
 ```
+
 Validates: `1. item`, `2. item`, etc.
 
 **codeBlock**
+
 ```json
 {
   "type": "codeBlock",
@@ -274,9 +305,11 @@ Validates: `1. item`, `2. item`, etc.
   "message": "Must include TypeScript code example"
 }
 ```
+
 Validates: ` ```typescript ... ``` `
 
 **maxLength / minLength**
+
 ```json
 {
   "type": "minLength",
@@ -304,18 +337,14 @@ Validates: ` ```typescript ... ``` `
       "level": 2,
       "text": "Context",
       "required": true,
-      "contentRules": [
-        { "type": "nonEmpty" }
-      ]
+      "contentRules": [{ "type": "nonEmpty" }]
     },
     {
       "id": "decisions",
       "level": 2,
       "text": "Decisions",
       "required": true,
-      "contentRules": [
-        { "type": "nonEmpty" }
-      ]
+      "contentRules": [{ "type": "nonEmpty" }]
     },
     {
       "id": "actions",
@@ -366,9 +395,7 @@ Validates: ` ```typescript ... ``` `
           "level": 3,
           "text": "In Scope",
           "required": true,
-          "contentRules": [
-            { "type": "bulletList", "minItems": 1 }
-          ]
+          "contentRules": [{ "type": "bulletList", "minItems": 1 }]
         }
       ]
     },
@@ -377,18 +404,14 @@ Validates: ` ```typescript ... ``` `
       "level": 2,
       "text": "Risks",
       "required": true,
-      "contentRules": [
-        { "type": "bulletList", "minItems": 1 }
-      ]
+      "contentRules": [{ "type": "bulletList", "minItems": 1 }]
     },
     {
       "id": "next_actions",
       "level": 2,
       "text": "Next Actions",
       "required": true,
-      "contentRules": [
-        { "type": "todoList", "minItems": 1 }
-      ]
+      "contentRules": [{ "type": "todoList", "minItems": 1 }]
     }
   ]
 }
@@ -401,21 +424,21 @@ Validates: ` ```typescript ... ``` `
 ```typescript
 // Auto-detect schema from frontmatter
 const result = await obsidian_validate_note_structure({
-  path: "meetings/2024-12-06-standup.md"
+  path: 'meetings/2024-12-06-standup.md',
 });
 
 if (!result.valid) {
-  console.log("Issues found:", result.issues);
-  
+  console.log('Issues found:', result.issues);
+
   // Preview fix
   const preview = await obsidian_fix_note_structure({
-    path: "meetings/2024-12-06-standup.md",
-    previewOnly: true
+    path: 'meetings/2024-12-06-standup.md',
+    previewOnly: true,
   });
-  
+
   // Apply fix
   await obsidian_fix_note_structure({
-    path: "meetings/2024-12-06-standup.md"
+    path: 'meetings/2024-12-06-standup.md',
   });
 }
 ```
@@ -424,18 +447,16 @@ if (!result.valid) {
 
 ```typescript
 const result = await obsidian_validate_note_structure({
-  path: "projects/vault-platform.md",
-  schemaId: "project"
+  path: 'projects/vault-platform.md',
+  schemaId: 'project',
 });
 
 // Check specific issues
 const missingHeadings = result.issues.filter(
-  i => i.code === 'MISSING_HEADING'
+  (i) => i.code === 'MISSING_HEADING'
 );
 
-const emptySections = result.issues.filter(
-  i => i.code === 'EMPTY_SECTION'
-);
+const emptySections = result.issues.filter((i) => i.code === 'EMPTY_SECTION');
 ```
 
 ### Example 3: Validate All Notes of Type
@@ -443,16 +464,16 @@ const emptySections = result.issues.filter(
 ```typescript
 // Get all meeting notes
 const meetings = await obsidian_list_notes({
-  filter: { type: "meeting" }
+  filter: { type: 'meeting' },
 });
 
 // Validate each
 for (const note of meetings) {
   const result = await obsidian_validate_note_structure({
     path: note.path,
-    schemaId: "meeting"
+    schemaId: 'meeting',
   });
-  
+
   if (!result.valid) {
     console.log(`${note.path}: ${result.issues.length} issues`);
   }
@@ -526,19 +547,19 @@ if (after.issues.length > before.issues.length) {
 
 ## Validation Codes
 
-| Code | Severity | Meaning |
-|------|----------|---------|
-| `MISSING_HEADING` | error | Required heading not found |
-| `DUPLICATE_HEADING` | error | Heading should be unique |
-| `EMPTY_SECTION` | error | Required section is empty |
-| `CONTENT_PATTERN_MISMATCH` | error | Content doesn't match regex |
-| `INSUFFICIENT_TODO_ITEMS` | error | Not enough todo items |
-| `INSUFFICIENT_BULLET_ITEMS` | error | Not enough bullet items |
-| `INSUFFICIENT_NUMBERED_ITEMS` | error | Not enough numbered items |
-| `MISSING_CODE_BLOCK` | error | Required code block missing |
-| `CONTENT_TOO_LONG` | warning | Content exceeds max length |
-| `CONTENT_TOO_SHORT` | warning | Content below min length |
-| `UNKNOWN_HEADING` | warning | Heading not in schema |
+| Code                          | Severity | Meaning                     |
+| ----------------------------- | -------- | --------------------------- |
+| `MISSING_HEADING`             | error    | Required heading not found  |
+| `DUPLICATE_HEADING`           | error    | Heading should be unique    |
+| `EMPTY_SECTION`               | error    | Required section is empty   |
+| `CONTENT_PATTERN_MISMATCH`    | error    | Content doesn't match regex |
+| `INSUFFICIENT_TODO_ITEMS`     | error    | Not enough todo items       |
+| `INSUFFICIENT_BULLET_ITEMS`   | error    | Not enough bullet items     |
+| `INSUFFICIENT_NUMBERED_ITEMS` | error    | Not enough numbered items   |
+| `MISSING_CODE_BLOCK`          | error    | Required code block missing |
+| `CONTENT_TOO_LONG`            | warning  | Content exceeds max length  |
+| `CONTENT_TOO_SHORT`           | warning  | Content below min length    |
+| `UNKNOWN_HEADING`             | warning  | Heading not in schema       |
 
 ## Auto-Fix Capabilities
 
@@ -547,13 +568,13 @@ if (after.issues.length > before.issues.length) {
 ✅ **Missing headings** - Insert at appropriate location  
 ✅ **Heading order** - Reorder to match schema  
 ✅ **Empty sections** - Create placeholder content  
-⚠️ **Unknown headings** - Can remove if configured  
+⚠️ **Unknown headings** - Can remove if configured
 
 ### What Cannot Be Fixed
 
 ❌ **Empty required content** - Needs manual input  
 ❌ **Missing todo items** - Needs user decisions  
-❌ **Wrong content type** - Needs restructuring  
+❌ **Wrong content type** - Needs restructuring
 
 ### Fix Preview
 
@@ -561,15 +582,15 @@ Always use `previewOnly: true` first:
 
 ```typescript
 const preview = await obsidian_fix_note_structure({
-  path: "note.md",
-  previewOnly: true
+  path: 'note.md',
+  previewOnly: true,
 });
 
-console.log(preview.previewDiff);  // Review changes
+console.log(preview.previewDiff); // Review changes
 
 // Then apply
 await obsidian_fix_note_structure({
-  path: "note.md"
+  path: 'note.md',
 });
 ```
 
@@ -580,22 +601,27 @@ await obsidian_fix_note_structure({
 Schema automatically detected from:
 
 1. **Frontmatter type:**
+
 ```yaml
 ---
 type: meeting
 ---
 ```
+
 Matches schema with `appliesTo.frontmatter.type: "meeting"`
 
 2. **Frontmatter tags:**
+
 ```yaml
 ---
 tags: [meeting, standup]
 ---
 ```
+
 Matches schema with `appliesTo.frontmatter.tags: "meeting"`
 
 3. **Path pattern:**
+
 ```json
 {
   "appliesTo": {
@@ -603,6 +629,7 @@ Matches schema with `appliesTo.frontmatter.tags: "meeting"`
   }
 }
 ```
+
 Matches any note in `meetings/` directory
 
 ### Manual Override
@@ -610,24 +637,27 @@ Matches any note in `meetings/` directory
 ```typescript
 // Force specific schema
 await obsidian_validate_note_structure({
-  path: "note.md",
-  schemaId: "meeting"  // Override auto-detection
+  path: 'note.md',
+  schemaId: 'meeting', // Override auto-detection
 });
 ```
 
 ## Performance
 
 ### Schema Loading
+
 - **Lazy**: Loaded on first use
 - **Cached**: Kept in memory after load
 - **Fast**: JSON parsing only
 
 ### Validation
+
 - **Single pass**: O(n) where n = sections
 - **Efficient matching**: Regex compiled once
 - **Minimal memory**: Sections flattened
 
 ### Auto-Fix
+
 - **Preview**: Uses diff-preview service
 - **Apply**: Single file write
 - **Fast**: O(m) where m = missing headings
@@ -684,6 +714,7 @@ try {
 ## Future Enhancements
 
 ### Planned
+
 - Heading order enforcement
 - Section reordering in auto-fix
 - Custom validators (JavaScript functions)
@@ -691,6 +722,7 @@ try {
 - Conditional rules
 
 ### Possible
+
 - Multi-schema support (note matches multiple)
 - Schema versioning and migration
 - Visual schema editor

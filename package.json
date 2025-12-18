@@ -36,6 +36,8 @@
     "build:mcp": "[ -d apps/mcp ] && pnpm -C apps/mcp run build || echo 'apps/mcp not found'",
     "build:llm": "[ -d apps/llm-adapter ] && pnpm -C apps/llm-adapter run build || echo 'apps/llm-adapter not found'",
     "lint": "pnpm -w -r run lint --if-present",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\" --ignore-path .gitignore",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\" --ignore-path .gitignore",
     "typecheck": "pnpm -w -r run typecheck --if-present",
     "test": "vitest run",
     "test:watch": "vitest --watch",

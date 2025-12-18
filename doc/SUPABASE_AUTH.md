@@ -35,24 +35,28 @@ apps/auth/
 ## Features
 
 ### ✅ Email/Password Authentication
+
 - User registration with email validation
 - Secure password-based login
 - Password reset flow
 - Email verification
 
 ### ✅ OAuth Providers
+
 - Google OAuth
 - GitHub OAuth
 - Discord OAuth
 - Easy to add more providers
 
 ### ✅ JWT Token Management
+
 - Custom JWT token generation
 - Access token with configurable expiration
 - Refresh token for long sessions
 - Token verification middleware
 
 ### ✅ User Management
+
 - Get user profile
 - Update user metadata
 - Delete user account
@@ -62,19 +66,19 @@ apps/auth/
 
 All endpoints are prefixed with `/auth`:
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| POST | `/auth/signup` | Register new user | No |
-| POST | `/auth/signin` | Sign in with credentials | No |
-| POST | `/auth/signout` | Sign out user | Yes |
-| POST | `/auth/refresh` | Refresh access token | No |
-| POST | `/auth/password-reset` | Request password reset | No |
-| GET | `/auth/oauth/:provider` | Get OAuth URL | No |
-| GET | `/auth/oauth/callback` | OAuth callback handler | No |
-| GET | `/auth/me` | Get current user | Yes |
-| PATCH | `/auth/me` | Update user metadata | Yes |
-| DELETE | `/auth/me` | Delete account | Yes |
-| GET | `/health` | Health check | No |
+| Method | Endpoint                | Description              | Auth Required |
+| ------ | ----------------------- | ------------------------ | ------------- |
+| POST   | `/auth/signup`          | Register new user        | No            |
+| POST   | `/auth/signin`          | Sign in with credentials | No            |
+| POST   | `/auth/signout`         | Sign out user            | Yes           |
+| POST   | `/auth/refresh`         | Refresh access token     | No            |
+| POST   | `/auth/password-reset`  | Request password reset   | No            |
+| GET    | `/auth/oauth/:provider` | Get OAuth URL            | No            |
+| GET    | `/auth/oauth/callback`  | OAuth callback handler   | No            |
+| GET    | `/auth/me`              | Get current user         | Yes           |
+| PATCH  | `/auth/me`              | Update user metadata     | Yes           |
+| DELETE | `/auth/me`              | Delete account           | Yes           |
+| GET    | `/health`               | Health check             | No            |
 
 ## Setup Instructions
 
@@ -105,6 +109,7 @@ cp .env.example .env
 ```
 
 Required variables:
+
 ```env
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_ANON_KEY=your-anon-key-here
@@ -113,6 +118,7 @@ JWT_SECRET=your-secret-key-change-in-production
 ```
 
 Optional (for OAuth):
+
 ```env
 OAUTH_GOOGLE_ENABLED=true
 OAUTH_GOOGLE_CLIENT_ID=your-client-id
@@ -141,11 +147,13 @@ In your Supabase dashboard:
 ### 5. Run the Service
 
 Development:
+
 ```bash
 npm run dev
 ```
 
 Production:
+
 ```bash
 npm run build
 npm start
@@ -170,6 +178,7 @@ curl -X POST http://localhost:3001/auth/signup \
 ```
 
 Response:
+
 ```json
 {
   "user": {
@@ -211,6 +220,7 @@ curl -X GET http://localhost:3001/auth/me \
 ### OAuth Flow
 
 1. Get OAuth URL:
+
 ```bash
 curl http://localhost:3001/auth/oauth/google?redirect=http://localhost:3000/callback
 ```
@@ -284,16 +294,19 @@ app.use((req, res, next) => {
 ## Development
 
 Type check:
+
 ```bash
 npm run typecheck
 ```
 
 Build:
+
 ```bash
 npm run build
 ```
 
 Watch mode:
+
 ```bash
 npm run dev
 ```
@@ -311,14 +324,17 @@ npm run dev
 ## Troubleshooting
 
 ### "Missing required environment variables"
+
 - Check `.env` file exists and contains all required variables
 - Verify Supabase credentials are correct
 
 ### "OAuth provider not enabled"
+
 - Set `OAUTH_*_ENABLED=true` in `.env`
 - Configure OAuth credentials in Supabase dashboard
 
 ### "Invalid or expired token"
+
 - Check JWT_SECRET matches between requests
 - Verify token hasn't expired (default 7 days)
 - Use refresh token to get new access token

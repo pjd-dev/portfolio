@@ -12,16 +12,16 @@ jobs:
   lint:
     name: Lint & Static Analysis
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      
+
       - name: Install ShellCheck
         run: sudo apt-get install -y shellcheck
-      
+
       - name: Run ShellCheck
         id: shellcheck
         run: |
@@ -39,7 +39,7 @@ jobs:
             fi
           done
           echo "issues=$ISSUES" >> $GITHUB_OUTPUT
-      
+
       - name: Comment with lint results
         if: steps.shellcheck.outputs.issues > 0
         uses: actions/github-script@v7
@@ -51,51 +51,51 @@ jobs:
               repo: context.repo.repo,
               body: '⚠️ **Linting Issues Found**\n\nPlease fix the ShellCheck warnings in your scripts before merging.'
             })
-  
+
   # ============================================================================
   # Test Coverage
   # ============================================================================
   test-coverage:
     name: Test Coverage Check
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Run all tests
         id: tests
         run: |
           echo "Running test suite..."
-          
+
           # Run quick tests
           if bash __tests__/scripts/quick-test.sh; then
             echo "quick_tests=passed" >> $GITHUB_OUTPUT
           else
             echo "quick_tests=failed" >> $GITHUB_OUTPUT
           fi
-          
+
           # Run services tests
           if bash __tests__/scripts/services-runtime.test.sh; then
             echo "services_tests=passed" >> $GITHUB_OUTPUT
           else
             echo "services_tests=failed" >> $GITHUB_OUTPUT
           fi
-          
+
           # Run infrastructure tests
           if bash __tests__/scripts/infrastructure-runtime.test.sh; then
             echo "infra_tests=passed" >> $GITHUB_OUTPUT
           else
             echo "infra_tests=failed" >> $GITHUB_OUTPUT
           fi
-          
+
           # Run utilities tests
           if bash __tests__/scripts/utilities-runtime.test.sh; then
             echo "utilities_tests=passed" >> $GITHUB_OUTPUT
           else
             echo "utilities_tests=failed" >> $GITHUB_OUTPUT
           fi
-      
+
       - name: Create test report
         uses: actions/github-script@v7
         with:
@@ -106,23 +106,23 @@ jobs:
               'Infrastructure Tests': '${{ steps.tests.outputs.infra_tests }}',
               'Utilities Tests': '${{ steps.tests.outputs.utilities_tests }}'
             };
-            
+
             let comment = '## Test Results\n\n';
             let allPassed = true;
-            
+
             for (const [test, result] of Object.entries(testResults)) {
               const emoji = result === 'passed' ? '✅' : '❌';
               comment += `${emoji} ${test}: ${result}\n`;
               if (result !== 'passed') allPassed = false;
             }
-            
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: comment
             });
-      
+
       - name: Check test results
         if: |
           steps.tests.outputs.quick_tests != 'passed' ||
@@ -130,66 +130,66 @@ jobs:
           steps.tests.outputs.infra_tests != 'passed' ||
           steps.tests.outputs.utilities_tests != 'passed'
         run: exit 1
-  
+
   # ============================================================================
   # Code Quality Metrics
   # ============================================================================
   quality:
     name: Code Quality Analysis
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Analyze code changes
         id: analysis
         run: |
           echo "## Code Quality Analysis" >> $GITHUB_STEP_SUMMARY
-          
+
           ADDED=$(git diff --numstat origin/develop...HEAD | awk '{sum+=$1} END {print sum}')
           REMOVED=$(git diff --numstat origin/develop...HEAD | awk '{sum+=$2} END {print sum}')
           FILES=$(git diff --name-only origin/develop...HEAD | wc -l)
-          
+
           echo "**Changes Summary:**" >> $GITHUB_STEP_SUMMARY
           echo "- Files changed: $FILES" >> $GITHUB_STEP_SUMMARY
           echo "- Lines added: $ADDED" >> $GITHUB_STEP_SUMMARY
           echo "- Lines removed: $REMOVED" >> $GITHUB_STEP_SUMMARY
-          
+
           echo "files=$FILES" >> $GITHUB_OUTPUT
           echo "added=$ADDED" >> $GITHUB_OUTPUT
-      
+
       - name: Check for common issues
         run: |
           echo "Checking for common issues..."
-          
+
           # Check for debug statements
           if grep -r "TODO\|FIXME\|XXX" scripts --include="*.sh" 2>/dev/null; then
             echo "⚠️ TODO/FIXME comments found in scripts"
           fi
-          
+
           # Check for hardcoded values
           if grep -r "localhost\|127.0.0.1" scripts --include="*.sh" 2>/dev/null; then
             echo "⚠️ Localhost references found - should use environment variables"
           fi
-  
+
   # ============================================================================
   # Documentation Check
   # ============================================================================
   docs:
     name: Documentation Check
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Check for documentation
         run: |
           echo "## Documentation Check" >> $GITHUB_STEP_SUMMARY
-          
+
           MISSING_DOCS=0
-          
+
           # Check if new scripts have comments
           for script in $(git diff --name-only origin/develop...HEAD -- scripts/ | grep "\.sh$"); do
             if [[ -f "$script" ]]; then
@@ -201,11 +201,11 @@ jobs:
               fi
             fi
           done
-          
+
           if [[ $MISSING_DOCS -gt 0 ]]; then
             echo "⚠️ $MISSING_DOCS file(s) missing documentation" >> $GITHUB_STEP_SUMMARY
           fi
-  
+
   # ============================================================================
   # Summary & Status
   # ============================================================================
@@ -214,7 +214,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [lint, test-coverage, quality, docs]
     if: always()
-    
+
     steps:
       - name: Create PR summary
         uses: actions/github-script@v7
@@ -224,29 +224,29 @@ jobs:
             const tests = '${{ needs.test-coverage.result }}';
             const quality = '${{ needs.quality.result }}';
             const docs = '${{ needs.docs.result }}';
-            
+
             let summary = '## PR Status Summary\n\n';
             summary += `- Lint: ${lint === 'success' ? '✅' : '❌'}\n`;
             summary += `- Tests: ${tests === 'success' ? '✅' : '❌'}\n`;
             summary += `- Quality: ${quality === 'success' ? '✅' : '❌'}\n`;
             summary += `- Documentation: ${docs === 'success' ? '✅' : '❌'}\n`;
-            
+
             const allPassed = lint === 'success' && tests === 'success' && 
                              quality === 'success' && docs === 'success';
-            
+
             if (allPassed) {
               summary += '\n✅ **All checks passed - ready to merge**';
             } else {
               summary += '\n❌ **Some checks failed - please review**';
             }
-            
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: summary
             });
-      
+
       - name: Require PR checks
         if: |
           needs.lint.result != 'success' ||

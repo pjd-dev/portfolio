@@ -11,6 +11,7 @@ The Unified Diff Preview system provides Git-style patch visualization for all n
 ## What It Provides
 
 Before applying any edit to a note, the system can show:
+
 - **Unified diff format** (classic +/- patch format)
 - **Full visibility** into what will be added, removed, or modified
 - **Context lines** around changes for better understanding
@@ -21,21 +22,25 @@ Before applying any edit to a note, the system can show:
 ## Available MCP Tools
 
 ### 1. `obsidian_preview_diff`
+
 **Purpose:** Preview operations as a unified diff without applying changes
 
 **Input:**
+
 - `path` (required): Relative path to the note
 - `operations` (required): Array of operations to preview
 - `mode` (optional, default: 'full'): Diff mode - 'full', 'frontmatter', 'content', or 'section'
 - `contextLines` (optional, default: 3): Number of context lines around changes
 
 **Returns:**
+
 - Unified diff in Git patch format
 - Statistics (additions, deletions, changes)
 - Validation warnings
 - Original and modified content
 
 **Example:**
+
 ```json
 {
   "path": "projects/my-project.md",
@@ -57,6 +62,7 @@ Before applying any edit to a note, the system can show:
 ```
 
 **Sample Output:**
+
 ```diff
 --- projects/my-project.md	original
 +++ projects/my-project.md	modified
@@ -67,12 +73,12 @@ Before applying any edit to a note, the system can show:
 -status: draft
 +status: published
  ---
- 
+
  # My Project
 @@ -8,6 +8,8 @@
- 
+
  Project description here.
- 
+
 +## New Section
 +
  ## Tasks
@@ -81,27 +87,32 @@ Before applying any edit to a note, the system can show:
 ---
 
 ### 2. `obsidian_apply_with_diff`
+
 **Purpose:** Apply operations and return both the diff preview and confirmation
 
 **Input:**
+
 - `path` (required): Relative path to the note
 - `operations` (required): Array of operations to apply
 - `mode` (optional, default: 'full'): Diff mode for preview
 - `dryRun` (optional, default: false): If true, only preview without applying
 
 **Returns:**
+
 - Unified diff showing what was changed
 - Confirmation of application
 - Validation results
 - Statistics
 
 **Workflow:**
+
 1. Validates all operations
 2. Generates diff preview
 3. If `dryRun: false`, applies changes
 4. Returns diff and confirmation
 
 **Example:**
+
 ```json
 {
   "path": "notes/meeting.md",
@@ -121,18 +132,22 @@ Before applying any edit to a note, the system can show:
 ---
 
 ### 3. `obsidian_validate_operations`
+
 **Purpose:** Validate operations without previewing or applying
 
 **Input:**
+
 - `path` (required): Relative path to the note
 - `operations` (required): Array of operations to validate
 
 **Returns:**
+
 - Validation status (valid/invalid)
 - List of errors (if any)
 - List of warnings (if any)
 
 **Checks:**
+
 - Required fields present
 - Search patterns exist in content
 - Line numbers in valid range
@@ -140,6 +155,7 @@ Before applying any edit to a note, the system can show:
 - Match counts accurate
 
 **Example:**
+
 ```json
 {
   "path": "tasks/task-001.md",
@@ -157,25 +173,30 @@ Before applying any edit to a note, the system can show:
 ---
 
 ### 4. `obsidian_compare_versions`
+
 **Purpose:** Compare current note content with a previous version
 
 **Input:**
+
 - `path` (required): Relative path to the note
 - `previousContent` (required): Previous version of the note content
 - `contextLines` (optional, default: 3): Number of context lines
 - `mode` (optional, default: 'full'): What to compare
 
 **Returns:**
+
 - Unified diff between versions
 - Statistics (additions, deletions)
 
 **Use Cases:**
+
 - Review changes after AI edits
 - Compare with backups
 - Audit modifications
 - Track document evolution
 
 **Example:**
+
 ```json
 {
   "path": "docs/readme.md",
@@ -188,18 +209,22 @@ Before applying any edit to a note, the system can show:
 ---
 
 ### 5. `obsidian_generate_structured_diff`
+
 **Purpose:** Generate structured line-by-line diff for programmatic processing
 
 **Input:**
+
 - `path` (required): Relative path to the note
 - `operations` (required): Array of operations to preview
 
 **Returns:**
+
 - Detailed line-by-line change information
 - Summary statistics
 - Structured data for each change (added/removed/unchanged)
 
 **Use Cases:**
+
 - Programmatic diff analysis
 - Custom diff visualization
 - Integration with external tools
@@ -210,7 +235,9 @@ Before applying any edit to a note, the system can show:
 ## Operation Types
 
 ### replace
+
 Replace text in the note
+
 ```json
 {
   "type": "replace",
@@ -222,7 +249,9 @@ Replace text in the note
 ```
 
 ### insert
+
 Insert text at a specific line
+
 ```json
 {
   "type": "insert",
@@ -232,7 +261,9 @@ Insert text at a specific line
 ```
 
 ### delete
+
 Delete matching text
+
 ```json
 {
   "type": "delete",
@@ -242,7 +273,9 @@ Delete matching text
 ```
 
 ### update_frontmatter
+
 Update YAML frontmatter
+
 ```json
 {
   "type": "update_frontmatter",
@@ -254,7 +287,9 @@ Update YAML frontmatter
 ```
 
 ### replace_section
+
 Replace entire section content
+
 ```json
 {
   "type": "replace_section",
@@ -268,25 +303,33 @@ Replace entire section content
 ## Diff Modes
 
 ### full
+
 Shows diff for the entire note (frontmatter + content)
+
 ```json
 { "mode": "full" }
 ```
 
 ### frontmatter
+
 Shows diff for YAML frontmatter only
+
 ```json
 { "mode": "frontmatter" }
 ```
 
 ### content
+
 Shows diff for content only (excludes frontmatter)
+
 ```json
 { "mode": "content" }
 ```
 
 ### section
+
 Shows diff for specific section (future enhancement)
+
 ```json
 { "mode": "section" }
 ```
@@ -296,9 +339,11 @@ Shows diff for specific section (future enhancement)
 ## Service Architecture
 
 ### DiffPreviewService
+
 **Location:** `apps/mcp/src/services/diff-preview.service.ts`
 
 **Key Features:**
+
 - **Operation Simulation**: Simulates operations without writing to disk
 - **Unified Diff Generation**: Uses `diff` library for proper patch format
 - **Multi-mode Support**: Full, frontmatter, content, section
@@ -307,6 +352,7 @@ Shows diff for specific section (future enhancement)
 - **Structured Output**: Line-by-line change tracking
 
 **Core Methods:**
+
 ```typescript
 // Preview operations and generate diff
 previewOperations(path, operations, mode, contextLines): Promise<DiffPreview>
@@ -329,6 +375,7 @@ generateStructuredDiff(original, modified): Change[]
 ## Why It Matters
 
 ### Before Diff Previews
+
 - ❌ No visibility into global effects of multiple operations
 - ❌ Risk of accidental content destruction
 - ❌ Difficult to review AI-driven changes
@@ -337,6 +384,7 @@ generateStructuredDiff(original, modified): Change[]
 - ❌ Hard to debug unexpected changes
 
 ### After Diff Previews
+
 - ✅ **Safety**: See exactly what will change before applying
 - ✅ **Visibility**: Full auditing for AI-driven changes
 - ✅ **Git-Compatible**: Standard unified diff format
@@ -350,12 +398,13 @@ generateStructuredDiff(original, modified): Change[]
 ## Use Cases
 
 ### 1. Safe Batch Refactoring
+
 ```typescript
 // Preview multiple tag updates
 const preview = await previewDiff('notes/project.md', [
   { type: 'replace', search: '#old-tag', replacement: '#new-tag' },
   { type: 'replace', search: '[[Old Link]]', replacement: '[[New Link]]' },
-  { type: 'update_frontmatter', frontmatter: { updated: '2024-12-06' } }
+  { type: 'update_frontmatter', frontmatter: { updated: '2024-12-06' } },
 ]);
 
 // Review diff, then apply
@@ -365,6 +414,7 @@ if (userApproves(preview.unified)) {
 ```
 
 ### 2. AI Edit Auditing
+
 ```typescript
 // AI suggests edits
 const aiOperations = generateAIEdits(note);
@@ -378,28 +428,33 @@ await applyWithDiff(notePath, aiOperations, { dryRun: false });
 ```
 
 ### 3. Template Variable Expansion
+
 ```typescript
 // Preview template instantiation
 const operations = [
   { type: 'replace', search: '{{title}}', replacement: 'My Document' },
   { type: 'replace', search: '{{date}}', replacement: '2024-12-06' },
-  { type: 'replace', search: '{{author}}', replacement: 'John Doe' }
+  { type: 'replace', search: '{{author}}', replacement: 'John Doe' },
 ];
 
 const preview = await previewDiff('templates/document.md', operations);
 ```
 
 ### 4. Metadata Cleanup
+
 ```typescript
 // Bulk update frontmatter across notes
 for (const note of notes) {
   const preview = await previewDiff(note.path, [
-    { type: 'update_frontmatter', frontmatter: { 
-      schema_version: '2.0',
-      migrated: true 
-    }}
+    {
+      type: 'update_frontmatter',
+      frontmatter: {
+        schema_version: '2.0',
+        migrated: true,
+      },
+    },
   ]);
-  
+
   if (preview.hasChanges) {
     await applyWithDiff(note.path, operations);
   }
@@ -407,12 +462,27 @@ for (const note of notes) {
 ```
 
 ### 5. Link Refactoring
+
 ```typescript
 // Preview link updates
-const preview = await previewDiff('index.md', [
-  { type: 'replace', search: '[[oldpage]]', replacement: '[[newpage]]', matchCount: 5 },
-  { type: 'replace', search: '[[another-old]]', replacement: '[[another-new]]', matchCount: 2 }
-], { mode: 'content' });
+const preview = await previewDiff(
+  'index.md',
+  [
+    {
+      type: 'replace',
+      search: '[[oldpage]]',
+      replacement: '[[newpage]]',
+      matchCount: 5,
+    },
+    {
+      type: 'replace',
+      search: '[[another-old]]',
+      replacement: '[[another-new]]',
+      matchCount: 2,
+    },
+  ],
+  { mode: 'content' }
+);
 ```
 
 ---
@@ -420,12 +490,14 @@ const preview = await previewDiff('index.md', [
 ## Integration with Git Workflows
 
 ### Commit Message Generation
+
 ```typescript
 const diff = await previewDiff(path, operations);
 const commitMessage = `Update ${path}\n\n${diff.unified}`;
 ```
 
 ### Pre-commit Hooks
+
 ```typescript
 // Validate all pending operations before commit
 for (const change of pendingChanges) {
@@ -437,12 +509,11 @@ for (const change of pendingChanges) {
 ```
 
 ### Change Review
+
 ```typescript
 // Generate diffs for all modified notes
 const reviews = await Promise.all(
-  modifiedNotes.map(note => 
-    compareVersions(note.path, note.previousContent)
-  )
+  modifiedNotes.map((note) => compareVersions(note.path, note.previousContent))
 );
 ```
 
@@ -451,6 +522,7 @@ const reviews = await Promise.all(
 ## Error Prevention
 
 ### Match Count Validation
+
 ```typescript
 {
   type: 'replace',
@@ -461,6 +533,7 @@ const reviews = await Promise.all(
 ```
 
 ### Line Range Validation
+
 ```typescript
 {
   type: 'insert',
@@ -470,6 +543,7 @@ const reviews = await Promise.all(
 ```
 
 ### Section Existence Check
+
 ```typescript
 {
   type: 'replace_section',
@@ -479,14 +553,15 @@ const reviews = await Promise.all(
 ```
 
 ### Code Block Protection
-```typescript
+
+````typescript
 {
   type: 'replace',
   search: 'function',
   replacement: 'method',
   skipCodeBlocks: true  // Won't replace inside ```blocks```
 }
-```
+````
 
 ---
 
@@ -498,6 +573,7 @@ const reviews = await Promise.all(
 **Memory:** Minimal (operations simulate in-memory)
 
 **Optimization Tips:**
+
 1. Use targeted modes (`frontmatter`, `content`) for faster diffs
 2. Reduce `contextLines` for large files
 3. Batch operations together
@@ -508,6 +584,7 @@ const reviews = await Promise.all(
 ## Examples
 
 ### Example 1: Simple Text Replace with Preview
+
 ```json
 {
   "path": "docs/api.md",
@@ -523,19 +600,21 @@ const reviews = await Promise.all(
 ```
 
 **Output:**
+
 ```diff
 --- docs/api.md	original
 +++ docs/api.md	modified
 @@ -5,7 +5,7 @@
  # API Documentation
- 
+
 -Version 1.0
 +Version 2.0
- 
+
  ## Endpoints
 ```
 
 ### Example 2: Frontmatter Update
+
 ```json
 {
   "path": "blog/post.md",
@@ -554,6 +633,7 @@ const reviews = await Promise.all(
 ```
 
 **Output:**
+
 ```diff
 --- blog/post.md	original
 +++ blog/post.md	modified
@@ -568,6 +648,7 @@ const reviews = await Promise.all(
 ```
 
 ### Example 3: Multi-Operation Batch
+
 ```json
 {
   "path": "tasks/sprint.md",
@@ -594,22 +675,23 @@ const reviews = await Promise.all(
 
 ## Comparison with Other Tools
 
-| Feature | Diff Preview | structured_patch | Direct Edit |
-|---------|-------------|------------------|-------------|
-| Unified diff format | ✅ | ⚠️ Basic | ❌ |
-| Multiple operations | ✅ | ✅ | ❌ |
-| Pre-flight validation | ✅ | ✅ | ❌ |
-| Context lines | ✅ | ❌ | ❌ |
-| Different modes | ✅ | ❌ | ❌ |
-| Git-compatible | ✅ | ❌ | ❌ |
-| Dry run | ✅ | ✅ | ❌ |
-| Version comparison | ✅ | ❌ | ❌ |
+| Feature               | Diff Preview | structured_patch | Direct Edit |
+| --------------------- | ------------ | ---------------- | ----------- |
+| Unified diff format   | ✅           | ⚠️ Basic         | ❌          |
+| Multiple operations   | ✅           | ✅               | ❌          |
+| Pre-flight validation | ✅           | ✅               | ❌          |
+| Context lines         | ✅           | ❌               | ❌          |
+| Different modes       | ✅           | ❌               | ❌          |
+| Git-compatible        | ✅           | ❌               | ❌          |
+| Dry run               | ✅           | ✅               | ❌          |
+| Version comparison    | ✅           | ❌               | ❌          |
 
 ---
 
 ## Future Enhancements
 
 ### Potential Additions
+
 1. **Syntax Highlighting**: Colorized diff output
 2. **Interactive Review**: Step-through changes with accept/reject
 3. **Conflict Detection**: Identify overlapping operations
@@ -620,6 +702,7 @@ const reviews = await Promise.all(
 8. **Automatic Backup**: Create backups before applying
 
 ### API Extensions
+
 - `suggestOperations(intent)` - AI-powered operation generation
 - `optimizeOperations(operations)` - Merge redundant operations
 - `revertDiff(path, diff)` - Undo changes from diff
@@ -642,6 +725,7 @@ const reviews = await Promise.all(
 The Content-Level Unified Diff Preview system provides enterprise-grade change visibility for all vault operations. By showing exactly what will change before applying modifications, it eliminates the risk of silent breakage and enables confident automation of complex editing workflows.
 
 **Key Benefits:**
+
 - 🛡️ Safety through visibility
 - 📊 Full audit trail for changes
 - 🔄 Git-compatible workflows

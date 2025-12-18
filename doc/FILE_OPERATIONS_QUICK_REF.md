@@ -2,17 +2,18 @@
 
 ## MCP Tools (5)
 
-| Tool | Purpose | Key Inputs |
-|------|---------|-----------|
-| `obsidian_move_file` | Move file to new location | `from`, `to`, `updateLinks?`, `updateBacklinks?` |
-| `obsidian_rename_file` | Rename file in place | `path`, `newName`, `updateLinks?`, `updateBacklinks?` |
-| `obsidian_move_folder` | Move entire folder | `from`, `to`, `updateLinks?`, `updateBacklinks?` |
-| `obsidian_preview_moves` | Preview move operations | `operations[]` |
-| `obsidian_batch_move` | Execute multiple moves | `operations[]`, `stopOnError?` |
+| Tool                     | Purpose                   | Key Inputs                                            |
+| ------------------------ | ------------------------- | ----------------------------------------------------- |
+| `obsidian_move_file`     | Move file to new location | `from`, `to`, `updateLinks?`, `updateBacklinks?`      |
+| `obsidian_rename_file`   | Rename file in place      | `path`, `newName`, `updateLinks?`, `updateBacklinks?` |
+| `obsidian_move_folder`   | Move entire folder        | `from`, `to`, `updateLinks?`, `updateBacklinks?`      |
+| `obsidian_preview_moves` | Preview move operations   | `operations[]`                                        |
+| `obsidian_batch_move`    | Execute multiple moves    | `operations[]`, `stopOnError?`                        |
 
 ## Quick Examples
 
 ### Move a File
+
 ```json
 {
   "from": "drafts/article.md",
@@ -23,6 +24,7 @@
 ```
 
 ### Rename a File
+
 ```json
 {
   "path": "notes/old-name.md",
@@ -32,6 +34,7 @@
 ```
 
 ### Move a Folder
+
 ```json
 {
   "from": "projects/old-project",
@@ -42,21 +45,23 @@
 ```
 
 ### Preview Before Moving
+
 ```json
 {
   "operations": [
-    {"type": "file", "from": "note1.md", "to": "folder/note1.md"},
-    {"type": "folder", "from": "old", "to": "new"}
+    { "type": "file", "from": "note1.md", "to": "folder/note1.md" },
+    { "type": "folder", "from": "old", "to": "new" }
   ]
 }
 ```
 
 ### Batch Operations
+
 ```json
 {
   "operations": [
-    {"type": "file", "from": "a.md", "to": "archive/a.md"},
-    {"type": "file", "from": "b.md", "to": "archive/b.md"}
+    { "type": "file", "from": "a.md", "to": "archive/a.md" },
+    { "type": "file", "from": "b.md", "to": "archive/b.md" }
   ],
   "stopOnError": true
 }
@@ -67,6 +72,7 @@
 **Automatic:** All `[[wiki-links]]` are automatically updated when files move.
 
 **Example:**
+
 ```markdown
 Before move:
 [[drafts/article]]
@@ -89,41 +95,48 @@ After moving drafts/article.md → published/article.md:
 ## Options
 
 ### updateLinks (default: true)
+
 Update internal links **inside** the moved/renamed file.
 
 ### updateBacklinks (default: true)
+
 Update links in **other files** that reference the moved/renamed file.
 
 ### failOnConflict (default: true)
+
 Fail if destination already exists instead of overwriting.
 
 ### stopOnError (batch only, default: true)
+
 Stop processing remaining operations if one fails.
 
 ## Common Patterns
 
 ### Archive Old Projects
+
 ```typescript
 await moveFolder('projects/2023', 'archive/2023', {
   updateLinks: true,
-  updateBacklinks: true
+  updateBacklinks: true,
 });
 ```
 
 ### Reorganize by Topic
+
 ```typescript
-const moves = notes.map(note => ({
+const moves = notes.map((note) => ({
   type: 'file',
   from: note.path,
-  to: `topics/${note.topic}/${note.name}`
+  to: `topics/${note.topic}/${note.name}`,
 }));
 await batchMove(moves);
 ```
 
 ### Rename for Consistency
+
 ```typescript
 await renameFile('notes/MyNote.md', 'my-note', {
-  updateBacklinks: true
+  updateBacklinks: true,
 });
 ```
 

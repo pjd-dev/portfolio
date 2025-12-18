@@ -11,6 +11,7 @@ Successfully implemented and fixed all tests for the Task Dependency Graph and S
 The task graph service provides dependency management for tasks with the following capabilities:
 
 #### Core Features
+
 - **Graph Construction**: Scans vault for task notes and builds a directed graph of dependencies
 - **Dependency Management**: Add/remove dependencies between tasks with cycle detection
 - **Blocked/Unblocked Detection**: Determines which tasks can be worked on based on dependencies
@@ -19,6 +20,7 @@ The task graph service provides dependency management for tasks with the followi
 - **Cycle Detection**: Uses DFS algorithm to detect and prevent circular dependencies
 
 #### Key Methods
+
 - `buildGraph(options)`: Build complete task graph with filtering
 - `getNextActions(options)`: Get ranked list of unblocked tasks
 - `setDependency(from, to, action, bidirectional, allowCycle)`: Manage dependencies
@@ -26,6 +28,7 @@ The task graph service provides dependency management for tasks with the followi
 - `getCriticalPath(targetId, useEffort)`: Compute critical path
 
 #### Test Coverage (19 tests)
+
 ✓ Builds graph with nodes and edges from depends_on
 ✓ Handles tasks without dependencies
 ✓ Includes task metadata (effort, reward, focus_cost)
@@ -46,6 +49,7 @@ The task graph service provides dependency management for tasks with the followi
 The session planner service manages work sessions with time and focus constraints:
 
 #### Core Features
+
 - **Session Planning**: Selects optimal tasks within time/focus budget
 - **Task Scoring**: Ranks tasks by reward/(effort × focus_cost)
 - **Task Packing**: Greedy algorithm to fit tasks into time constraints
@@ -55,10 +59,12 @@ The session planner service manages work sessions with time and focus constraint
 - **Session Filtering**: List sessions by status, date, limits
 
 #### Key Configuration
+
 - `MINUTES_PER_EFFORT_UNIT = 15`: Maps effort units to minutes
 - Sessions stored in `.vault-sessions/<date>_session_<id>.json`
 
 #### Test Coverage (18 tests)
+
 ✓ Picks tasks respecting duration and max focus cost
 ✓ Returns noTasksAvailable when constraints too strict
 ✓ Respects maxTasks limit
@@ -98,6 +104,7 @@ private getVaultRoot(): string {
 **Problem**: Session planner was initializing `sessionsDir` in constructor before environment was set.
 
 **Solution**: Changed to lazy initialization:
+
 - Constructor sets `sessionsDir = ''`
 - `getSessionsDir()` method computes path dynamically
 - `initialize()` method ensures directory exists
@@ -108,6 +115,7 @@ private getVaultRoot(): string {
 **Problem**: Tests were calling `jest.resetModules()` which isn't available in `@jest/globals`.
 
 **Solution**: Removed `jest.resetModules()` calls and relied on cache invalidation instead:
+
 ```typescript
 (taskGraphService as any).cache = null;
 ```
@@ -119,8 +127,9 @@ private getVaultRoot(): string {
 **Issue**: When test said "B depends on A", it should create edge A→B (A is prerequisite), but test was passing parameters backwards.
 
 **Solution**: Fixed test calls:
+
 ```typescript
-// OLD (incorrect): setDependency('B', 'A', 'add')  
+// OLD (incorrect): setDependency('B', 'A', 'add')
 // NEW (correct): setDependency('A', 'B', 'add')  // A→B means B depends on A
 ```
 
@@ -129,6 +138,7 @@ private getVaultRoot(): string {
 **Problem**: Test expected 5 tasks but got 4 because dropped tasks were filtered out by default.
 
 **Solution**: Pass `includeDropped: true` to include all task statuses:
+
 ```typescript
 const graph = await taskGraphService.buildGraph({ includeDropped: true });
 ```
@@ -138,6 +148,7 @@ const graph = await taskGraphService.buildGraph({ includeDropped: true });
 **Problem**: `setDependency` wasn't including dropped tasks when checking for cycles.
 
 **Solution**: Changed to load full graph:
+
 ```typescript
 const graph = await this.buildGraph({ includeDropped: true });
 ```
@@ -145,12 +156,13 @@ const graph = await this.buildGraph({ includeDropped: true });
 ## Data Models
 
 ### Task Node
+
 ```typescript
 interface TaskNode {
   id: string;
   title: string;
   path: string;
-  status: TaskStatus;  // 'todo' | 'in_progress' | 'done' | 'blocked' | 'dropped'
+  status: TaskStatus; // 'todo' | 'in_progress' | 'done' | 'blocked' | 'dropped'
   effort?: number;
   reward?: number;
   focusCost?: number;
@@ -162,22 +174,24 @@ interface TaskNode {
 ```
 
 ### Task Edge
+
 ```typescript
 interface TaskEdge {
-  from: string;  // prerequisite task ID
-  to: string;    // dependent task ID
+  from: string; // prerequisite task ID
+  to: string; // dependent task ID
   type: 'depends_on';
 }
 ```
 
 ### Work Session
+
 ```typescript
 interface WorkSession {
   id: string;
   createdAt: string;
   startedAt?: string;
   endedAt?: string;
-  status: SessionStatus;  // 'planned' | 'active' | 'completed' | 'aborted'
+  status: SessionStatus; // 'planned' | 'active' | 'completed' | 'aborted'
   params: SessionParams;
   totals: SessionTotals;
   tasks: SessionTask[];
@@ -216,23 +230,28 @@ The implementation is now complete and ready for:
 ## Technical Notes
 
 ### Cycle Detection Algorithm
+
 Uses DFS with recursion stack tracking. Time complexity O(V + E) where V = nodes, E = edges.
 
 ### Task Scoring Formula
+
 ```
 score = reward / (effort × focusCost)
 ```
+
 Higher score = better task to work on.
 
 ### Session Task Packing
+
 Greedy algorithm:
+
 1. Score and sort all unblocked candidates
 2. Iterate through sorted list
 3. Add task if fits within remaining effort budget
 4. Stop when budget exhausted or maxTasks reached
 
 ### Cache Strategy
+
 - Task graph cached for 5 seconds (TTL)
 - Cache invalidated on mutations (setDependency)
 - Tests explicitly clear cache in beforeEach
-

@@ -2,13 +2,13 @@
 
 ## MCP Tools (5)
 
-| Tool | Purpose | Key Inputs |
-|------|---------|-----------|
-| `obsidian_preview_diff` | Preview operations as unified diff | `path`, `operations`, `mode?`, `contextLines?` |
-| `obsidian_apply_with_diff` | Apply operations with diff preview | `path`, `operations`, `dryRun?` |
-| `obsidian_validate_operations` | Validate operations pre-flight | `path`, `operations` |
-| `obsidian_compare_versions` | Compare current with previous | `path`, `previousContent` |
-| `obsidian_generate_structured_diff` | Structured line-by-line diff | `path`, `operations` |
+| Tool                                | Purpose                            | Key Inputs                                     |
+| ----------------------------------- | ---------------------------------- | ---------------------------------------------- |
+| `obsidian_preview_diff`             | Preview operations as unified diff | `path`, `operations`, `mode?`, `contextLines?` |
+| `obsidian_apply_with_diff`          | Apply operations with diff preview | `path`, `operations`, `dryRun?`                |
+| `obsidian_validate_operations`      | Validate operations pre-flight     | `path`, `operations`                           |
+| `obsidian_compare_versions`         | Compare current with previous      | `path`, `previousContent`                      |
+| `obsidian_generate_structured_diff` | Structured line-by-line diff       | `path`, `operations`                           |
 
 ## Operation Types
 
@@ -39,6 +39,7 @@
 ## Quick Examples
 
 ### Preview Simple Replace
+
 ```json
 {
   "path": "notes/doc.md",
@@ -49,6 +50,7 @@
 ```
 
 ### Apply with Dry Run
+
 ```json
 {
   "path": "tasks/task.md",
@@ -60,16 +62,23 @@
 ```
 
 ### Validate Before Apply
+
 ```json
 {
   "path": "blog/post.md",
   "operations": [
-    { "type": "replace", "search": "{{title}}", "replacement": "My Post", "matchCount": 1 }
+    {
+      "type": "replace",
+      "search": "{{title}}",
+      "replacement": "My Post",
+      "matchCount": 1
+    }
   ]
 }
 ```
 
 ### Compare Versions
+
 ```json
 {
   "path": "docs/readme.md",
@@ -90,12 +99,12 @@
 -status: draft
 +status: published
  ---
- 
+
  # My Project
 @@ -10,6 +10,8 @@
- 
+
  Description here.
- 
+
 +## New Section
 +
  ## Tasks
@@ -120,6 +129,7 @@
 ## Common Patterns
 
 ### Safe Batch Edit
+
 ```typescript
 // 1. Validate
 const validation = await validateOperations(path, operations);
@@ -134,6 +144,7 @@ await applyWithDiff(path, operations, { dryRun: false });
 ```
 
 ### AI Edit Review
+
 ```typescript
 const aiOps = generateAIEdits(content);
 const diff = await previewDiff(path, aiOps);
@@ -149,8 +160,8 @@ if (userApproves(diff)) {
   "type": "replace",
   "search": "text",
   "replacement": "new text",
-  "matchCount": 1,          // Ensures exactly 1 match
-  "skipCodeBlocks": true    // Protects code blocks
+  "matchCount": 1, // Ensures exactly 1 match
+  "skipCodeBlocks": true // Protects code blocks
 }
 ```
 

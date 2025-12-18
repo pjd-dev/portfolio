@@ -66,52 +66,58 @@ obsidian_prune_operations({ dryRun: false })
 ## Six Tools
 
 ### 1. list_operations
+
 ```typescript
 obsidian_list_operations({
   limit: 20,
-  beforeId: "uuid",              // Pagination
-  toolName: "obsidian_structured_patch",
-  path: "projects/X.md",         // Filter by file
-  since: "2024-12-01T00:00:00Z",
-  until: "2024-12-07T00:00:00Z"
-})
+  beforeId: 'uuid', // Pagination
+  toolName: 'obsidian_structured_patch',
+  path: 'projects/X.md', // Filter by file
+  since: '2024-12-01T00:00:00Z',
+  until: '2024-12-07T00:00:00Z',
+});
 ```
 
 ### 2. get_operation
+
 ```typescript
 obsidian_get_operation({
-  id: "uuid",
-  includeDiff: true              // Show unified diff
-})
+  id: 'uuid',
+  includeDiff: true, // Show unified diff
+});
 ```
 
 ### 3. undo_operation
+
 ```typescript
 obsidian_undo_operation({
-  id: "uuid",
-  dryRun: false,                 // Preview first
-  force: false                   // Ignore conflicts
-})
+  id: 'uuid',
+  dryRun: false, // Preview first
+  force: false, // Ignore conflicts
+});
 ```
 
 ### 4. undo_last_operation
+
 ```typescript
 obsidian_undo_last_operation({
-  toolName: "obsidian_structured_patch",  // Optional
-  path: "projects/X.md",                  // Optional
+  toolName: 'obsidian_structured_patch', // Optional
+  path: 'projects/X.md', // Optional
   dryRun: false,
-  force: false
-})
+  force: false,
+});
 ```
 
 ### 5. prune_operations
+
 ```typescript
 obsidian_prune_operations({
-  dryRun: true                   // Preview what gets removed
-})
+  dryRun: true, // Preview what gets removed
+});
 ```
 
 ### 6. journal_stats
+
 ```typescript
 obsidian_journal_stats({})
 
@@ -128,56 +134,61 @@ obsidian_journal_stats({})
 ## Conflict Handling
 
 ### Without Force
+
 ```typescript
-const result = await obsidian_undo_operation({ id: "uuid" });
+const result = await obsidian_undo_operation({ id: 'uuid' });
 
 if (result.conflicts && result.conflicts.length > 0) {
   // Files changed since operation
-  console.log("Cannot undo - conflicts:", result.conflicts);
+  console.log('Cannot undo - conflicts:', result.conflicts);
   // Must use force: true
 }
 ```
 
 ### With Force
+
 ```typescript
 await obsidian_undo_operation({
-  id: "uuid",
-  force: true    // Overwrites current content
+  id: 'uuid',
+  force: true, // Overwrites current content
 });
 ```
 
 ## Common Workflows
 
 ### Preview → Undo
+
 ```typescript
 // 1. Preview
 const preview = await obsidian_undo_operation({
-  id: "uuid",
-  dryRun: true
+  id: 'uuid',
+  dryRun: true,
 });
 
 // 2. Review diff
 console.log(preview.diff);
 
 // 3. Apply
-await obsidian_undo_operation({ id: "uuid" });
+await obsidian_undo_operation({ id: 'uuid' });
 ```
 
 ### Undo Last Pipeline
+
 ```typescript
 const ops = await obsidian_list_operations({
   limit: 1,
-  toolName: "obsidian_apply_pipeline"
+  toolName: 'obsidian_apply_pipeline',
 });
 
 await obsidian_undo_operation({ id: ops[0].id });
 ```
 
 ### Undo All Changes to File
+
 ```typescript
 const ops = await obsidian_list_operations({
-  path: "projects/X.md",
-  limit: 100
+  path: 'projects/X.md',
+  limit: 100,
 });
 
 // Undo in reverse order (most recent first)
@@ -187,6 +198,7 @@ for (const op of ops) {
 ```
 
 ### Monthly Cleanup
+
 ```typescript
 const stats = await obsidian_journal_stats({});
 console.log(`Journal size: ${stats.sizeBytes / 1024 / 1024} MB`);
@@ -199,6 +211,7 @@ if (stats.sizeBytes > 100_000_000) {
 ## Configuration
 
 `.vault-ops/config.json`:
+
 ```json
 {
   "maxDays": 90,
@@ -209,6 +222,7 @@ if (stats.sizeBytes > 100_000_000) {
 ## Journal Format
 
 JSONL (one operation per line):
+
 ```
 {"id":"uuid-1","timestamp":"...","type":"single_tool",...}
 {"id":"uuid-2","timestamp":"...","type":"pipeline",...}
@@ -217,6 +231,7 @@ JSONL (one operation per line):
 ## Index Format
 
 `.journal/.index.json`:
+
 ```json
 {
   "uuid-1": { "file": "2024-12-06.jsonl", "offset": 0 },
@@ -227,6 +242,7 @@ JSONL (one operation per line):
 ## Integration
 
 ### Pipeline Auto-Journaling
+
 ```typescript
 // Pipeline apply automatically creates journal entry
 const result = await pipelineService.apply(pipelineId, true);
@@ -238,13 +254,12 @@ await journalService.undo(result.journalEntryId);
 ```
 
 ### Manual Journaling
+
 ```typescript
 await journalService.applyMutationsWithJournal(
   'my_custom_tool',
   'Description of what changed',
-  [
-    { path: 'note.md', before: '...', after: '...' }
-  ],
+  [{ path: 'note.md', before: '...', after: '...' }],
   { tags: ['custom'], sessionId: 'xyz' }
 );
 ```
@@ -252,6 +267,7 @@ await journalService.applyMutationsWithJournal(
 ## Hashing
 
 SHA-256 of file content:
+
 ```typescript
 beforeHash: createHash('sha256').update(beforeContent).digest('hex');
 afterHash: createHash('sha256').update(afterContent).digest('hex');
@@ -261,22 +277,24 @@ Used for conflict detection.
 
 ## Performance
 
-| Operation | Complexity | Notes |
-|-----------|------------|-------|
-| Append | O(1) | Fast append |
-| Get by ID | O(1) | With index |
-| List recent | O(1) | Stream backwards |
-| Undo | O(n) | n = files in operation |
-| Prune | O(m) | m = old journal files |
+| Operation   | Complexity | Notes                  |
+| ----------- | ---------- | ---------------------- |
+| Append      | O(1)       | Fast append            |
+| Get by ID   | O(1)       | With index             |
+| List recent | O(1)       | Stream backwards       |
+| Undo        | O(n)       | n = files in operation |
+| Prune       | O(m)       | m = old journal files  |
 
 ## Storage
 
 ### Space Used
+
 - Inline content: ~2x vault size
 - One journal file per day
 - Index: ~100 bytes per operation
 
 ### Optimization
+
 1. Prune regularly
 2. Future: external snapshots
 3. Future: delta patches
@@ -288,15 +306,15 @@ Used for conflict detection.
 ✅ **Durable**: JSONL survives crashes  
 ✅ **Consistent**: Hash-based conflict detection  
 ✅ **Auditable**: Complete operation trail  
-✅ **Reversible**: Every mutation can be undone  
+✅ **Reversible**: Every mutation can be undone
 
 ## Error Messages
 
-| Error | Meaning | Solution |
-|-------|---------|----------|
-| "Operation not found" | Not in journal | May be pruned |
-| "Conflicts detected" | Files changed | Use `force: true` |
-| "Failed to undo" | Filesystem error | Check permissions |
+| Error                 | Meaning          | Solution          |
+| --------------------- | ---------------- | ----------------- |
+| "Operation not found" | Not in journal   | May be pruned     |
+| "Conflicts detected"  | Files changed    | Use `force: true` |
+| "Failed to undo"      | Filesystem error | Check permissions |
 
 ## Best Practices
 
@@ -309,18 +327,19 @@ Used for conflict detection.
 
 ## Tool Risk Levels
 
-| Tool | Risk | Notes |
-|------|------|-------|
-| `list_operations` | ✅ Safe | Read-only |
-| `get_operation` | ✅ Safe | Read-only |
-| `undo_operation` | ⚠️ High | Modifies files |
-| `undo_last_operation` | ⚠️ High | Modifies files |
-| `prune_operations` | ⚠️ Medium | Deletes history |
-| `journal_stats` | ✅ Safe | Read-only |
+| Tool                  | Risk      | Notes           |
+| --------------------- | --------- | --------------- |
+| `list_operations`     | ✅ Safe   | Read-only       |
+| `get_operation`       | ✅ Safe   | Read-only       |
+| `undo_operation`      | ⚠️ High   | Modifies files  |
+| `undo_last_operation` | ⚠️ High   | Modifies files  |
+| `prune_operations`    | ⚠️ Medium | Deletes history |
+| `journal_stats`       | ✅ Safe   | Read-only       |
 
 ## When to Use
 
 ### Use Journal When:
+
 - You need to track all changes
 - Undo capability is critical
 - Auditing/compliance required
@@ -328,6 +347,7 @@ Used for conflict detection.
 - Debugging complex workflows
 
 ### Use Undo When:
+
 - Operation had unexpected results
 - Need to revert experiment
 - Mistake was made
@@ -361,16 +381,19 @@ Used for conflict detection.
 ## Advanced: Content Refs
 
 ### Inline (Current)
+
 ```typescript
 { type: 'inline', content: '...' }
 ```
 
 ### File (Future)
+
 ```typescript
 { type: 'file', path: 'snapshots/<hash>.md' }
 ```
 
 ### Patch (Future)
+
 ```typescript
 { type: 'patch', fromHash: '...', patch: '...' }
 ```
@@ -378,12 +401,14 @@ Used for conflict detection.
 ## Maintenance
 
 ### Check Size
+
 ```typescript
 const stats = await obsidian_journal_stats({});
 console.log(`${(stats.sizeBytes / 1024 / 1024).toFixed(2)} MB`);
 ```
 
 ### Prune Old
+
 ```typescript
 // Preview
 await obsidian_prune_operations({ dryRun: true });
@@ -393,27 +418,31 @@ await obsidian_prune_operations({ dryRun: false });
 ```
 
 ### Rebuild Index
+
 Delete `.journal/.index.json` and restart - will rebuild.
 
 ## Troubleshooting
 
 **Index out of sync:**
+
 ```bash
 rm .vault-ops/journal/.index.json
 # Restart MCP server
 ```
 
 **Journal too large:**
+
 ```typescript
 await obsidian_prune_operations({ dryRun: false });
 ```
 
 **Can't undo:**
+
 ```typescript
 // Check for conflicts first
 const result = await obsidian_undo_operation({
-  id: "uuid",
-  dryRun: true
+  id: 'uuid',
+  dryRun: true,
 });
 
 // Review and force if needed

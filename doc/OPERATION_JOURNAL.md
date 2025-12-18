@@ -5,6 +5,7 @@ Git-like versioning and undo capabilities for all vault operations. Every mutati
 ## Core Concept
 
 The journal is an append-only, structured log of every vault mutation. Each entry contains:
+
 - What changed (files modified)
 - Complete before/after content snapshots
 - Tool that made the change
@@ -12,6 +13,7 @@ The journal is an append-only, structured log of every vault mutation. Each entr
 - Correlation with pipelines/sessions
 
 This enables:
+
 1. **Inspection** - See what changed and when
 2. **Undo** - Restore previous state
 3. **Auditing** - Track all modifications
@@ -54,9 +56,9 @@ JSONL (JSON Lines) - one operation per line for streaming and tailing:
   pipelineId?: string;      // If part of a pipeline
   user?: string;            // Optional auth/session
   description?: string;     // Human-friendly summary
-  
+
   files: FileChange[];
-  
+
   meta?: {
     tags?: string[];
     sessionId?: string;
@@ -73,8 +75,8 @@ JSONL (JSON Lines) - one operation per line for streaming and tailing:
 ```typescript
 {
   path: string;
-  beforeHash: string;       // SHA-256 of before content
-  afterHash: string;        // SHA-256 of after content
+  beforeHash: string; // SHA-256 of before content
+  afterHash: string; // SHA-256 of after content
   beforeContentRef: ContentRef;
   afterContentRef: ContentRef;
 }
@@ -84,8 +86,8 @@ JSONL (JSON Lines) - one operation per line for streaming and tailing:
 
 ```typescript
 type ContentRef =
-  | { type: 'inline'; content: string }    // v1: all inline
-  | { type: 'file'; path: string }         // Future: external
+  | { type: 'inline'; content: string } // v1: all inline
+  | { type: 'file'; path: string } // Future: external
   | { type: 'patch'; fromHash: string; patch: string }; // Future: delta
 ```
 
@@ -96,18 +98,20 @@ type ContentRef =
 Browse the operation journal with filtering.
 
 **Input:**
+
 ```json
 {
   "limit": 20,
-  "beforeId": "uuid",           // Pagination cursor
+  "beforeId": "uuid", // Pagination cursor
   "toolName": "obsidian_structured_patch",
-  "path": "projects/X.md",      // Filter by file
+  "path": "projects/X.md", // Filter by file
   "since": "2024-12-01T00:00:00Z",
   "until": "2024-12-07T00:00:00Z"
 }
 ```
 
 **Output:**
+
 ```json
 {
   "operations": [
@@ -119,7 +123,7 @@ Browse the operation journal with filtering.
       "pipelineId": "uuid",
       "description": "Archive Project X",
       "files": [
-        {"path": "projects/X.md", "beforeHash": "...", "afterHash": "..."}
+        { "path": "projects/X.md", "beforeHash": "...", "afterHash": "..." }
       ]
     }
   ]
@@ -131,6 +135,7 @@ Browse the operation journal with filtering.
 Inspect a single operation in detail.
 
 **Input:**
+
 ```json
 {
   "id": "uuid",
@@ -140,6 +145,7 @@ Inspect a single operation in detail.
 
 **Output:**
 Full operation entry with:
+
 - Complete file list
 - Unified diff for each file
 - Metadata
@@ -150,6 +156,7 @@ Full operation entry with:
 Revert an operation by restoring previous content.
 
 **Input:**
+
 ```json
 {
   "id": "uuid",
@@ -159,6 +166,7 @@ Revert an operation by restoring previous content.
 ```
 
 **Process:**
+
 1. Fetch operation from journal
 2. For each file:
    - Load current content
@@ -173,6 +181,7 @@ Revert an operation by restoring previous content.
    - Create new journal entry (undo itself is an operation)
 
 **Output:**
+
 ```json
 {
   "undone": true,
@@ -186,10 +195,11 @@ Revert an operation by restoring previous content.
 Convenience tool to undo most recent operation.
 
 **Input:**
+
 ```json
 {
-  "toolName": "obsidian_structured_patch",  // Optional filter
-  "path": "projects/X.md",                  // Optional filter
+  "toolName": "obsidian_structured_patch", // Optional filter
+  "path": "projects/X.md", // Optional filter
   "dryRun": false,
   "force": false
 }
@@ -200,6 +210,7 @@ Convenience tool to undo most recent operation.
 Remove old journal entries per retention policy.
 
 **Input:**
+
 ```json
 {
   "dryRun": false
@@ -211,6 +222,7 @@ Remove old journal entries per retention policy.
 Get statistics about the journal.
 
 **Output:**
+
 ```json
 {
   "totalEntries": 1543,
@@ -228,11 +240,13 @@ Critical for safety. Conflicts occur when a file was modified after the operatio
 ### Strategy
 
 **Default Behavior:**
+
 - Do not undo if file hash doesn't match `afterHash`
 - Report conflicts
 - Require explicit `force: true`
 
 **With force=true:**
+
 - Undo anyway (restore `beforeContent`)
 - Log `forced: true` in metadata
 - Record actual hash at time of undo
@@ -254,6 +268,7 @@ await journalService.undo(result.journalEntryId);
 ```
 
 Journal entry for pipeline:
+
 ```json
 {
   "type": "pipeline",
@@ -277,14 +292,14 @@ const ops = await obsidian_list_operations({ limit: 10 });
 const detail = await obsidian_get_operation({ id: ops[0].id });
 
 // Preview undo
-const preview = await obsidian_undo_operation({ 
-  id: ops[0].id, 
-  dryRun: true 
+const preview = await obsidian_undo_operation({
+  id: ops[0].id,
+  dryRun: true,
 });
 
 // Apply undo
-const result = await obsidian_undo_operation({ 
-  id: ops[0].id 
+const result = await obsidian_undo_operation({
+  id: ops[0].id,
 });
 ```
 
@@ -294,13 +309,13 @@ const result = await obsidian_undo_operation({
 // Find last pipeline operation
 const ops = await obsidian_list_operations({
   limit: 1,
-  toolName: "obsidian_apply_pipeline"
+  toolName: 'obsidian_apply_pipeline',
 });
 
 // Undo it (with conflict check)
 const result = await obsidian_undo_operation({
   id: ops[0].id,
-  dryRun: false
+  dryRun: false,
 });
 ```
 
@@ -309,8 +324,8 @@ const result = await obsidian_undo_operation({
 ```typescript
 // List operations touching specific file
 const ops = await obsidian_list_operations({
-  path: "projects/X.md",
-  limit: 5
+  path: 'projects/X.md',
+  limit: 5,
 });
 
 // Undo most recent
@@ -322,18 +337,18 @@ await obsidian_undo_operation({ id: ops[0].id });
 ```typescript
 // Try undo
 const result = await obsidian_undo_operation({
-  id: "uuid",
-  dryRun: false
+  id: 'uuid',
+  dryRun: false,
 });
 
 // If conflicts:
 if (result.conflicts && result.conflicts.length > 0) {
-  console.log("Conflicts detected:", result.conflicts);
-  
+  console.log('Conflicts detected:', result.conflicts);
+
   // Review and force if needed
   await obsidian_undo_operation({
-    id: "uuid",
-    force: true
+    id: 'uuid',
+    force: true,
   });
 }
 ```
@@ -343,6 +358,7 @@ if (result.conflicts && result.conflicts.length > 0) {
 ### Configuration
 
 `.vault-ops/config.json`:
+
 ```json
 {
   "maxDays": 90,
@@ -353,6 +369,7 @@ if (result.conflicts && result.conflicts.length > 0) {
 ### Pruning
 
 Manual or scheduled:
+
 ```typescript
 // Preview
 await obsidian_prune_operations({ dryRun: true });
@@ -366,11 +383,13 @@ Removes journal files older than `maxDays`.
 ## Performance
 
 ### Write Performance
+
 - **Append-only**: O(1) writes
 - **No locking**: Concurrent-safe (JSONL atomic appends)
 - **Index update**: Every 10 entries
 
 ### Read Performance
+
 - **By ID**: O(1) with index
 - **List recent**: O(1) (stream backwards from latest file)
 - **List with filters**: O(n) but early termination at `limit`
@@ -378,6 +397,7 @@ Removes journal files older than `maxDays`.
 ### Index
 
 `.index.json` maps operation ID to location:
+
 ```json
 {
   "uuid-1": { "file": "2024-12-06.jsonl", "offset": 0 },
@@ -390,11 +410,13 @@ Rebuilt on startup if missing. Updated incrementally.
 ### Space Optimization
 
 **v1 (Current):** Inline content in journal
+
 - Simple to implement
 - No external dependencies
 - Trade-off: larger journal files
 
 **Future Options:**
+
 1. **External snapshots**: Store content in `.vault-ops/snapshots/<hash>.md`
 2. **Delta patches**: Store patches instead of full content
 3. **Compression**: gzip JSONL files older than N days
@@ -402,25 +424,33 @@ Rebuilt on startup if missing. Updated incrementally.
 ## Safety Guarantees
 
 ### Atomicity
+
 Each operation is atomic:
+
 - Journal write happens first
 - Filesystem writes happen second
 - If filesystem write fails, journal entry exists but no file changes
 
 ### Durability
+
 All changes persisted to disk:
+
 - JSONL format survives crashes
 - Each line is a complete JSON object
 - Partial writes at end of file are safe (ignored)
 
 ### Consistency
+
 Hashes ensure integrity:
+
 - SHA-256 before/after content
 - Conflict detection on undo
 - Mismatches require explicit `force`
 
 ### Auditability
+
 Complete trail:
+
 - Every mutation logged
 - Timestamps and metadata
 - Tool/pipeline correlation
@@ -429,6 +459,7 @@ Complete trail:
 ## Integration with Existing Tools
 
 ### Structured Patch
+
 ```typescript
 await journalService.applyMutationsWithJournal(
   'obsidian_structured_patch',
@@ -438,6 +469,7 @@ await journalService.applyMutationsWithJournal(
 ```
 
 ### File Operations
+
 ```typescript
 await journalService.applyMutationsWithJournal(
   'obsidian_move_file',
@@ -447,6 +479,7 @@ await journalService.applyMutationsWithJournal(
 ```
 
 ### Auto-Link
+
 ```typescript
 await journalService.applyMutationsWithJournal(
   'obsidian_auto_link',
@@ -460,14 +493,17 @@ await journalService.applyMutationsWithJournal(
 ### Common Errors
 
 **"Operation not found"**
+
 - Journal entry doesn't exist
 - May have been pruned
 
 **"Conflicts detected"**
+
 - Files modified since operation
 - Use `force: true` to override
 
 **"Failed to undo operation"**
+
 - Filesystem error
 - Permission issue
 - File deleted
@@ -475,6 +511,7 @@ await journalService.applyMutationsWithJournal(
 ### Recovery
 
 If undo fails mid-operation:
+
 - Partial changes may be applied
 - Check file states manually
 - Use `obsidian_get_operation` to inspect
@@ -482,6 +519,7 @@ If undo fails mid-operation:
 ## Future Enhancements
 
 ### Planned
+
 - External snapshot storage for large files
 - Delta-based patches for space efficiency
 - Selective undo (choose which files to revert)
@@ -489,6 +527,7 @@ If undo fails mid-operation:
 - Branch/tag operations for marking important states
 
 ### Possible
+
 - Time-travel queries ("show vault as of date X")
 - Diff between arbitrary operations
 - Merge conflict resolution UI
@@ -498,6 +537,7 @@ If undo fails mid-operation:
 ## Why This Matters
 
 With journal and undo:
+
 1. **Aggressive automation becomes safe** - Any operation can be reverted
 2. **Experimentation is risk-free** - Try bold refactors, undo if needed
 3. **Debugging is easier** - See exactly what changed
@@ -508,16 +548,16 @@ This is the safety net that justifies running ambitious graph transforms, semant
 
 ## Quick Reference
 
-| Tool | Purpose | Risk |
-|------|---------|------|
-| `obsidian_list_operations` | Browse journal | Safe |
-| `obsidian_get_operation` | Inspect details | Safe |
-| `obsidian_undo_operation` | Revert changes | High* |
-| `obsidian_undo_last_operation` | Quick undo | High* |
-| `obsidian_prune_operations` | Remove old entries | Medium |
-| `obsidian_journal_stats` | View stats | Safe |
+| Tool                           | Purpose            | Risk   |
+| ------------------------------ | ------------------ | ------ |
+| `obsidian_list_operations`     | Browse journal     | Safe   |
+| `obsidian_get_operation`       | Inspect details    | Safe   |
+| `obsidian_undo_operation`      | Revert changes     | High\* |
+| `obsidian_undo_last_operation` | Quick undo         | High\* |
+| `obsidian_prune_operations`    | Remove old entries | Medium |
+| `obsidian_journal_stats`       | View stats         | Safe   |
 
-*High risk only if using `force: true`
+\*High risk only if using `force: true`
 
 ## Best Practices
 

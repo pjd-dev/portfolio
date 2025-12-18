@@ -5,12 +5,14 @@ This document describes all the enhancements made to the Vault Platform.
 ## 1. Frontmatter Query Enhancements ✅
 
 ### Performance Improvements
+
 - **Index-based search**: Built global frontmatter index for O(1) lookups in large vaults
 - **Batch reading**: Process files in batches of 50 for better I/O performance
 - **Pagination support**: Added `offset` and `limit` for efficient result handling
 - **Regex operator**: New regex pattern matching for advanced queries
 
 ### Enhanced Caching Layer
+
 - **LRU eviction**: Automatic least-recently-used eviction when cache is full
 - **Cache statistics**: Track hits, misses, evictions, and hit rates
 - **Multiple cache instances**: Separate caches for frontmatter, index, and content
@@ -18,6 +20,7 @@ This document describes all the enhancements made to the Vault Platform.
 - **Multi-get**: Retrieve multiple keys efficiently
 
 ### Files Modified
+
 - `apps/mcp/src/core/cache.ts` - Enhanced cache implementation
 - `apps/mcp/src/mcp/obsidian/tools/find_by_frontmatter.ts` - Index-based queries
 - `apps/mcp/src/mcp/obsidian/tools/cache_stats.ts` - New cache management tool
@@ -25,7 +28,9 @@ This document describes all the enhancements made to the Vault Platform.
 ## 2. Advanced Editing Tools ✅
 
 ### Structured Patch System
+
 New `obsidian_structured_patch` tool provides:
+
 - **Safe multi-operation patching**: Apply multiple edits atomically
 - **Validation before apply**: Check match counts before modifying
 - **Code-block awareness**: Skip replacements inside code blocks
@@ -34,27 +39,32 @@ New `obsidian_structured_patch` tool provides:
 - **Rollback support**: Validation prevents partial failures
 
 Operations supported:
+
 - `replace`: Find and replace with validation
 - `insert`: Insert at specific line numbers
 - `delete`: Remove text with validation
 
 ### Enhanced Existing Tools
+
 - `replace_in_section.ts`: Code-block aware replacements
 - `insert_after_heading.ts`: Precise heading-based insertions
 - Both support `skipCodeBlocks` option
 
 ### Files Created
+
 - `apps/mcp/src/mcp/obsidian/tools/structured_patch.ts`
 
 ## 3. encode-md Improvements ✅
 
 ### New Features
+
 - **Automatic code block escaping**: `--escape-code-blocks` flag
 - **Chunked output**: `--chunked` mode with configurable `--chunk-size`
 - **Diff preview**: `--diff` mode compares note with file
 - **Configurable diff context**: `--diff-context` lines of context
 
 ### Usage Examples
+
 ```bash
 # Escape code blocks for safe embedding
 encode-md --escape-code-blocks --rpc --note code.md code.md
@@ -67,12 +77,15 @@ encode-md --diff --note existing.md updated.md --diff-context 5
 ```
 
 ### Files Modified
+
 - `apps/mcp/src/tools/encode-md.ts`
 
 ## 4. Workflow Automation ✅
 
 ### Conversational Note Templates
+
 New `obsidian_conversational_template` tool with templates for:
+
 - **Meeting notes**: Attendees, agenda, discussion, action items
 - **Project tracking**: Goals, milestones, resources, status
 - **Daily journals**: Focus, completed tasks, notes, reflections
@@ -83,14 +96,18 @@ New `obsidian_conversational_template` tool with templates for:
 All templates automatically populate frontmatter with appropriate metadata.
 
 ### Enhanced Auto-tagging
+
 Existing `auto_tag.ts` tool provides:
+
 - Keyword-based tag detection
 - Configurable keyword mappings
 - Append or replace mode
 - Default patterns for common note types
 
 ### AI-driven Note Refactoring
+
 New `obsidian_refactor_note` tool with operations:
+
 - **fix-headings**: Correct heading hierarchy
 - **normalize-lists**: Standardize list formatting
 - **extract-todos**: Move tasks to dedicated section
@@ -102,17 +119,20 @@ New `obsidian_refactor_note` tool with operations:
 Supports dry-run mode for previewing changes.
 
 ### Files Created
+
 - `apps/mcp/src/mcp/obsidian/tools/conversational_template.ts`
 - `apps/mcp/src/mcp/obsidian/tools/refactor_note.ts`
 
 ## 5. Git Sync Enhancements ✅
 
 ### Merge Conflict Detection
+
 - Automatically detect merge conflicts using `git diff --diff-filter=U`
 - Report conflicted files with detailed error messages
 - Exit with code 2 for manual intervention
 
 ### Better Error Handling
+
 - **Retry logic**: Configurable retries with exponential backoff
 - **Environment variables**: `MAX_RETRIES`, `RETRY_DELAY`
 - **Structured logging**: JSON-formatted logs with timestamps
@@ -120,6 +140,7 @@ Supports dry-run mode for previewing changes.
 - **Non-fast-forward detection**: Auto-pull before push if rejected
 
 ### Event-based Triggers
+
 - Structured log output for external monitoring
 - Exit codes for different failure modes:
   - 0: Success
@@ -127,17 +148,21 @@ Supports dry-run mode for previewing changes.
   - 2: Merge conflict (needs manual resolution)
 
 ### Files Modified
+
 - `apps/vault-sync/scripts/sync.py`
 
 ## 6. Metadata Model Extensions ✅
 
 ### Version Tracking
+
 - Semantic versioning (x.y.z)
 - `bump-version` action: major, minor, patch
 - Automatic version validation
 
 ### Status Lifecycle
+
 State machine with enforced transitions:
+
 1. **draft** → initial state
 2. **review** → after draft completion
 3. **stable** → after review approval
@@ -146,7 +171,9 @@ State machine with enforced transitions:
 Each transition records timestamp in lifecycle metadata.
 
 ### Type System Enforcement
+
 Zod schema validation for:
+
 - `version`: Semantic version format
 - `status`: Enum of lifecycle states
 - `type`: Note type classification
@@ -156,18 +183,22 @@ Zod schema validation for:
 - `lifecycle`: Object with transition timestamps
 
 ### Tool Actions
+
 - `validate`: Check schema compliance
 - `apply`: Set metadata with validation
 - `transition`: Move through lifecycle states
 - `bump-version`: Increment version numbers
 
 ### Files Created
+
 - `apps/mcp/src/mcp/obsidian/tools/metadata_model.ts`
 
 ## 7. Security & Deployment ✅
 
 ### JWT-based Authentication
+
 New optional JWT middleware:
+
 - Bearer token support in Authorization header
 - Cookie-based token fallback
 - Token expiration validation
@@ -175,55 +206,71 @@ New optional JWT middleware:
 - Login endpoint generator
 
 Usage:
+
 ```typescript
-import { createJWTMiddleware, createLoginHandler, requireScope } from "./middleware";
+import {
+  createJWTMiddleware,
+  createLoginHandler,
+  requireScope,
+} from './middleware';
 
 const jwtAuth = createJWTMiddleware({
   secret: process.env.JWT_SECRET!,
-  required: true
+  required: true,
 });
 
-app.post("/login", createLoginHandler({
-  secret: process.env.JWT_SECRET!,
-  validateCredentials: async (username, password) => {
-    // Your validation logic
-    return { userId: "user123", scope: ["read", "write"] };
-  }
-}));
+app.post(
+  '/login',
+  createLoginHandler({
+    secret: process.env.JWT_SECRET!,
+    validateCredentials: async (username, password) => {
+      // Your validation logic
+      return { userId: 'user123', scope: ['read', 'write'] };
+    },
+  })
+);
 
-app.use("/mcp", jwtAuth, requireScope("vault:write"));
+app.use('/mcp', jwtAuth, requireScope('vault:write'));
 ```
 
 ### Container Orchestration
+
 Existing Podman setup in `podman/`:
+
 - `podman-compose.sh`: Container composition
 - `run-all.sh`: Start all services
 - `run-mcp.sh`, `run-vault.sh`: Individual services
 - `*.service`: Systemd service definitions
 
 ### Private Tunnel Access
+
 Can be configured with:
+
 - Environment-based secrets (MCP_SECRET)
 - JWT tokens for user authentication
 - Scope-based access control
 
 ### Files Created
+
 - `apps/mcp/src/middleware/jwt.ts`
 
 ## Installation
 
 ### Install Dependencies
+
 ```bash
 cd apps/mcp
 pnpm install
 ```
 
 ### Build
+
 ```bash
 pnpm build
 ```
 
 ### Run Tests (if available)
+
 ```bash
 pnpm test
 ```
@@ -231,12 +278,14 @@ pnpm test
 ## Environment Variables
 
 ### MCP Server
+
 - `MCP_SECRET`: API authentication secret
 - `JWT_SECRET`: (Optional) JWT signing secret
 - `PORT`: Server port (default: 4000)
 - `OBSIDIAN_VAULT_PATH`: Path to vault
 
 ### Vault Sync
+
 - `VAULT_PATH`: Git repository path
 - `GIT_REMOTE`: Git remote name (default: origin)
 - `GIT_BRANCH`: Branch name (default: main)
@@ -245,35 +294,38 @@ pnpm test
 
 ## New MCP Tools Summary
 
-| Tool | Description |
-|------|-------------|
-| `obsidian_structured_patch` | Multi-operation atomic patching with validation |
-| `obsidian_cache_stats` | View and manage cache statistics |
-| `obsidian_conversational_template` | Create notes from interactive templates |
-| `obsidian_refactor_note` | AI-driven structure improvements |
-| `obsidian_metadata_model` | Version tracking and lifecycle management |
-| `obsidian_find_by_frontmatter` | Enhanced with indexing and pagination |
-| `obsidian_graph_export` | Export knowledge graph as JSON |
-| `obsidian_find_related` | Find related notes by links and tags |
-| `obsidian_graph_search` | Full-text search with graph filtering |
-| `obsidian_graph_stats` | Graph statistics and analysis |
-| `obsidian_graph_rebuild` | Rebuild knowledge graph cache |
+| Tool                               | Description                                     |
+| ---------------------------------- | ----------------------------------------------- |
+| `obsidian_structured_patch`        | Multi-operation atomic patching with validation |
+| `obsidian_cache_stats`             | View and manage cache statistics                |
+| `obsidian_conversational_template` | Create notes from interactive templates         |
+| `obsidian_refactor_note`           | AI-driven structure improvements                |
+| `obsidian_metadata_model`          | Version tracking and lifecycle management       |
+| `obsidian_find_by_frontmatter`     | Enhanced with indexing and pagination           |
+| `obsidian_graph_export`            | Export knowledge graph as JSON                  |
+| `obsidian_find_related`            | Find related notes by links and tags            |
+| `obsidian_graph_search`            | Full-text search with graph filtering           |
+| `obsidian_graph_stats`             | Graph statistics and analysis                   |
+| `obsidian_graph_rebuild`           | Rebuild knowledge graph cache                   |
 
 ## Architecture Improvements
 
 ### Performance
+
 - Indexed queries reduce search time from O(n) to O(1)
 - LRU cache prevents memory bloat
 - Batch processing reduces I/O overhead
 - Pagination supports large result sets
 
 ### Reliability
+
 - Validation prevents partial failures
 - Dry-run modes allow previewing
 - Structured error handling with retry logic
 - Merge conflict detection prevents data loss
 
 ### Developer Experience
+
 - Comprehensive logging
 - Clear error messages
 - Type-safe schemas with Zod
@@ -282,11 +334,13 @@ pnpm test
 ## Migration Guide
 
 ### Existing Code Compatibility
+
 All existing tools remain unchanged. New features are additive.
 
 ### Adopting New Features
 
 #### 1. Enable JWT Authentication
+
 ```typescript
 // In src/index.ts
 import { createJWTMiddleware } from "./middleware";
@@ -300,12 +354,14 @@ app.all("/mcp", jwtAuth, rateLimiter, ...);
 ```
 
 #### 2. Use Enhanced Caching
+
 ```typescript
 // Already enabled by default
 // Monitor with: obsidian_cache_stats
 ```
 
 #### 3. Apply Metadata Model
+
 ```typescript
 // Use obsidian_metadata_model tool
 {
@@ -320,6 +376,7 @@ app.all("/mcp", jwtAuth, rateLimiter, ...);
 ## 8. Knowledge Graph & Indexing ✅
 
 ### Link & Tag Graph
+
 - **Automatic link indexing**: Parses `[[wiki-links]]` including alias format
 - **Backlink tracking**: Maintains reverse link index automatically
 - **Tag indexing**: Indexes frontmatter tags for quick filtering
@@ -327,12 +384,14 @@ app.all("/mcp", jwtAuth, rateLimiter, ...);
 - **Scored relationships**: Weighted relevance (links: 3, backlinks: 2, tags: 1)
 
 ### Graph Analysis
+
 - **Hub detection**: Identifies highly-connected notes
 - **Orphan detection**: Finds isolated notes
 - **Connectivity metrics**: Average links, graph density
 - **Related note finder**: Discovers connections by links and tags
 
 ### Search & Discovery
+
 - **Full-text search**: Search content and titles
 - **Path filtering**: Restrict to specific folders
 - **Tag filtering**: Match by frontmatter tags
@@ -340,12 +399,14 @@ app.all("/mcp", jwtAuth, rateLimiter, ...);
 - **Case-sensitive option**: Optional case matching
 
 ### Graph Export
+
 - **JSON export**: Full or compact format
 - **Statistics**: Total notes, links, tags, averages
 - **Visualization ready**: Compatible with external tools
 - **Cache management**: 10-minute TTL, manual rebuild
 
 ### Files Created
+
 - `apps/mcp/src/core/graph.ts` - Knowledge graph engine
 - `apps/mcp/src/mcp/obsidian/tools/graph_export.ts` - Export tool
 - `apps/mcp/src/mcp/obsidian/tools/find_related.ts` - Related notes
@@ -359,6 +420,7 @@ app.all("/mcp", jwtAuth, rateLimiter, ...);
 ## Future Enhancements
 
 Potential areas for expansion:
+
 - Real-time vault sync with WebSocket
 - Plugin system for custom tools
 - GraphQL API for complex queries
@@ -372,6 +434,7 @@ Potential areas for expansion:
 ## Contributing
 
 When adding new features:
+
 1. Follow existing tool patterns in `apps/mcp/src/mcp/obsidian/tools/`
 2. Add comprehensive Zod schemas for validation
 3. Include dry-run modes for destructive operations

@@ -8,25 +8,25 @@ Time-bounded, focus-aware work sessions built from task graph optimization.
 
 ```typescript
 interface WorkSession {
-  id: string;                    // UUID
-  status: "planned" | "active" | "completed" | "aborted";
-  
+  id: string; // UUID
+  status: 'planned' | 'active' | 'completed' | 'aborted';
+
   params: {
-    durationMinutes: number;     // Time budget
-    maxFocusCost?: number;       // Focus ceiling
+    durationMinutes: number; // Time budget
+    maxFocusCost?: number; // Focus ceiling
     projectId?: string;
     tags?: string[];
     maxTasks?: number;
   };
-  
+
   totals: {
     plannedEffort: number;
     plannedReward: number;
     plannedTasks: number;
-    actualEffort?: number;       // After completion
+    actualEffort?: number; // After completion
     actualReward?: number;
   };
-  
+
   tasks: SessionTask[];
 }
 ```
@@ -48,12 +48,14 @@ Create optimized work session.
 ```
 
 **Algorithm**:
+
 1. Get unblocked tasks from graph
 2. Filter by `focusCost <= maxFocusCost`
 3. Score: `reward / (effort * focusCost)`
 4. Greedily pack into time budget
 
 Returns:
+
 ```json
 {
   "session": {
@@ -138,6 +140,7 @@ maxEffort = durationMinutes / minutesPerEffortUnit
 Default: `minutesPerEffortUnit = 15`
 
 Example:
+
 - 45 minutes → 3 effort units
 - 90 minutes → 6 effort units
 
@@ -150,9 +153,10 @@ score = reward / (effort * focusCost)
 **Higher score = higher priority**
 
 Example:
-- Task A: reward=10, effort=2, focus=2 → score = 10/(2*2) = 2.5
-- Task B: reward=12, effort=4, focus=3 → score = 12/(4*3) = 1.0
-- Task C: reward=5, effort=1, focus=1 → score = 5/(1*1) = 5.0
+
+- Task A: reward=10, effort=2, focus=2 → score = 10/(2\*2) = 2.5
+- Task B: reward=12, effort=4, focus=3 → score = 12/(4\*3) = 1.0
+- Task C: reward=5, effort=1, focus=1 → score = 5/(1\*1) = 5.0
 
 Order: C, A, B
 
@@ -238,6 +242,7 @@ console.log(final.session.totals);
 ```
 
 Example:
+
 ```json
 {
   "id": "sess_20241206_001",
@@ -265,18 +270,20 @@ Example:
 ### With Task Graph
 
 Session planner calls:
+
 ```typescript
 taskGraphService.getNextActions({
   projectId: params.projectId,
   tag: params.tags?.[0],
   maxFocusCost: params.maxFocusCost,
-  statusFilter: ['todo', 'in_progress']
-})
+  statusFilter: ['todo', 'in_progress'],
+});
 ```
 
 ### With Pipeline Engine
 
 Can create session notes via templates:
+
 ```json
 {
   "type": "templateStep",
@@ -308,7 +315,7 @@ MINUTES_PER_EFFORT_UNIT=15  # Default: 15 minutes per unit
 const config = {
   minutesPerEffortUnit: 15,
   defaultMaxFocusCost: 5,
-  defaultDurationMinutes: 45
+  defaultDurationMinutes: 45,
 };
 ```
 
@@ -320,6 +327,7 @@ npm test -- session-planner
 ```
 
 19 tests covering:
+
 - Duration constraints
 - Focus constraints
 - Project/tag filtering
@@ -340,6 +348,7 @@ npm test -- session-planner
 ### No tasks available
 
 Check:
+
 1. Are all tasks blocked? → `obsidian_task_graph` to inspect
 2. `maxFocusCost` too low? → Increase or remove
 3. All tasks done? → Create new tasks
@@ -347,6 +356,7 @@ Check:
 ### Session not including expected tasks
 
 Debug:
+
 ```bash
 # Get next actions with same filters
 obsidian_task_next_actions({
@@ -357,6 +367,7 @@ obsidian_task_next_actions({
 ```
 
 Check:
+
 - Task effort too high for duration?
 - Task blocked by dependencies?
 - Focus cost exceeds limit?
@@ -364,6 +375,7 @@ Check:
 ### Task sync not working
 
 Ensure:
+
 1. Task has valid `id` in frontmatter
 2. `syncTaskStatus: true` passed
 3. Task file writable
@@ -391,6 +403,7 @@ Ensure:
 ## Example Session Types
 
 ### Quick Win Session
+
 ```json
 {
   "durationMinutes": 25,
@@ -400,6 +413,7 @@ Ensure:
 ```
 
 ### Balanced Session
+
 ```json
 {
   "durationMinutes": 45,
@@ -409,6 +423,7 @@ Ensure:
 ```
 
 ### Deep Work Block
+
 ```json
 {
   "durationMinutes": 90,
@@ -418,6 +433,7 @@ Ensure:
 ```
 
 ### Maintenance Batch
+
 ```json
 {
   "durationMinutes": 60,
@@ -435,6 +451,7 @@ Ensure:
 ---
 
 **Quick Start**:
+
 1. Ensure tasks have `id`, `effort`, `reward`, `focus_cost`
 2. Call `obsidian_plan_session` with duration + focus limit
 3. Use `obsidian_start_session` / `obsidian_update_session_task` / `obsidian_end_session`

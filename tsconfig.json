@@ -1,8 +1,5 @@
 {
   "extends": "./tsconfig.base.json",
   "files": [],
-  "references": [
-    { "path": "apps/auth" },
-    { "path": "apps/mcp" }
-  ]
+  "references": [{ "path": "apps/auth" }, { "path": "apps/mcp" }]
 }

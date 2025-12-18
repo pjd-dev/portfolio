@@ -5,13 +5,17 @@ The Pipeline Engine enables atomic batch execution of multiple vault operations 
 ## Core Concepts
 
 ### Atomic Execution
+
 All changes are simulated in-memory first, then applied atomically. If any write fails, all changes are rolled back.
 
 ### In-Memory Simulation
+
 Operations are executed against an in-memory file system, generating a unified diff without touching disk.
 
 ### Pipeline Steps
+
 A pipeline is composed of steps that execute sequentially:
+
 - **Patch**: Apply structured content operations
 - **Move**: Rename or move files with link updates
 - **AutoLink**: Automatically create wiki links
@@ -25,6 +29,7 @@ A pipeline is composed of steps that execute sequentially:
 Simulate a pipeline and generate diff preview.
 
 **Input:**
+
 ```json
 {
   "name": "Optional pipeline name",
@@ -62,6 +67,7 @@ Simulate a pipeline and generate diff preview.
 ```
 
 **Output:**
+
 ```json
 {
   "pipelineId": "uuid-here",
@@ -88,6 +94,7 @@ Simulate a pipeline and generate diff preview.
 Apply a simulated pipeline atomically.
 
 **Input:**
+
 ```json
 {
   "pipelineId": "uuid-from-simulation",
@@ -96,6 +103,7 @@ Apply a simulated pipeline atomically.
 ```
 
 **Output:**
+
 ```json
 {
   "applied": true,
@@ -110,6 +118,7 @@ Apply a simulated pipeline atomically.
 List all simulated but not-yet-applied pipelines.
 
 **Output:**
+
 ```json
 {
   "pipelines": [
@@ -128,6 +137,7 @@ List all simulated but not-yet-applied pipelines.
 Get detailed information about a specific simulated pipeline.
 
 **Input:**
+
 ```json
 {
   "pipelineId": "uuid"
@@ -139,6 +149,7 @@ Get detailed information about a specific simulated pipeline.
 Validate pipeline structure before simulation.
 
 **Input:**
+
 ```json
 {
   "steps": [...]
@@ -146,6 +157,7 @@ Validate pipeline structure before simulation.
 ```
 
 **Output:**
+
 ```json
 {
   "valid": true,
@@ -401,38 +413,46 @@ Create from template, fill content, set metadata:
 ## Safety Guarantees
 
 ### Atomic
+
 All changes are applied together or none at all. Partial failures trigger rollback.
 
 ### Consistent
+
 Operations are validated before execution. Invalid operations are caught early.
 
 ### Isolated
+
 Pipeline uses vault locking to prevent concurrent modifications.
 
 ### Durable
+
 Journal entries record all changes for future undo support.
 
 ## Implementation Details
 
 ### In-Memory File System
+
 - Files are loaded into memory before simulation
 - All operations execute against memory copies
 - Original content is preserved for diff generation
 - No disk writes until apply phase
 
 ### Locking Mechanism
+
 - Creates `.vault-lock` file during apply
 - Prevents concurrent pipeline execution
 - Auto-expires stale locks after 5 minutes
 - Released after apply completes or fails
 
 ### Journal System
+
 - Writes entry to `.vault-journal/` directory
 - Records all mutations with before/after content
 - Enables future undo functionality
 - JSON format for easy inspection
 
 ### Error Handling
+
 - Validates each step before execution
 - Collects errors without stopping (unless `stopOnError: true`)
 - Provides detailed error messages with step numbers
@@ -441,15 +461,19 @@ Journal entries record all changes for future undo support.
 ## Performance Considerations
 
 ### File Loading
+
 Only files referenced by pipeline steps are loaded into memory. Large pipelines touching many files may take longer to simulate.
 
 ### Diff Generation
+
 Unified diffs are generated for all modified files. Very large files or many changes may produce large diff output.
 
 ### Link Updates
+
 Move operations that update backlinks scan all vault files. This can be slow for large vaults (1000+ files).
 
 ### Optimization Tips
+
 - Group related operations on the same file into one patch step
 - Use `updateBacklinks: false` if you don't need automatic link updates
 - Validate pipelines before simulation to catch errors early
@@ -458,38 +482,49 @@ Move operations that update backlinks scan all vault files. This can be slow for
 ## Error Messages
 
 ### "File not loaded: path.md"
+
 File wasn't in the initial load set. Check that the path is correct and the file exists.
 
 ### "Pipeline not found"
+
 The pipeline ID doesn't exist or was already applied. Run simulation again.
 
 ### "Failed to acquire vault lock"
+
 Another pipeline is running. Wait for it to complete or remove `.vault-lock` file.
 
 ### "Step X failed: ..."
+
 Specific step encountered an error. Check the error message for details.
 
 ### "Source file not found: path.md"
+
 Move operation references a file that doesn't exist.
 
 ## Future Enhancements
 
 ### Undo Support
+
 Journal entries will enable reverting applied pipelines.
 
 ### Named Pipelines
+
 Save and reuse pipelines with `obsidian_save_pipeline`.
 
 ### Pipeline Templates
+
 Common workflows (archive, refactor, migrate) as reusable templates.
 
 ### Dry-Run Mode
+
 Execute pipeline against live vault without writing changes.
 
 ### Conflict Detection
+
 Check for conflicting pipelines before apply.
 
 ### Progress Streaming
+
 Real-time progress updates for long-running pipelines.
 
 ## Related Features
@@ -502,15 +537,16 @@ Real-time progress updates for long-running pipelines.
 
 ## Quick Reference
 
-| Tool | Purpose | Risk Level |
-|------|---------|-----------|
-| `obsidian_run_pipeline_simulation` | Preview changes | Safe (no writes) |
-| `obsidian_apply_pipeline` | Execute changes | High (writes to disk) |
-| `obsidian_list_pipelines` | Show pending | Safe (read-only) |
-| `obsidian_get_pipeline_simulation` | Inspect details | Safe (read-only) |
-| `obsidian_validate_pipeline` | Check validity | Safe (no execution) |
+| Tool                               | Purpose         | Risk Level            |
+| ---------------------------------- | --------------- | --------------------- |
+| `obsidian_run_pipeline_simulation` | Preview changes | Safe (no writes)      |
+| `obsidian_apply_pipeline`          | Execute changes | High (writes to disk) |
+| `obsidian_list_pipelines`          | Show pending    | Safe (read-only)      |
+| `obsidian_get_pipeline_simulation` | Inspect details | Safe (read-only)      |
+| `obsidian_validate_pipeline`       | Check validity  | Safe (no execution)   |
 
 **Recommended workflow:**
+
 1. Validate → 2. Simulate → 3. Review diff → 4. Apply
 
 ## Examples
