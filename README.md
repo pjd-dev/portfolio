@@ -86,6 +86,14 @@ On SELinux-enabled systems (Fedora, RHEL, etc.) Podman bind-mounts may deny cont
 - **[TEMPLATE_DISCOVERY_API.md](doc/TEMPLATE_DISCOVERY_API.md)** — Template system
 - **[DIFF_PREVIEW_API.md](doc/DIFF_PREVIEW_API.md)** — Diff preview system
 
+### 🔧 Development & Architecture
+
+- **[ARCHITECTURE_REVIEW.md](doc/ARCHITECTURE_REVIEW.md)** — Complete architecture analysis
+- **[PHASE1_COMPLETE.md](doc/PHASE1_COMPLETE.md)** — ESM module system unification
+- **[PHASE1_PROGRESS.md](doc/PHASE1_PROGRESS.md)** — Phase 1 execution details
+- **[TESTING_CHECKLIST.md](doc/TESTING_CHECKLIST.md)** — Vitest unified testing
+- **[FIX_PLAN.md](doc/FIX_PLAN.md)** — Architecture improvements roadmap
+
 ---
 
 ## Features
