@@ -65,6 +65,10 @@ On SELinux-enabled systems (Fedora, RHEL, etc.) Podman bind-mounts may deny cont
 
 ## Documentation
 
+### �️ Documentation Index
+
+**Start here**: [DOCUMENTATION_INDEX.md](doc/DOCUMENTATION_INDEX.md) — Complete navigation guide to all docs
+
 ### 📚 Complete Guides
 
 - **[COMPLETE_IMPLEMENTATION_REPORT.md](doc/COMPLETE_IMPLEMENTATION_REPORT.md)** — Full platform overview (26KB)
@@ -93,6 +97,15 @@ On SELinux-enabled systems (Fedora, RHEL, etc.) Podman bind-mounts may deny cont
 - **[PHASE1_PROGRESS.md](doc/PHASE1_PROGRESS.md)** — Phase 1 execution details
 - **[TESTING_CHECKLIST.md](doc/TESTING_CHECKLIST.md)** — Vitest unified testing
 - **[FIX_PLAN.md](doc/FIX_PLAN.md)** — Architecture improvements roadmap
+
+### 📋 Latest Updates & Sessions
+
+- **[SESSION_GIT_SYNC_FIX_SUMMARY.md](doc/SESSION_GIT_SYNC_FIX_SUMMARY.md)** — Git sync fix & bidirectional sync (Dec 18, 2025) ✅
+- **[DOCKER_BUILD_FIX_TSCONFIG.md](doc/DOCKER_BUILD_FIX_TSCONFIG.md)** — Docker build fix for MCP container (Dec 18, 2025) ✅
+- **[VAULTY_GIT_SYNC_TROUBLESHOOTING.md](doc/VAULTY_GIT_SYNC_TROUBLESHOOTING.md)** — Vaulty container sync troubleshooting
+- **[PRODUCTION_OPERATIONS.md](doc/PRODUCTION_OPERATIONS.md)** — Production runbooks & operations
+- **[SYNC_ENHANCEMENTS.md](apps/vaulty/SYNC_ENHANCEMENTS.md)** — Vaulty sync enhancements
+- **[PRETTIER_SETUP.md](doc/PRETTIER_SETUP.md)** — Code formatting & pre-commit setup
 
 ---
 

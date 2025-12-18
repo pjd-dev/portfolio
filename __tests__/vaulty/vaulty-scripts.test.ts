@@ -138,6 +138,39 @@ describe('Vaulty Scripts - Script Structure', () => {
       expect(content).toContain('python3');
       expect(content).toContain('sync.py');
     });
+
+    it('should validate LOCAL_VAULT_PATH on startup', () => {
+      content = readFileSync(join(VAULTY_SRC, 'git-sync.sh'), 'utf-8');
+      expect(content).toContain('LOCAL_VAULT_PATH');
+      expect(content).toContain('[ -d "$LOCAL_VAULT_PATH" ]');
+      expect(content).toContain('does not exist');
+    });
+
+    it('should sync local to volume if configured', () => {
+      content = readFileSync(join(VAULTY_SRC, 'git-sync.sh'), 'utf-8');
+      expect(content).toContain('Syncing local path to vault volume');
+      expect(content).toContain('📥');
+      expect(content).toContain('LOCAL_VAULT_PATH');
+      expect(content).toContain('VAULT_DATA_VOLUME');
+    });
+
+    it('should sync volume to local after git sync', () => {
+      content = readFileSync(join(VAULTY_SRC, 'git-sync.sh'), 'utf-8');
+      expect(content).toContain('Syncing vault volume to local path');
+      expect(content).toContain('📤');
+      expect(content).toContain('cp -a /src/. /dst/');
+    });
+
+    it('should handle bidirectional sync (local → volume → github → volume → local)', () => {
+      content = readFileSync(join(VAULTY_SRC, 'git-sync.sh'), 'utf-8');
+      // Local to volume
+      expect(content).toContain('Syncing local path to vault volume');
+      // Volume to github (via python sync)
+      expect(content).toContain('sync.py');
+      // Github to volume (implicit in sync.py)
+      // Volume to local
+      expect(content).toContain('Syncing vault volume to local path');
+    });
   });
 
   describe('git-sync-realtime.sh', () => {
