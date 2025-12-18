@@ -22,7 +22,7 @@ The project is a **multi-language, multi-paradigm monorepo** with significant ar
 
 The workspace uses **THREE DIFFERENT MODULE SYSTEMS** within TypeScript/JavaScript:
 
-```
+```text
 ├── apps/auth/           → type: "module" (ESM)
 ├── apps/mcp/            → type: "commonjs" (CJS)
 ├── apps/llm-adapter/    → JavaScript (Node's default)
