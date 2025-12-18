@@ -20,13 +20,16 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 
+# Set ENV_FILE for sourcing
+ENV_FILE="${REPO_ROOT}/.env"
+
 # Load environment files (root level first, then app-level overrides)
 load_env_files() {
   local root_env="$REPO_ROOT/.env"
   if [ -f "$root_env" ]; then
     set -o allexport
     # shellcheck disable=SC1090
-    source "$root_env"
+    source "$ENV_FILE"
     set +o allexport
   fi
 

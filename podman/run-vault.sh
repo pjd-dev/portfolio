@@ -20,13 +20,16 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 
+# Set ENV_FILE for sourcing
+ENV_FILE="${REPO_ROOT}/.env"
+
 # Load environment files (root level first, then app-level overrides)
 load_env_files() {
   local root_env="$REPO_ROOT/.env"
   if [ -f "$root_env" ]; then
     set -o allexport
     # shellcheck disable=SC1090
-    source "$root_env"
+    source "$ENV_FILE"
     set +o allexport
   fi
 
@@ -66,6 +69,7 @@ fi
 # Create pod with MCP port binding
 POD_NAME="${POD_NAME:-vaulty-pod}"
 VAULT_CONTAINER="${VAULT_CONTAINER_NAME:-vaulty}"
+# Note: Container is always named with --name vaulty (or override via VAULT_CONTAINER_NAME)
 podman pod create --name "$POD_NAME" -p "${MCP_PORT:-4000}":4000 || true
 
 CONTAINER_USER="${CONTAINER_USER:-$(id -u):$(id -g)}"
@@ -81,7 +85,7 @@ for env_file in "$REPO_ROOT/.env" "$REPO_ROOT/apps/vaulty/.env"; do
   fi
 done
 
-podman run -d --rm --name "$VAULT_CONTAINER" --pod "$POD_NAME" \
+podman run -d --rm --name vaulty --pod "$POD_NAME" \
   --volume "$VOLUME_SOURCE":/vault:Z \
   "${ENV_FILES[@]}" \
   "${USER_FLAG[@]}" \
