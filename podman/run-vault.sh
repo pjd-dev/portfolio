@@ -1,4 +1,19 @@
 #!/bin/bash
+
+# ⚠️  DEPRECATED - This script is no longer maintained
+# 
+# This script has been migrated to the centralized script system.
+# Please use the new command instead:
+#
+#   ./scripts/vault start
+#
+# The logic from this file has been integrated into:
+#   - scripts/services/start.sh
+#   - scripts/common.sh
+#
+# This file will be removed in the next major version.
+# See doc/PHASE4_DETAILED_PLAN.md for migration details.
+
 set -euo pipefail
 
 # Resolve script and repo root directories

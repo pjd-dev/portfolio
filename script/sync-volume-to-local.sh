@@ -1,4 +1,18 @@
 #!/usr/bin/env bash
+
+# ⚠️  DEPRECATED - This script is no longer maintained
+# 
+# This script has been migrated to the centralized script system.
+# Please use the new command instead:
+#
+#   ./scripts/vault utilities sync [volume-to-local|local-to-volume|continuous]
+#
+# The logic from this file has been integrated into:
+#   - scripts/utilities/sync-vault.sh
+#
+# This file will be removed in the next major version.
+# See doc/PHASE4_DETAILED_PLAN.md for migration details.
+
 # Sync podman volume contents to local filesystem
 # Usage: ./sync-volume-to-local.sh [volume_name] [local_path] [interval_seconds]
 
