@@ -18,8 +18,10 @@ pnpm-debug.log*
 # (example: pnpm-lock.yaml, package-lock.json, yarn.lock) — keep them in VCS
 
 # Builds / bundlers / caches
+# Note: Keep scripts/build/ (build scripts), only ignore app-level build outputs
 dist/
-build/
+*/build/
+apps/*/build/
 coverage/
 .nyc_output/
 .cache/
@@ -71,6 +73,7 @@ temp/
 *.DS_Store
 Thumbs.db
 
+*.vscode/
 # OS files
 .DS_Store
 .AppleDouble

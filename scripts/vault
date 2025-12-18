@@ -154,32 +154,58 @@ main() {
       source "$SCRIPT_DIR/build/docker-build.sh" "no-cache"
       ;;
     
-    # Infrastructure
-    init)
-      log_info "Initializing platform..."
-      source "$SCRIPT_DIR/infrastructure/init.sh"
-      ;;
-    clean)
-      log_info "Cleaning up..."
-      source "$SCRIPT_DIR/infrastructure/clean.sh"
-      ;;
-    prune)
-      log_info "Pruning Docker resources..."
-      source "$SCRIPT_DIR/infrastructure/prune.sh"
+    # Infrastructure subcommands
+    infrastructure)
+      case "${2:-help}" in
+        init)
+          log_info "Initializing platform infrastructure..."
+          bash "$SCRIPT_DIR/infrastructure/init.sh" "${@:3}"
+          ;;
+        verify)
+          log_info "Verifying platform infrastructure..."
+          bash "$SCRIPT_DIR/infrastructure/verify.sh" "${@:3}"
+          ;;
+        validate)
+          log_info "Validating platform configuration..."
+          bash "$SCRIPT_DIR/infrastructure/validate.sh" "${@:3}"
+          ;;
+        clean)
+          log_info "Cleaning up infrastructure..."
+          bash "$SCRIPT_DIR/infrastructure/clean.sh" "${@:3}"
+          ;;
+        prune)
+          log_info "Pruning container resources..."
+          bash "$SCRIPT_DIR/infrastructure/prune.sh" "${@:3}"
+          ;;
+        *)
+          log_error "Unknown infrastructure command: ${2:-help}"
+          echo "Infrastructure commands: init, verify, validate, clean, prune"
+          exit 1
+          ;;
+      esac
       ;;
     
-    # Utilities
-    sync-vault)
-      log_info "Syncing vault..."
-      source "$SCRIPT_DIR/utilities/sync-vault.sh"
-      ;;
-    verify-vault)
-      log_info "Verifying vault..."
-      source "$SCRIPT_DIR/utilities/verify-vault.sh"
-      ;;
-    tunnel)
-      log_info "Starting tunnel..."
-      source "$SCRIPT_DIR/utilities/tunnel.sh"
+    # Utilities subcommands
+    utilities)
+      case "${2:-help}" in
+        sync)
+          log_info "Syncing vault..."
+          bash "$SCRIPT_DIR/utilities/sync-vault.sh" "${@:3}"
+          ;;
+        verify)
+          log_info "Verifying vault..."
+          bash "$SCRIPT_DIR/utilities/verify-vault.sh" "${@:3}"
+          ;;
+        tunnel)
+          log_info "Tunnel management..."
+          bash "$SCRIPT_DIR/utilities/tunnel.sh" "${@:3}"
+          ;;
+        *)
+          log_error "Unknown utilities command: ${2:-help}"
+          echo "Utilities commands: sync, verify, tunnel"
+          exit 1
+          ;;
+      esac
       ;;
     
     # Help/Info

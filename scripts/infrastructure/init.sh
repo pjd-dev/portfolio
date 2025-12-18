@@ -1,57 +1,159 @@
 #!/usr/bin/env bash
 
-# Initialize platform infrastructure (volumes, networks)
+# Initialize platform infrastructure (volumes, networks, directories)
+# Migrated logic from script/init-volume.sh with enhancements
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$SCRIPT_DIR/common.sh"
 
+# ============================================================================
+# Configuration
+# ============================================================================
+
+# Allow override via arguments or environment
+VAULT_VOLUME="${1:-${VAULT_DATA_VOLUME:-vault}}"
+LOCAL_VAULT_PATH="${2:-${LOCAL_VAULT_PATH:-}}"
+
+# ============================================================================
+# Helper Functions
+# ============================================================================
+
+expand_path() {
+  local path="$1"
+  
+  # Expand ~ to home directory
+  if [[ "${path#~}" != "$path" ]]; then
+    path="$(eval echo "$path")"
+  fi
+  
+  # Expand relative paths
+  if [[ ! "$path" = /* ]]; then
+    path="$(cd "$PROJECT_ROOT" && pwd)/$path"
+  fi
+  
+  echo "$path"
+}
+
+# ============================================================================
+# Volume Initialization
+# ============================================================================
+
+init_vault_volume() {
+  local volume="$1"
+  local local_path="${2:-}"
+  
+  print_section "Initializing vault volume: $volume"
+  
+  # Create volume if not exists
+  if $RUNTIME volume inspect "$volume" &>/dev/null; then
+    log_success "Volume already exists: $volume"
+  else
+    log_info "Creating volume: $volume"
+    $RUNTIME volume create "$volume" || die "Failed to create volume $volume"
+    log_success "Volume created: $volume"
+  fi
+  
+  # Handle local path if provided
+  if [[ -n "$local_path" ]]; then
+    local expanded_path
+    expanded_path=$(expand_path "$local_path")
+    
+    if [[ ! -d "$expanded_path" ]]; then
+      log_info "Creating local path: $expanded_path"
+      mkdir -p "$expanded_path" || die "Failed to create directory $expanded_path"
+      log_success "Directory created: $expanded_path"
+    else
+      log_success "Local path exists: $expanded_path"
+    fi
+    
+    # Copy contents from local to volume if local has files
+    if [[ -n "$(ls -A "$expanded_path" 2>/dev/null || true)" ]]; then
+      log_info "Copying contents from $expanded_path to volume $volume..."
+      $RUNTIME run --rm \
+        -v "$expanded_path:/src:Z" \
+        -v "$volume:/dst" \
+        alpine sh -c "cp -a /src/. /dst/" || log_warn "Some files may not have been copied"
+      log_success "Contents copied to volume"
+    else
+      log_debug "Local path is empty, no copy needed"
+    fi
+  fi
+}
+
+# ============================================================================
+# Network Initialization
+# ============================================================================
+
+init_networks() {
+  print_section "Creating networks"
+  
+  local networks=("vault-network")
+  for network in "${networks[@]}"; do
+    if $RUNTIME network inspect "$network" &>/dev/null; then
+      log_success "Network already exists: $network"
+    else
+      log_info "Creating network: $network"
+      $RUNTIME network create "$network" || die "Failed to create network $network"
+      log_success "Network created: $network"
+    fi
+  done
+}
+
+# ============================================================================
+# Directory Initialization
+# ============================================================================
+
+init_directories() {
+  print_section "Creating directories"
+  
+  local dirs=(
+    "$(get_config VAULT_PATH "$HOME/.obsidian/vault")"
+    "$PROJECT_ROOT/.vault"
+    "$PROJECT_ROOT/logs"
+  )
+  
+  for dir in "${dirs[@]}"; do
+    mkdir_p "$dir"
+    log_success "Directory ready: $dir"
+  done
+}
+
+# ============================================================================
+# Additional Volumes (for data persistence)
+# ============================================================================
+
+init_additional_volumes() {
+  print_section "Creating additional data volumes"
+  
+  local volumes=("mcp-data" "vaulty-data")
+  for volume in "${volumes[@]}"; do
+    if $RUNTIME volume inspect "$volume" &>/dev/null; then
+      log_success "Volume already exists: $volume"
+    else
+      log_info "Creating volume: $volume"
+      $RUNTIME volume create "$volume" || die "Failed to create volume $volume"
+      log_success "Volume created: $volume"
+    fi
+  done
+}
+
+# ============================================================================
+# Main Execution
+# ============================================================================
+
 print_header "Initializing Platform Infrastructure"
 
 require_commands "$RUNTIME"
 
-# Create volumes
-print_section "Creating volumes"
+# Initialize vault volume with optional local path sync
+init_vault_volume "$VAULT_VOLUME" "$LOCAL_VAULT_PATH"
 
-volumes=("vault-data" "mcp-data" "vaulty-data")
-for volume in "${volumes[@]}"; do
-  if ! $RUNTIME volume inspect "$volume" &>/dev/null; then
-    log_info "Creating volume: $volume"
-    $RUNTIME volume create "$volume"
-    log_success "Volume created: $volume"
-  else
-    log_success "Volume already exists: $volume"
-  fi
-done
-
-# Create networks
-print_section "Creating networks"
-
-networks=("vault-network")
-for network in "${networks[@]}"; do
-  if ! $RUNTIME network inspect "$network" &>/dev/null; then
-    log_info "Creating network: $network"
-    $RUNTIME network create "$network"
-    log_success "Network created: $network"
-  else
-    log_success "Network already exists: $network"
-  fi
-done
-
-# Create directories
-print_section "Creating directories"
-
-dirs=(
-  "$(get_config VAULT_PATH "$HOME/.obsidian/vault")"
-  "$PROJECT_ROOT/.vault"
-  "$PROJECT_ROOT/logs"
-)
-
-for dir in "${dirs[@]}"; do
-  mkdir_p "$dir"
-  log_success "Directory ready: $dir"
-done
+# Initialize additional infrastructure
+init_additional_volumes
+init_networks
+init_directories
 
 print_divider
-log_success "Platform infrastructure initialized"
+log_success "Platform infrastructure initialized successfully"

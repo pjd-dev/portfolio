@@ -67,24 +67,24 @@ On SELinux-enabled systems (Fedora, RHEL, etc.) Podman bind-mounts may deny cont
 
 ### 📚 Complete Guides
 
-- **[COMPLETE_IMPLEMENTATION_REPORT.md](COMPLETE_IMPLEMENTATION_REPORT.md)** — Full platform overview (26KB)
-- **[IMPLEMENTATION_COMPLETE.md](IMPLEMENTATION_COMPLETE.md)** — Summary & production checklist
+- **[COMPLETE_IMPLEMENTATION_REPORT.md](doc/COMPLETE_IMPLEMENTATION_REPORT.md)** — Full platform overview (26KB)
+- **[IMPLEMENTATION_COMPLETE.md](doc/IMPLEMENTATION_COMPLETE.md)** — Summary & production checklist
 
 ### 🚀 Quick References
 
-- **[PIPELINE_ENGINE_QUICK_REF.md](PIPELINE_ENGINE_QUICK_REF.md)** — Pipeline workflows
-- **[OPERATION_JOURNAL_QUICK_REF.md](OPERATION_JOURNAL_QUICK_REF.md)** — Journal & undo
-- **[TASK_DEPENDENCY_GRAPH_QUICK_REF.md](TASK_DEPENDENCY_GRAPH_QUICK_REF.md)** — Task graph
-- **[SESSION_PLANNER_QUICK_REF.md](SESSION_PLANNER_QUICK_REF.md)** — Session planning
-- **[FILE_OPERATIONS_QUICK_REF.md](FILE_OPERATIONS_QUICK_REF.md)** — File operations
+- **[PIPELINE_ENGINE_QUICK_REF.md](doc/PIPELINE_ENGINE_QUICK_REF.md)** — Pipeline workflows
+- **[OPERATION_JOURNAL_QUICK_REF.md](doc/OPERATION_JOURNAL_QUICK_REF.md)** — Journal & undo
+- **[TASK_DEPENDENCY_GRAPH_QUICK_REF.md](doc/TASK_DEPENDENCY_GRAPH_QUICK_REF.md)** — Task graph
+- **[SESSION_PLANNER_QUICK_REF.md](doc/SESSION_PLANNER_QUICK_REF.md)** — Session planning
+- **[FILE_OPERATIONS_QUICK_REF.md](doc/FILE_OPERATIONS_QUICK_REF.md)** — File operations
 
 ### 📖 System Documentation
 
-- **[PIPELINE_ENGINE.md](PIPELINE_ENGINE.md)** — Pipeline implementation details
-- **[OPERATION_JOURNAL.md](OPERATION_JOURNAL.md)** — Journal system architecture
-- **[STRUCTURE_SCHEMA_VALIDATION.md](STRUCTURE_SCHEMA_VALIDATION.md)** — Schema validation
-- **[TEMPLATE_DISCOVERY_API.md](TEMPLATE_DISCOVERY_API.md)** — Template system
-- **[DIFF_PREVIEW_API.md](DIFF_PREVIEW_API.md)** — Diff preview system
+- **[PIPELINE_ENGINE.md](doc/PIPELINE_ENGINE.md)** — Pipeline implementation details
+- **[OPERATION_JOURNAL.md](doc/OPERATION_JOURNAL.md)** — Journal system architecture
+- **[STRUCTURE_SCHEMA_VALIDATION.md](doc/STRUCTURE_SCHEMA_VALIDATION.md)** — Schema validation
+- **[TEMPLATE_DISCOVERY_API.md](doc/TEMPLATE_DISCOVERY_API.md)** — Template system
+- **[DIFF_PREVIEW_API.md](doc/DIFF_PREVIEW_API.md)** — Diff preview system
 
 ---
 
@@ -373,11 +373,11 @@ MIT
 
 ## Key Links
 
-- [Complete Implementation Report](COMPLETE_IMPLEMENTATION_REPORT.md) — Full system overview
-- [Implementation Summary](IMPLEMENTATION_COMPLETE.md) — Production checklist
-- [Task Graph Quick Reference](TASK_DEPENDENCY_GRAPH_QUICK_REF.md) — Task management
-- [Session Planner Quick Reference](SESSION_PLANNER_QUICK_REF.md) — Work sessions
+- [Complete Implementation Report](doc/COMPLETE_IMPLEMENTATION_REPORT.md) — Full system overview
+- [Implementation Summary](doc/IMPLEMENTATION_COMPLETE.md) — Production checklist
+- [Task Graph Quick Reference](doc/TASK_DEPENDENCY_GRAPH_QUICK_REF.md) — Task management
+- [Session Planner Quick Reference](doc/SESSION_PLANNER_QUICK_REF.md) — Work sessions
 
 ---
 
-_Version 1.1.0 — December 15, 2025_
+_Version 1.1.0 — December 18, 2025_

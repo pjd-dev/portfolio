@@ -1,4 +1,20 @@
 #!/usr/bin/env bash
+
+# ⚠️  DEPRECATED - This script is no longer maintained
+# 
+# This script has been migrated to the centralized script system.
+# Please use the new commands instead:
+#
+#   ./scripts/vault infrastructure init
+#   ./scripts/vault infrastructure validate
+#
+# The logic from this file has been integrated into:
+#   - scripts/infrastructure/init.sh
+#   - scripts/infrastructure/validate.sh
+#
+# This file will be removed in the next major version.
+# See doc/PHASE4_DETAILED_PLAN.md for migration details.
+
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

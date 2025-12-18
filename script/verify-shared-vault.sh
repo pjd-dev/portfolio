@@ -1,4 +1,20 @@
 #!/usr/bin/env bash
+
+# ⚠️  DEPRECATED - This script is no longer maintained
+# 
+# This script has been migrated to the centralized script system.
+# Please use the new commands instead:
+#
+#   ./scripts/vault infrastructure verify
+#   ./scripts/vault infrastructure validate
+#
+# The logic from this file has been integrated into:
+#   - scripts/infrastructure/verify.sh
+#   - scripts/infrastructure/validate.sh
+#
+# This file will be removed in the next major version.
+# See doc/PHASE4_DETAILED_PLAN.md for migration details.
+
 # Verify that two running containers mount the same vault volume
 # Usage: ./verify-shared-vault.sh [mcp_container] [vaulty_container]
 

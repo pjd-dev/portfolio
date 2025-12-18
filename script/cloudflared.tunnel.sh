@@ -1,4 +1,18 @@
 #!/usr/bin/env bash
+
+# ⚠️  DEPRECATED - This script is no longer maintained
+# 
+# This script has been migrated to the centralized script system.
+# Please use the new command instead:
+#
+#   ./scripts/vault utilities tunnel [start|status|list]
+#
+# The logic from this file has been integrated into:
+#   - scripts/utilities/tunnel.sh
+#
+# This file will be removed in the next major version.
+# See doc/PHASE4_DETAILED_PLAN.md for migration details.
+
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

@@ -1,9 +1,27 @@
 #!/bin/bash
+
+# ⚠️  DEPRECATED - This script is no longer maintained
+# 
+# This script has been migrated to the centralized script system.
+# Please use the new command instead:
+#
+#   ./scripts/vault start
+#
+# The logic from this file has been integrated into:
+#   - scripts/services/start.sh
+#   - scripts/common.sh
+#
+# This file will be removed in the next major version.
+# See doc/PHASE4_DETAILED_PLAN.md for migration details.
+
 set -euo pipefail
 
 # Resolve script and repo root directories
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
+
+# Set ENV_FILE for sourcing
+ENV_FILE="${REPO_ROOT}/.env"
 
 # Load environment files (root level first, then app-level overrides)
 load_env_files() {
@@ -11,7 +29,7 @@ load_env_files() {
   if [ -f "$root_env" ]; then
     set -o allexport
     # shellcheck disable=SC1090
-    source "$root_env"
+    source "$ENV_FILE"
     set +o allexport
   fi
 
