@@ -13,6 +13,12 @@
     "declarationMap": true,
     "sourceMap": true,
     "rootDir": "src",
-    "outDir": "dist"
+    "outDir": "dist",
+    "baseUrl": ".",
+    "paths": {
+      "@vault/common": ["packages/vault-common/src"],
+      "@vault/types": ["packages/vault-types/src"],
+      "@vault/errors": ["packages/vault-errors/src"]
+    }
   }
 }

@@ -1,0 +1,23 @@
+{
+  "name": "@vault/errors",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Shared error classes for vault platform",
+  "main": "dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./VaultError": "./dist/VaultError.js",
+    "./ValidationError": "./dist/ValidationError.js",
+    "./NotFoundError": "./dist/NotFoundError.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  }
+}
