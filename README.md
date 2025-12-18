@@ -2,10 +2,10 @@
 
 ## A deterministic, graph-aware workflow system for Obsidian
 
-[![Tests](https://img.shields.io/badge/tests-104%20passing-brightgreen)]()
-[![Status](https://img.shields.io/badge/status-production%20ready-brightgreen)]()
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.4-blue)]()
-[![Vitest](https://img.shields.io/badge/Vitest-4.0-yellow)]()
+[![Tests](https://img.shields.io/badge/tests-104%20passing-brightgreen)](doc/TESTING_CHECKLIST.md)
+[![Status](https://img.shields.io/badge/status-production%20ready-brightgreen)](doc/IMPLEMENTATION_COMPLETE.md)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.4-blue)](https://www.typescriptlang.org/)
+[![Vitest](https://img.shields.io/badge/Vitest-4.0-yellow)](https://vitest.dev/)
 
 ---
 
@@ -148,7 +148,7 @@ obsidian_fix_note_structure({ path: '...', previewOnly: true });
 
 ## Test Coverage
 
-```
+```text
 ✅ Test Suites: 6 passed
 ✅ Tests:       104 passed
 ✅ Framework:   Vitest 4.0.15
@@ -178,7 +178,7 @@ pnpm test:podman       # Podman tests only
 
 ## Architecture
 
-```
+```text
 ┌────────────────────────────────────────────────────────────┐
 │                    MCP CLIENT LAYER                        │
 └───────────────────────────┬────────────────────────────────┘
@@ -235,7 +235,7 @@ pnpm test:podman       # Podman tests only
 
 ## Project Structure
 
-```
+```text
 vault-platform-full/
 ├── apps/
 │   ├── auth/                         # Auth service
@@ -363,7 +363,7 @@ pnpm typecheck            # Type checking
 
 ## Status
 
-**✅ PRODUCTION READY**
+### ✅ PRODUCTION READY
 
 - All core systems implemented
 - 37/37 tests passing
@@ -388,4 +388,4 @@ MIT
 
 ---
 
-_Version 1.1.0 — December 18, 2025_
+## Version 1.1.0 — December 18, 2025
