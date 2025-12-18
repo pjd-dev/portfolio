@@ -1,0 +1,25 @@
+{
+  "name": "@vault/types",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Shared TypeScript types for vault platform",
+  "main": "dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./vault": "./dist/vault.js",
+    "./operations": "./dist/operations.js",
+    "./task": "./dist/task.js",
+    "./api": "./dist/api.js",
+    "./journal": "./dist/journal.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  }
+}

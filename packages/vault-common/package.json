@@ -1,0 +1,28 @@
+{
+  "name": "@vault/common",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Shared utilities for vault platform",
+  "main": "dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./vault": "./dist/vault.js",
+    "./config": "./dist/config.js",
+    "./logger": "./dist/logger.js",
+    "./paths": "./dist/paths.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "zod": "^3.23.11"
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  }
+}
