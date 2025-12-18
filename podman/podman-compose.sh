@@ -1,4 +1,23 @@
 #!/bin/bash
+
+# ⚠️  DEPRECATED - This script is no longer maintained
+# 
+# This script has been migrated to the centralized script system.
+# Please use the new commands instead:
+#
+#   ./scripts/vault start              # Start all services
+#   ./scripts/vault stop               # Stop all services
+#   ./scripts/vault logs               # View logs
+#   ./scripts/vault status             # Check status
+#
+# The logic from this file has been integrated into:
+#   - scripts/services/start.sh
+#   - scripts/services/stop.sh
+#   - scripts/common.sh
+#
+# This file will be removed in the next major version.
+# See podman/DEPRECATED.md and scripts/README.md for migration details.
+
 # Multi-container Podman orchestration script
 # Unified script combining setup, cleanup, build, and container management
 # Usage: ./podman-compose.sh [cleanup|skip-cleanup] [volume_name] [local_path]
