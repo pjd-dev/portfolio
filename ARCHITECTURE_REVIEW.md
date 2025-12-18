@@ -18,7 +18,7 @@ The project is a **multi-language, multi-paradigm monorepo** with significant ar
 
 ### 1. **Module System Chaos** ⚠️ HIGHEST PRIORITY
 
-#### Problem
+#### Details
 
 The workspace uses **THREE DIFFERENT MODULE SYSTEMS** within TypeScript/JavaScript:
 
