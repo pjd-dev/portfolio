@@ -85,7 +85,7 @@ WRITE_LOCK_MAX_WAIT=30          # Max wait time (seconds)
 
 ### Default: WAIT_FOR_WRITE_LOCK=true
 
-```
+```text
 1. Sync checks for .write-lock file
 2. If exists: Waits up to 30 seconds (configurable)
 3. Log: "Waiting for write lock to be released"
@@ -94,7 +94,7 @@ WRITE_LOCK_MAX_WAIT=30          # Max wait time (seconds)
 
 ### Alternative: WAIT_FOR_WRITE_LOCK=false
 
-```
+```text
 1. Sync checks for .write-lock file
 2. If exists: Skips sync, returns early
 3. Log: "Skipping sync due to active write lock"

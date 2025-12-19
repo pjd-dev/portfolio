@@ -201,6 +201,7 @@ test_service_start_env_vars() {
         "POD_NAME"
         "MCP_CONTAINER"
         "VAULT_CONTAINER"
+        "LOCAL_VAULT_PATH"
     )
     
     local missing_vars=()
@@ -215,6 +216,28 @@ test_service_start_env_vars() {
         test_pass "$test_name"
     else
         test_fail "$test_name" "Missing variables: ${missing_vars[*]}"
+    fi
+}
+
+test_service_start_local_vault_path_handling() {
+    local test_name="Service Start Script - LOCAL_VAULT_PATH Directory Creation"
+    
+    # Check that script attempts to create LOCAL_VAULT_PATH directory
+    if grep -q "mkdir -p.*VOLUME_SOURCE\|mkdir -p.*LOCAL_VAULT_PATH" "${SCRIPT_DIR}/scripts/services/start.sh"; then
+        test_pass "$test_name"
+    else
+        test_fail "$test_name" "No directory creation logic found for LOCAL_VAULT_PATH"
+    fi
+}
+
+test_service_start_local_vault_path_fallback() {
+    local test_name="Service Start Script - LOCAL_VAULT_PATH Fallback Logic"
+    
+    # Check that script falls back to named volume if directory creation fails
+    if grep -q "VOLUME_SOURCE.*vault\|fall.*back\|named.*volume" "${SCRIPT_DIR}/scripts/services/start.sh"; then
+        test_pass "$test_name"
+    else
+        test_fail "$test_name" "No fallback logic found for LOCAL_VAULT_PATH"
     fi
 }
 
@@ -399,6 +422,8 @@ run_all_tests() {
     test_service_start_syntax
     test_service_start_functions
     test_service_start_env_vars
+    test_service_start_local_vault_path_handling
+    test_service_start_local_vault_path_fallback
     
     log_section "Test Suite 2: Service Stop Script"
     test_service_stop_syntax

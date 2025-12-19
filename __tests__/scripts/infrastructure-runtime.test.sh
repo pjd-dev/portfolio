@@ -254,6 +254,7 @@ test_validate_functions() {
         "check_port_availability"
         "check_volume_driver"
         "check_network_driver"
+        "check_local_vault_path"
     )
     
     local missing_functions=()

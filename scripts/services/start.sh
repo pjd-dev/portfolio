@@ -57,11 +57,23 @@ if [[ "${VOLUME_SOURCE#~}" != "$VOLUME_SOURCE" ]]; then
   VOLUME_SOURCE="$(eval echo "$VOLUME_SOURCE")"
 fi
 
-# If expanded path doesn't exist or not readable, fall back to named volume
-if [[ "${VOLUME_SOURCE:0:1}" == "/" ]] || [[ "${VOLUME_SOURCE:0:1}" == "~" ]]; then
-  if [[ ! -d "$VOLUME_SOURCE" ]] || [[ ! -r "$VOLUME_SOURCE" ]]; then
-    log_warn "LOCAL_VAULT_PATH '$VOLUME_SOURCE' not accessible, falling back to named volume"
+# If expanded path is an absolute path, ensure it exists and is readable
+if [[ "${VOLUME_SOURCE:0:1}" == "/" ]]; then
+  # Try to create the directory if it doesn't exist
+  if [[ ! -d "$VOLUME_SOURCE" ]]; then
+    log_info "Creating LOCAL_VAULT_PATH directory: $VOLUME_SOURCE"
+    if mkdir -p "$VOLUME_SOURCE" 2>/dev/null; then
+      log_success "Directory created: $VOLUME_SOURCE"
+    else
+      log_warn "Failed to create LOCAL_VAULT_PATH '$VOLUME_SOURCE', falling back to named volume"
+      VOLUME_SOURCE="vault"
+    fi
+  elif [[ ! -r "$VOLUME_SOURCE" ]]; then
+    # Directory exists but not readable
+    log_warn "LOCAL_VAULT_PATH '$VOLUME_SOURCE' not readable, falling back to named volume"
     VOLUME_SOURCE="vault"
+  else
+    log_success "Using LOCAL_VAULT_PATH: $VOLUME_SOURCE"
   fi
 fi
 

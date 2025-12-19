@@ -38,7 +38,7 @@ pass "Infrastructure scripts syntax OK"
 pass "Utility scripts syntax OK"
 
 # Test 5: Vault script
-if bash -n scripts/vault 2>/dev/null; then
+if bash -n scripts/vault.sh 2>/dev/null; then
   pass "Vault script syntax OK"
 else
   fail "Vault syntax"

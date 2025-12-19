@@ -183,6 +183,55 @@ check_network_driver() {
   fi
 }
 
+check_local_vault_path() {
+  print_section "Checking LOCAL_VAULT_PATH configuration"
+  
+  local local_path="${LOCAL_VAULT_PATH:-}"
+  
+  if [[ -z "$local_path" ]]; then
+    log_debug "LOCAL_VAULT_PATH not set - using default volume"
+    return 0
+  fi
+  
+  # Expand ~ if present
+  if [[ "${local_path#~}" != "$local_path" ]]; then
+    local_path="$(eval echo "$local_path")"
+  fi
+  
+  # Check if it's an absolute path
+  if [[ ! "$local_path" = /* ]]; then
+    log_warn "LOCAL_VAULT_PATH is not an absolute path: $local_path"
+    return 1
+  fi
+  
+  # Try to create the directory if it doesn't exist
+  if [[ ! -d "$local_path" ]]; then
+    log_info "Creating LOCAL_VAULT_PATH directory: $local_path"
+    if mkdir -p "$local_path" 2>/dev/null; then
+      log_success "Directory created: $local_path"
+    else
+      log_error "Failed to create LOCAL_VAULT_PATH: $local_path"
+      return 1
+    fi
+  else
+    log_success "LOCAL_VAULT_PATH exists: $local_path"
+  fi
+  
+  # Check if directory is readable and writable
+  if [[ ! -r "$local_path" ]]; then
+    log_error "LOCAL_VAULT_PATH not readable: $local_path"
+    return 1
+  fi
+  
+  if [[ ! -w "$local_path" ]]; then
+    log_error "LOCAL_VAULT_PATH not writable: $local_path"
+    return 1
+  fi
+  
+  log_success "LOCAL_VAULT_PATH is accessible: $local_path"
+  return 0
+}
+
 # ============================================================================
 # Validation Report
 # ============================================================================
@@ -228,6 +277,10 @@ run_validations() {
   fi
   
   if ! check_port_availability; then
+    warnings=$((warnings + 1))
+  fi
+  
+  if ! check_local_vault_path; then
     warnings=$((warnings + 1))
   fi
   
