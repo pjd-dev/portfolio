@@ -102,6 +102,7 @@ On SELinux-enabled systems (Fedora, RHEL, etc.) Podman bind-mounts may deny cont
 
 - **[SESSION_GIT_SYNC_FIX_SUMMARY.md](doc/SESSION_GIT_SYNC_FIX_SUMMARY.md)** — Git sync fix & bidirectional sync (Dec 18, 2025) ✅
 - **[DOCKER_BUILD_FIX_TSCONFIG.md](doc/DOCKER_BUILD_FIX_TSCONFIG.md)** — Docker build fix for MCP container (Dec 18, 2025) ✅
+- **[GIT_PULL_AUTOSTASH_ENHANCEMENT.md](doc/GIT_PULL_AUTOSTASH_ENHANCEMENT.md)** — Git pull --autostash enhancement (Dec 18, 2025) ✅
 - **[VAULTY_GIT_SYNC_TROUBLESHOOTING.md](doc/VAULTY_GIT_SYNC_TROUBLESHOOTING.md)** — Vaulty container sync troubleshooting
 - **[PRODUCTION_OPERATIONS.md](doc/PRODUCTION_OPERATIONS.md)** — Production runbooks & operations
 - **[SYNC_ENHANCEMENTS.md](apps/vaulty/SYNC_ENHANCEMENTS.md)** — Vaulty sync enhancements

@@ -109,6 +109,7 @@ A comprehensive guide to all documentation files in the vault-platform-full proj
 | Document                                                                 | Purpose                                                                  |
 | ------------------------------------------------------------------------ | ------------------------------------------------------------------------ |
 | [DOCKER_BUILD_FIX_TSCONFIG.md](DOCKER_BUILD_FIX_TSCONFIG.md)             | Docker/Podman build fix for missing tsconfig.base.json (Dec 18, 2025) ✅ |
+| [GIT_PULL_AUTOSTASH_ENHANCEMENT.md](GIT_PULL_AUTOSTASH_ENHANCEMENT.md)   | Git pull --autostash enhancement for robust rebases (Dec 18, 2025) ✅    |
 | [VAULTY_GIT_SYNC_TROUBLESHOOTING.md](VAULTY_GIT_SYNC_TROUBLESHOOTING.md) | Git sync troubleshooting                                                 |
 | [BASE64_DEBUG_FIX.md](BASE64_DEBUG_FIX.md)                               | Base64 encoding fixes                                                    |
 | [LEGACY_SCRIPTS_ANALYSIS.md](LEGACY_SCRIPTS_ANALYSIS.md)                 | Legacy scripts analysis                                                  |

@@ -143,7 +143,8 @@ describe('Vaulty Scripts - Script Structure', () => {
       content = readFileSync(join(VAULTY_SRC, 'git-sync.sh'), 'utf-8');
       expect(content).toContain('LOCAL_VAULT_PATH');
       expect(content).toContain('[ -d "$LOCAL_VAULT_PATH" ]');
-      expect(content).toContain('does not exist');
+      expect(content).toContain('Creating LOCAL_VAULT_PATH directory');
+      expect(content).toContain('mkdir -p "$LOCAL_VAULT_PATH"');
     });
 
     it('should sync local to volume if configured', () => {
