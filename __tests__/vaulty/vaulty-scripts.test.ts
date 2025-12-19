@@ -87,12 +87,18 @@ describe('Vaulty Scripts - Script Structure', () => {
       expect(content).toContain('git init');
     });
 
-    it('should configure git identity', () => {
+    it('should configure git identity with defaults', () => {
       content = readFileSync(join(VAULTY_SRC, 'vault-init.sh'), 'utf-8');
       expect(content).toContain('GIT_USER_NAME');
       expect(content).toContain('GIT_USER_EMAIL');
-      expect(content).toContain('git -C /vault config user.name');
-      expect(content).toContain('git -C /vault config user.email');
+      expect(content).toContain('GIT_USER_NAME:-Vault Bot');
+      expect(content).toContain('GIT_USER_EMAIL:-vault@local');
+      expect(content).toContain(
+        'git -C /vault config user.name "$GIT_USER_NAME"'
+      );
+      expect(content).toContain(
+        'git -C /vault config user.email "$GIT_USER_EMAIL"'
+      );
     });
 
     it('should handle vault seeding', () => {
@@ -142,35 +148,38 @@ describe('Vaulty Scripts - Script Structure', () => {
     it('should validate LOCAL_VAULT_PATH on startup', () => {
       content = readFileSync(join(VAULTY_SRC, 'git-sync.sh'), 'utf-8');
       expect(content).toContain('LOCAL_VAULT_PATH');
-      expect(content).toContain('[ -d "$LOCAL_VAULT_PATH" ]');
+      expect(content).toContain('[ ! -d "$LOCAL_VAULT_PATH" ]');
       expect(content).toContain('Creating LOCAL_VAULT_PATH directory');
       expect(content).toContain('mkdir -p "$LOCAL_VAULT_PATH"');
     });
 
-    it('should sync local to volume if configured', () => {
+    it('should validate LOCAL_VAULT_PATH is optional', () => {
       content = readFileSync(join(VAULTY_SRC, 'git-sync.sh'), 'utf-8');
-      expect(content).toContain('Syncing local path to vault volume');
-      expect(content).toContain('📥');
       expect(content).toContain('LOCAL_VAULT_PATH');
-      expect(content).toContain('VAULT_DATA_VOLUME');
+      expect(content).toContain('not set - local-to-volume sync disabled');
+      expect(content).toContain('LOCAL_VAULT_PATH directory');
     });
 
-    it('should sync volume to local after git sync', () => {
+    it('should sync volume to local if LOCAL_VAULT_PATH is set', () => {
       content = readFileSync(join(VAULTY_SRC, 'git-sync.sh'), 'utf-8');
       expect(content).toContain('Syncing vault volume to local path');
       expect(content).toContain('📤');
       expect(content).toContain('cp -a /src/. /dst/');
+      expect(content).toContain('if [ -n "$LOCAL_VAULT_PATH" ]');
     });
 
-    it('should handle bidirectional sync (local → volume → github → volume → local)', () => {
+    it('should handle unidirectional sync (vault volume → local path)', () => {
       content = readFileSync(join(VAULTY_SRC, 'git-sync.sh'), 'utf-8');
-      // Local to volume
-      expect(content).toContain('Syncing local path to vault volume');
+      // No local to volume
+      expect(content).not.toContain('Syncing local path to vault volume');
       // Volume to github (via python sync)
       expect(content).toContain('sync.py');
       // Github to volume (implicit in sync.py)
-      // Volume to local
+      // Volume to local only
       expect(content).toContain('Syncing vault volume to local path');
+      expect(content).not.toContain(
+        '[ -n "$LOCAL_VAULT_PATH" ] && [ -d "$LOCAL_VAULT_PATH" ]; then\n    echo "📥 Syncing local path to vault volume"'
+      );
     });
   });
 
