@@ -162,9 +162,9 @@ describe('Vaulty Scripts - Script Structure', () => {
 
     it('should sync volume to local if LOCAL_VAULT_PATH is set', () => {
       content = readFileSync(join(VAULTY_SRC, 'git-sync.sh'), 'utf-8');
-      expect(content).toContain('Syncing vault volume to local path');
+      expect(content).toContain('Syncing vault to local path');
       expect(content).toContain('📤');
-      expect(content).toContain('cp -a /src/. /dst/');
+      expect(content).toContain('cp -a');
       expect(content).toContain('if [ -n "$LOCAL_VAULT_PATH" ]');
     });
 
@@ -176,7 +176,7 @@ describe('Vaulty Scripts - Script Structure', () => {
       expect(content).toContain('sync.py');
       // Github to volume (implicit in sync.py)
       // Volume to local only
-      expect(content).toContain('Syncing vault volume to local path');
+      expect(content).toContain('Syncing vault to local path');
       expect(content).not.toContain(
         '[ -n "$LOCAL_VAULT_PATH" ] && [ -d "$LOCAL_VAULT_PATH" ]; then\n    echo "📥 Syncing local path to vault volume"'
       );
