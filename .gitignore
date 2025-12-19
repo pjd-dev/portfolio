@@ -84,7 +84,7 @@ ehthumbs.db
 # Git conflict / backup artifacts
 *.orig
 *.rej
-
+*.env.
 # Misc binary / build artifacts
 *.class
 *.jar
