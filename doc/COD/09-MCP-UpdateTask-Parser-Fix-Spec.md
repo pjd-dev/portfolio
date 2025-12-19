@@ -29,7 +29,7 @@ The MCP tools `update_task`, `task_metrics`, and `task_rewards` attempt to dynam
 
 ### Error Evidence
 
-```
+```text
 Cannot read properties of undefined (reading 'parseTaskBody')
 
 Call Chain:
