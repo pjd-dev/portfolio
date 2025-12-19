@@ -109,8 +109,7 @@ credentials.json
 local.properties
 .vscode-test/
 
-# Keep project-level lockfiles tracked (explicitly): do not ignore pnpm-lock.yaml, package-lock.json, yarn.lock, etc..DS_Store
+# Keep project-level lockfiles tracked (explicitly): do not ignore pnpm-lock.yaml, package-lock.json, yarn.lock, etc.
+.DS_Store
 apps/.DS_Store
-.vscode/
-.vscode/
 .vscode/
