@@ -110,7 +110,7 @@ Master index and navigation guide containing:
 
 ### Navigation Flow
 
-```
+```text
 README.md (Main entry)
     ↓
 DOCUMENTATION_INDEX.md (Master navigation)
@@ -174,7 +174,7 @@ DOCUMENTATION_INDEX.md (Master navigation)
 
 For users working with the vault platform:
 
-### 🚀 I want to...
+### 🚀 I want to
 
 | Goal                    | Start Here                                                                   |
 | ----------------------- | ---------------------------------------------------------------------------- |

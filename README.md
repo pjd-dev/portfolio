@@ -2,7 +2,7 @@
 
 ## A deterministic, graph-aware workflow system for Obsidian
 
-[![Tests](https://img.shields.io/badge/tests-104%20passing-brightgreen)](doc/TESTING_CHECKLIST.md)
+[![Tests](https://img.shields.io/badge/tests-388%20passing-brightgreen)](doc/TESTING_CHECKLIST.md)
 [![Status](https://img.shields.io/badge/status-production%20ready-brightgreen)](doc/IMPLEMENTATION_COMPLETE.md)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.4-blue)](https://www.typescriptlang.org/)
 [![Vitest](https://img.shields.io/badge/Vitest-4.0-yellow)](https://vitest.dev/)
@@ -13,12 +13,12 @@
 
 The Obsidian MCP Platform transforms Obsidian from a personal knowledge manager into a **programmable knowledge platform** with six interconnected systems:
 
-1. **Atomic Batch Pipeline Engine** — Terraform-like workflows with preview-before-apply
-2. **Operation Journal & Undo** — Complete audit trail with reversible operations
-3. **Task Dependency Graph** — DAG-based task management with blocking/unblocking
-4. **Session Planner** — Focus-aware, time-bounded work session optimization
-5. **Structure Schema Validation** — Contract-based note structure enforcement
-6. **Security-as-Tasks** — Security requirements embedded in task dependencies
+1. **Atomic Batch Pipeline Engine** — Terraform-like workflows with preview-before-apply, atomic execution, and full rollback capability
+2. **Operation Journal & Undo** — Complete audit trail with reversible operations and change tracking
+3. **Task Dependency Graph** — DAG-based task management with blocking/unblocking, critical path analysis, and effort tracking
+4. **Session Planner** — Focus-aware, time-bounded work session optimization with milestone-based rewards
+5. **Structure Schema Validation** — Contract-based note structure enforcement with versioning and lifecycle tracking
+6. **Security-as-Tasks** — Security requirements embedded in task dependencies with blocker management
 
 ---
 

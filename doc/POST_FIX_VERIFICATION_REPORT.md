@@ -50,15 +50,15 @@ commits: ['4c0cb23', '6dd0cca']
 
 ### Previously Blocked (7 tools) → Now Functional
 
-| Tool                             | Previously | Expected Now | Reason                     |
-| -------------------------------- | ---------- | ------------ | -------------------------- |
-| `update_task` (addHistoryNote)   | ❌ BLOCKED | ✅ PASS      | parseTaskBody now exported |
-| `update_task` (frontmatterPatch) | ❌ BLOCKED | ✅ PASS      | parseTaskBody now exported |
-| `update_task` (checklist ops)    | ❌ BLOCKED | ✅ PASS      | parseTaskBody now exported |
-| `get_task_progress`              | ❌ BLOCKED | ✅ PASS      | parseTaskBody now exported |
-| `task_metrics` (all calls)       | ❌ BLOCKED | ✅ PASS      | parseTaskBody now exported |
-| `task_rewards` (all calls)       | ❌ BLOCKED | ✅ PASS      | parseTaskBody now exported |
-| Related mutation ops             | ❌ BLOCKED | ✅ PASS      | Chain unblocked            |
+| Tool                              | Previously | Expected Now | Reason                     |
+| --------------------------------- | ---------- | ------------ | -------------------------- |
+| `update_task` (addHistoryNote)    | ❌ BLOCKED | ✅ PASS      | parseTaskBody now exported |
+| `update_task` (front-matterPatch) | ❌ BLOCKED | ✅ PASS      | parseTaskBody now exported |
+| `update_task` (checklist ops)     | ❌ BLOCKED | ✅ PASS      | parseTaskBody now exported |
+| `get_task_progress`               | ❌ BLOCKED | ✅ PASS      | parseTaskBody now exported |
+| `task_metrics` (all calls)        | ❌ BLOCKED | ✅ PASS      | parseTaskBody now exported |
+| `task_rewards` (all calls)        | ❌ BLOCKED | ✅ PASS      | parseTaskBody now exported |
+| Related mutation ops              | ❌ BLOCKED | ✅ PASS      | Chain unblocked            |
 
 ### Stable Tools (23 tools) → Still Functional
 
@@ -70,7 +70,7 @@ All read/query operations, validation tools, and metadata operations remain 100%
 
 ### TypeScript Compilation
 
-```
+```text
 ✓ apps/auth: tsc -p tsconfig.json → SUCCESS
 ✓ apps/mcp: pnpm typecheck && node esbuild.config.mjs → SUCCESS
 ✓ apps/llm-adapter: No build needed
@@ -78,7 +78,7 @@ All read/query operations, validation tools, and metadata operations remain 100%
 
 ### Test Results
 
-```
+```text
 Test Files: 7 passed (7)
 Tests:      193 passed (193)
 Duration:   265ms
@@ -87,7 +87,7 @@ Status:     ✅ ALL GREEN
 
 ### Commit History
 
-```
+```text
 6dd0cca - chore: update mcp submodule with type fixes
 4c0cb23 - fix(mcp): export parseTaskBody for cross-tool reuse
 ```

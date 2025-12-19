@@ -8,7 +8,7 @@
 
 ### Test Status
 
-```
+```text
 ✅ 36/36 Tests Passing (100%)
 ✅ No regressions
 ✅ All new features integrated
@@ -17,7 +17,7 @@
 
 ### Container Status
 
-```
+```text
 ✅ Builds successfully: localhost/vault:latest
 ✅ Initializes without errors
 ✅ All startup validations passing
@@ -135,7 +135,7 @@ podman exec vault rm /vault/.sync.lock
 
 ## Behavior Flowchart
 
-```
+```text
 Container Start
     ↓
 Validate /vault mount
@@ -192,7 +192,7 @@ Enter sync loop (30 second intervals)
 
 ### Scenario: Repository Severely Out-of-Sync
 
-```
+```text
 Initial state:
   Local: 2 commits ahead, 3094 commits behind
   Pull attempts: ❌ ❌ ❌ (all fail with conflicts)
@@ -221,7 +221,7 @@ Result state:
 
 ### Unit Tests
 
-```
+```text
 ✅ vault-init.sh tests (8 passing)
 ✅ git-sync.sh tests (12 passing)
 ✅ sync.py tests (16 passing)
@@ -313,6 +313,7 @@ Result state:
    ```
 
 4. **Verify Sync Success**
+
    ```bash
    podman exec vault git -C /vault log --oneline -5
    podman exec vault cat /vault/.sync-status.json
