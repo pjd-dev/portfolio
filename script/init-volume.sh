@@ -57,6 +57,15 @@ if [ -n "$LOCAL_PATH" ]; then
     info "Copying contents from '$LOCAL_PATH' to volume '$VOLUME_NAME'..."
     # Use . instead of * to include hidden files, and -a for preserving attributes
     podman run --rm -v "$LOCAL_PATH":/src:Z -v "$VOLUME_NAME":/dst alpine sh -c "cp -a /src/. /dst/" || warn "Some files may not have been copied"
+    
+    # Fix permissions on copied files to allow writing from containers
+    info "Fixing permissions on volume contents..."
+    podman run --rm -v "$VOLUME_NAME":/dst alpine sh -c "
+      find /dst -type f ! -path '*/.git/*' -exec chmod 666 {} + 2>/dev/null || true
+      find /dst -type d ! -path '*/.git/*' -exec chmod 777 {} + 2>/dev/null || true
+      chmod 777 /dst
+    " || warn "Could not fix all permissions"
+    
     info "Contents copied to volume '$VOLUME_NAME'."
   else
     info "Local path '$LOCAL_PATH' is empty, no copy needed."

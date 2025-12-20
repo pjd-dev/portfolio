@@ -172,12 +172,22 @@ main() {
 
   # Start Vaulty container
   info "Starting vaulty container..."
-  podman run -d --rm \
+  
+  # Format volume mount: prefer named volume on macOS for better sync
+  USE_NAMED_VOL="${USE_NAMED_VOLUME:-false}"
+  if [[ "$USE_NAMED_VOL" = "true" ]] || [[ "$VOLUME_SOURCE" != /* ]]; then
+    # Use named volume (better bidirectional sync on macOS)
+    VOLUME_MOUNT="vault:/vault"
+  else
+    # Host path - use :Z for SELinux compatibility
+    VOLUME_MOUNT="$VOLUME_SOURCE:/vault:Z"
+  fi
+  
+  podman run -d \
     --name "$VAULT_CONTAINER" \
     --pod "$POD_NAME" \
-    --volume "$VOLUME_SOURCE":/vault:Z \
+    --volume "$VOLUME_MOUNT" \
     "${VAULT_ENV_FILES[@]}" \
-    "${USER_FLAG[@]}" \
     -e SYNC_MODE="${SYNC_MODE:-interval}" \
     -e GIT_USER_NAME="${GIT_USER_NAME:-}" \
     -e GIT_USER_EMAIL="${GIT_USER_EMAIL:-}" \
@@ -185,10 +195,10 @@ main() {
 
   # Start MCP container
   info "Starting mcp container..."
-  podman run -d --rm \
+  podman run -d \
     --name "$MCP_CONTAINER" \
     --pod "$POD_NAME" \
-    --volume "$VOLUME_SOURCE":/vault:Z \
+    --volume "$VOLUME_MOUNT" \
     "${MCP_ENV_FILES[@]}" \
     "${USER_FLAG[@]}" \
     mcp || fail "Failed to start mcp container"
