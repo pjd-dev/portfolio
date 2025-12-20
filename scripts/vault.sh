@@ -53,6 +53,9 @@ USAGE:
   scripts/vault [command] [options]
 
 COMMANDS:
+  Quick Start:
+    up [vault-path] Initialize and start all services
+    
   Container Management:
     start           Start all services (MCP, Vault)
     stop            Stop all services
@@ -122,6 +125,13 @@ main() {
   local command="${1:-help}"
   
   case "$command" in
+    # Quick start command
+    up)
+      log_info "Initializing and starting platform..."
+      bash "$SCRIPT_DIR/infrastructure/init.sh" "${2:-}"
+      source "$SCRIPT_DIR/services/start.sh"
+      ;;
+    
     # Container commands
     start)
       log_info "Starting all services..."

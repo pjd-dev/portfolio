@@ -186,11 +186,14 @@ build_vault_image
 print_section "Creating pod infrastructure"
 create_pod
 
-print_section "Starting MCP service"
-start_mcp_service
-
 print_section "Starting Vault service"
 start_vault_service
+
+# Wait for vault to initialize
+sleep 3
+
+print_section "Starting MCP service"
+start_mcp_service
 
 # Verify services
 sleep 2

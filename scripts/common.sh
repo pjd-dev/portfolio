@@ -42,7 +42,9 @@ log_level() {
   
   case "$level" in
     DEBUG)
-      [[ "${LOG_LEVEL:-info}" == "debug" ]] && echo -e "${CYAN}[DEBUG]${NC} $message" >&2
+      if [[ "${LOG_LEVEL:-info}" == "debug" ]]; then
+        echo -e "${CYAN}[DEBUG]${NC} $message" >&2
+      fi
       ;;
     INFO)
       echo -e "${BLUE}[INFO]${NC} $message"
