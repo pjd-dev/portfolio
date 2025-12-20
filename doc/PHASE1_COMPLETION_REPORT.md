@@ -267,7 +267,7 @@ pnpm build
 pnpm test
 
 # Start containers
-bash podman/podman-compose.sh cleanup
+./scripts/vault start
 ```
 
 ### Prepare for Phase 2

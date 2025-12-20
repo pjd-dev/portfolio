@@ -9,11 +9,11 @@
 
 ## Problem
 
-When `LOCAL_VAULT_PATH` is configured but the directory doesn't exist on the host machine, the container would fail to start or sync properly with errors like:
+When `LOCAL_VAULT_PATH` is configured but the directory doesn't exist on the host machine, startup would fail during `./scripts/vault start` with errors like:
 
 ```
-Error: [podman-compose] WARN: LOCAL_VAULT_PATH '/Users/darry/Desktop/DUMB/vault' not accessible
-Error: [podman-compose] ERROR: Failed to start vault container
+Error: [scripts/vault] WARN: LOCAL_VAULT_PATH '/Users/darry/Desktop/DUMB/vault' not accessible
+Error: [scripts/vault] ERROR: Failed to start vault container
 ```
 
 ---

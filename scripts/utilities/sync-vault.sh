@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Sync vault between volume and local filesystem
-# Migrated logic from script/sync-volume-to-local.sh with enhancements
+# Migrated logic from legacy sync script with enhancements
 
 set -euo pipefail
 
@@ -142,4 +142,3 @@ esac
 
 print_divider
 log_success "Vault sync complete"
-

@@ -44,12 +44,11 @@ else
   fail "Vault syntax"
 fi
 
-# Test 6: Deprecation notices
-count=$(grep -l "DEPRECATED" podman/run-mcp.sh podman/run-vault.sh script/init-volume.sh script/sync-volume-to-local.sh script/cloudflared.tunnel.sh script/verify-shared-vault.sh 2>/dev/null | wc -l)
-if [[ $count -eq 6 ]]; then
-  pass "All 6 legacy scripts deprecated"
+# Test 6: Legacy directories removed
+if [[ ! -d podman && ! -d script && ! -d apps/mcp/script && ! -d apps/vaulty/script && ! -f apps/mcp/restart-mcp.sh && ! -f apps/vaulty/restart-vaulty.sh ]]; then
+  pass "Legacy script directories removed"
 else
-  fail "Deprecation notices ($count/6)"
+  fail "Legacy script directories still present"
 fi
 
 # Test 7: New infrastructure scripts

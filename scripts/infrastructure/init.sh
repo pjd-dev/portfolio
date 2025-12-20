@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Initialize platform infrastructure (volumes, networks, directories)
-# Migrated logic from script/init-volume.sh with enhancements
+# Migrated logic from legacy init script with enhancements
 
 set -euo pipefail
 

@@ -65,7 +65,7 @@ scripts/
 
 ### New Structure
 
-- **Before:** Scripts scattered across `./script/`, `./podman/`, `./apps/`
+- **Before:** Scripts were scattered across legacy directories (now removed)
 - **After:** Centralized in `./scripts/` with organized subdirectories
 
 ### Key Improvements
@@ -131,31 +131,10 @@ All scripts created and tested:
 ✅ ./scripts/lib/colors.sh       # Color library works
 ```
 
-## Next Steps (If Continuing)
+## Status Update (Phase 4)
 
-1. **Migrate** remaining logic from old scripts
-2. **Test** each command with real services
-3. **Document** in CI/CD configuration
-4. **Deprecate** old script locations
-5. **Remove** old scripts after phase complete
-
-## Backward Compatibility
-
-**Old commands still work** (for now):
-
-```bash
-./script/restart-all.sh          # Still works
-./podman/run-all.sh              # Still works
-./apps/mcp/restart-mcp.sh        # Still works
-```
-
-**But new approach is recommended:**
-
-```bash
-./scripts/vault restart          # New style
-./scripts/vault start            # New style
-./scripts/vault restart          # (includes mcp)
-```
+- Legacy podman/script/app restart scripts were removed after consolidation.
+- `./scripts/vault` is the only supported entrypoint for orchestration.
 
 ## File Locations
 

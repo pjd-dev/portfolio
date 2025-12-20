@@ -2,11 +2,13 @@
 
 **Date Created:** December 18, 2025  
 **Phase:** 4 of 4  
-**Status:** 🚀 Ready to Begin  
+**Status:** ✅ Complete  
 **Estimated Duration:** 6-9 hours  
 **Branch:** `feature/phase4-final-integration`
 
 ---
+
+> Update (2025-12-20): Legacy `podman/`, `script/`, and app restart scripts were removed. `scripts/vault` is now the single orchestration entrypoint. The plan below is retained for historical context.
 
 ## Executive Summary
 
@@ -68,36 +70,16 @@ Container Status:         ✅ All running
 
 ### Objective 1: Script Migration & Consolidation
 
-**Status:** 🔄 Ready to Begin  
+**Status:** ✅ Complete  
 **Effort:** 2-3 hours
 
 #### Task 1.1: Analyze Legacy Scripts
 
 **Description:** Review all old scripts to understand remaining logic
 
-**Files to Review:**
+**Legacy Files (removed):**
 
-```
-./script/
-  ├── restart-all.sh
-  ├── common.sh (logic to extract)
-  ├── init-volume.sh
-  ├── sync-volume-to-local.sh
-  ├── verify-shared-vault.sh
-  └── cloudflared.tunnel.sh
-
-./podman/
-  ├── podman-compose.sh
-  ├── run-all.sh
-  ├── run-mcp.sh
-  ├── run-vault.sh
-  └── mcp.service
-  └── vault.service
-
-./apps/*/
-  ├── restart-mcp.sh
-  └── restart-vaulty.sh
-```
+Legacy `podman/`, `script/`, and app restart scripts were removed after migration. All orchestration now lives under `scripts/`.
 
 **Acceptance Criteria:**
 
@@ -112,7 +94,7 @@ Container Status:         ✅ All running
 
 **Actions:**
 
-1. Review `podman/run-mcp.sh` and `podman/run-vault.sh`
+1. Review legacy startup logic (see `doc/LEGACY_SCRIPTS_ANALYSIS.md`)
 2. Extract environment variables and configuration
 3. Update `scripts/services/start.sh` with full logic
 4. Update `scripts/services/stop.sh` with cleanup
@@ -152,7 +134,7 @@ Container Status:         ✅ All running
 
 **Actions:**
 
-1. Review `script/init-volume.sh` for initialization steps
+1. Review legacy init logic (see `doc/LEGACY_SCRIPTS_ANALYSIS.md`)
 2. Extract Obsidian vault setup logic
 3. Add Git repository initialization if needed
 4. Update `scripts/infrastructure/init.sh` with full logic
@@ -191,10 +173,10 @@ Container Status:         ✅ All running
 
 **Actions:**
 
-1. Review `script/sync-volume-to-local.sh` logic
+1. Review legacy sync logic (see `doc/LEGACY_SCRIPTS_ANALYSIS.md`)
 2. Add rsync options for vault sync
 3. Update `scripts/utilities/sync-vault.sh` with full logic
-4. Review `script/verify-shared-vault.sh` logic
+4. Review legacy verify logic (see `doc/LEGACY_SCRIPTS_ANALYSIS.md`)
 5. Update `scripts/utilities/verify-vault.sh` with comprehensive checks
 6. Add integrity validation
 
@@ -223,22 +205,21 @@ Container Status:         ✅ All running
 
 #### Task 1.5: Deprecate Old Scripts
 
-**Description:** Create transition path for old scripts
+**Description:** Remove legacy scripts after consolidation
 
 **Actions:**
 
-1. Create `legacy/` directory
-2. Move old scripts to legacy directory
-3. Add deprecation warnings to old script locations
-4. Document migration path
-5. Update any documentation references
+1. Remove `podman/`, `script/`, and app restart scripts
+2. Update docs/tests to reference `scripts/vault`
+3. Document migration path
+4. Update any documentation references
 
 **Migration Path:**
 
 ```
-Current:  ./script/restart-all.sh
-New:      ./scripts/vault restart
-Legacy:   ./legacy/script/restart-all.sh (deprecated)
+Current (removed):  ./script/restart-all.sh
+New:               ./scripts/vault restart
+Legacy:            removed (no archive)
 ```
 
 **Acceptance Criteria:**

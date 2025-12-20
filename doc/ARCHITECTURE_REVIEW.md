@@ -242,29 +242,14 @@ But **each app has its own `tsconfig.json`** with different settings:
 
 ---
 
-### 7. **Script Architecture is Fragile** ⚠️ MEDIUM PRIORITY
+### 7. **Script Architecture Consolidated** ✅ RESOLVED
 
-#### Problem
-
-Complex bash scripts manage deployment, but they're hard to maintain:
-
-```bash
-# podman-compose.sh is 218 lines
-# run-all.sh, restart-all.sh, etc. are scattered across multiple directories
-# No clear error handling or logging
-```
+Legacy `podman/`, `script/`, and app restart scripts were removed. All orchestration now flows through `scripts/vault` with shared helpers in `scripts/common.sh`.
 
 #### Evidence
 
-- [podman/podman-compose.sh](podman/podman-compose.sh#L1-L80)
-- Multiple similar scripts: `run-vault.sh`, `run-mcp.sh`, `run-all.sh`
-
-#### Why This Is Bad
-
-1. **Duplication**: Logic repeated across scripts
-2. **Maintenance**: Hard to track which script does what
-3. **Error handling**: Missing error propagation
-4. **Testability**: Bash scripts hard to test (though some test coverage exists)
+- `scripts/vault`
+- `scripts/services/start.sh`
 
 ---
 
@@ -277,9 +262,9 @@ Environment setup scattered across:
 1. **Root `.env`** (not committed)
 2. **App-level `.env`** (apps/vaulty/.env, apps/mcp/.env)
 3. **Dockerfile ENV directives** (hardcoded values)
-4. **Podman scripts** (runtime overrides)
+4. **Runtime scripts** (scripts/services/start.sh overrides)
 
-Example from [podman-compose.sh](podman/podman-compose.sh#L25-L40):
+Example from `scripts/services/start.sh`:
 
 ```bash
 load_env_files() {
@@ -290,7 +275,7 @@ load_env_files() {
     set +o allexport
   fi
   # Load app-level .env files so overrides are respected
-  for app in vaulty mcp; do
+  for app in mcp vaulty; do
     local app_env="$REPO_ROOT/apps/$app/.env"
     # ...
   done
@@ -447,8 +432,7 @@ And there's a special test file:
 ```text
 __tests__/
 ├── monorepo-integration.test.ts
-├── podman/podman-scripts.test.ts
-├── script/root-scripts.test.ts
+├── scripts/
 └── vaulty/vaulty-*.test.ts
 ```
 
@@ -546,7 +530,7 @@ apps/mcp/src/
      - @vault/common (VAULT_ROOT, utilities)
      - @vault/types (Shared interfaces)
      - @vault/errors (Error classes)
-   - Fully integrated across all apps
+   - Integrated in MCP (vault config + task types); remaining app adoption is incremental
 
 3. **✅ HIGH: Fix Test Architecture** → **COMPLETE**
    - Vaulty tests integrated in CI/CD
@@ -556,7 +540,7 @@ apps/mcp/src/
 4. **✅ MEDIUM: Consolidate Scripts** → **COMPLETE**
    - Phase 3: All 26 legacy scripts consolidated
    - scripts/ hierarchy with services/, infrastructure/, utilities/
-   - Single entry point: scripts/vault.sh (220 lines common.sh library)
+   - Single entry point: scripts/vault (wrapper around scripts/vault.sh)
 
 5. **✅ MEDIUM: Decide on vaulty** → **RESOLVED**
    - Decision: Keep as Python microservice
@@ -667,7 +651,7 @@ Remaining considerations (optional):
 - Test exclusions: [vitest.config.ts](vitest.config.ts#L17-L26)
 - vaulty Docker: [apps/vaulty/Dockerfile](apps/vaulty/Dockerfile)
 - MCP Docker: [apps/mcp/Dockerfile](apps/mcp/Dockerfile)
-- Environment loading: [podman/podman-compose.sh](podman/podman-compose.sh#L25)
+- Environment loading: [scripts/services/start.sh](../scripts/services/start.sh)
 - llm-adapter: [apps/llm-adapter/index.js](apps/llm-adapter/index.js)
 
 ---

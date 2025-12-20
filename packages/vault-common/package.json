@@ -8,8 +8,7 @@
     ".": "./dist/index.js",
     "./vault": "./dist/vault.js",
     "./config": "./dist/config.js",
-    "./logger": "./dist/logger.js",
-    "./paths": "./dist/paths.js"
+    "./logger": "./dist/logger.js"
   },
   "files": [
     "dist"

@@ -1,35 +1,36 @@
 # Phase 4 Test Suite Completion - Final Report
 
 **Date:** December 18, 2025  
-**Status:** ✅ COMPLETE - All 189/189 Tests Passing  
+**Status:** ⚠️ Historical - legacy podman/app script tests removed; rerun to refresh counts  
 **Duration:** ~2 hours (test execution and fixes)
 
 ---
 
+> Update (2025-12-20): Legacy podman/app script tests were removed along with their scripts. Totals below are retained for historical context only.
+
 ## Executive Summary
 
-Successfully resolved all 9 failing Vitest tests by implementing missing features and updating script configurations. The vault-platform-full project now has **100% test coverage** across all test suites with comprehensive validation.
+Successfully resolved all 9 failing Vitest tests by implementing missing features and updating script configurations. This report reflects the state before legacy script/test removal; rerun the suite for current totals.
 
 **Test Results:**
 
-- ✅ **189/189 tests passing (100%)**
-- ✅ **7/7 test files passing**
-- ⏱️ Total execution time: 337ms
+- ⚠️ **Totals are historical; rerun for current counts**
+- ⏱️ Historical execution time: 337ms
 
 ---
 
 ## Test Suite Breakdown
 
-| Test File                     | Tests   | Status      | Notes                          |
-| ----------------------------- | ------- | ----------- | ------------------------------ |
-| vaulty-seeds.test.ts          | 2       | ✅ PASS     | Seed validation tests          |
-| monorepo-integration.test.ts  | 9       | ✅ PASS     | Monorepo structure integration |
-| vaulty-app-scripts.test.ts    | 32      | ✅ PASS     | Application script validation  |
-| vaulty-python-scripts.test.ts | 39      | ✅ PASS     | Python script validation       |
-| podman-scripts.test.ts        | 35      | ✅ PASS     | Podman container scripts       |
-| vaulty-scripts.test.ts        | 32      | ✅ PASS     | Vault synchronization scripts  |
-| root-scripts.test.ts          | 40      | ✅ PASS     | Root-level script validation   |
-| **TOTAL**                     | **189** | **✅ PASS** | **100% Success Rate**          |
+| Test File                     | Tests | Status     | Notes                           |
+| ----------------------------- | ----- | ---------- | ------------------------------- |
+| vaulty-seeds.test.ts          | 2     | ✅ PASS    | Seed validation tests           |
+| monorepo-integration.test.ts  | 9     | ✅ PASS    | Monorepo structure integration  |
+| vaulty-app-scripts.test.ts    | —     | REMOVED    | Legacy app script tests removed |
+| vaulty-python-scripts.test.ts | 39    | ✅ PASS    | Python script validation        |
+| podman-scripts.test.ts        | —     | REMOVED    | Legacy podman scripts removed   |
+| vaulty-scripts.test.ts        | 32    | ✅ PASS    | Vault synchronization scripts   |
+| root-scripts.test.ts          | 40    | ✅ PASS    | Root-level script validation    |
+| **TOTAL**                     | —     | Historical | Rerun for current counts        |
 
 ---
 
@@ -59,10 +60,11 @@ GIT_COMMIT_MESSAGE      # Commit message prefix (default: auto-sync)
 SYNC_MODE              # Should be "realtime" for this script
 ```
 
-### 2. Fixed run-mcp.sh
+### 2. Legacy run-mcp.sh (removed)
 
-**Location:** `podman/run-mcp.sh`  
-**Change:** Added `ENV_FILE` variable and reference
+**Legacy Location:** run-mcp.sh (removed)  
+**Current Location:** `scripts/services/start.sh`  
+**Change:** Environment loading consolidated via `load_env_files()`
 
 **Before:**
 
@@ -79,9 +81,10 @@ source "$ENV_FILE"
 
 **Impact:** Enables test to verify proper .env file sourcing
 
-### 3. Fixed run-vault.sh
+### 3. Legacy run-vault.sh (removed)
 
-**Location:** `podman/run-vault.sh`  
+**Legacy Location:** run-vault.sh (removed)  
+**Current Location:** `scripts/services/start.sh`  
 **Changes:**
 
 - Added `ENV_FILE` variable reference
@@ -152,23 +155,20 @@ fi
 4. ✅ should have watch loop
 5. ✅ is referenced in vault-init.sh
 
-### Failed Test 2: run-mcp.sh Missing .env Sourcing
+### Legacy Test 2: run-mcp.sh Missing .env Sourcing (removed)
 
-**Test:** `podman-scripts.test.ts > run-mcp.sh > should source .env file`  
-**Error:** `AssertionError: expected '...script content...' to contain 'source "$ENV_FILE"'`  
-**Resolution:** ✅ Added ENV_FILE variable and sourcing reference
+**Test:** `podman-scripts.test.ts` (removed)  
+**Resolution:** ✅ Logic consolidated in `scripts/services/start.sh`
 
-### Failed Test 3: run-vault.sh Missing .env Sourcing
+### Legacy Test 3: run-vault.sh Missing .env Sourcing (removed)
 
-**Test:** `podman-scripts.test.ts > run-vault.sh > should source .env file`  
-**Error:** `AssertionError: expected '...script content...' to contain 'source "$ENV_FILE"'`  
-**Resolution:** ✅ Added ENV_FILE variable and sourcing reference
+**Test:** `podman-scripts.test.ts` (removed)  
+**Resolution:** ✅ Logic consolidated in `scripts/services/start.sh`
 
-### Failed Test 4: run-vault.sh Container Naming
+### Legacy Test 4: run-vault.sh Container Naming (removed)
 
-**Test:** `podman-scripts.test.ts > run-vault.sh > should name container vaulty`  
-**Error:** `AssertionError: expected '...script content...' to contain '--name vaulty'`  
-**Resolution:** ✅ Changed container naming to hardcoded `--name vaulty`
+**Test:** `podman-scripts.test.ts` (removed)  
+**Resolution:** ✅ Container naming handled in `scripts/services/start.sh`
 
 ### Failed Test 5: vault-init.sh Sync Mode Support
 
@@ -183,8 +183,7 @@ fi
 ### Test Suite Execution
 
 ```
-Test Files  7 passed (7)
-Tests       189 passed (189)
+Historical totals (rerun to refresh)
 Duration    337ms
 Transform   371ms
 Import      540ms
@@ -221,24 +220,21 @@ Status: ✅ 100% SUCCESS RATE
 
 ### Test Infrastructure Status
 
-- ✅ Shell integration tests: 45/45 passing
-- ✅ Vitest TypeScript tests: 189/189 passing
+- ✅ Shell integration tests: historical counts (rerun to refresh)
+- ✅ Vitest TypeScript tests: historical counts (rerun to refresh)
 - ✅ CI/CD pipelines: 4/4 configured
 - ✅ Documentation: Comprehensive
 - ✅ Code quality: High
 
 ---
 
-## Backward Compatibility
+## Legacy Compatibility Notes
 
-All changes maintain full backward compatibility:
+Legacy podman/app scripts were removed after consolidation. Use `scripts/vault` for all orchestration.
 
 1. **git-sync-realtime.sh** - New feature, doesn't affect existing code
-2. **run-mcp.sh** - Added ENV_FILE variable, maintains existing logic flow
-3. **run-vault.sh** - Hardcoded container name was already default value
-4. **vault-init.sh** - Defaults to interval mode if SYNC_MODE not set
-
-No breaking changes to existing functionality.
+2. **scripts/services/start.sh** - Consolidated legacy run-mcp/run-vault logic
+3. **vault-init.sh** - Defaults to interval mode if SYNC_MODE not set
 
 ---
 
@@ -248,15 +244,15 @@ No breaking changes to existing functionality.
 
 - ✅ `apps/vaulty/src/git-sync-realtime.sh` (200 lines)
 
-### Modified Files (3)
+### Modified Files (current)
 
-- ✅ `podman/run-mcp.sh` (added ENV_FILE)
-- ✅ `podman/run-vault.sh` (added ENV_FILE, fixed container naming)
+- ✅ `scripts/services/start.sh` (env loading + container naming)
 - ✅ `apps/vaulty/src/vault-init.sh` (added sync mode logic)
 
-### Test Files (no changes needed)
+### Test Files (updated)
 
-- ✅ All 7 test files passed without modification
+- ✅ Legacy podman/app script tests removed
+- ⚠️ Rerun suite for current counts
 
 ---
 
@@ -264,7 +260,7 @@ No breaking changes to existing functionality.
 
 ### Immediate Actions ✅
 
-1. ✅ Verify all 189 tests pass - CONFIRMED
+1. ⚠️ Rerun test suite to refresh totals
 2. ✅ Commit changes to git - PENDING (interrupted)
 3. ✅ Deploy to development environment - READY
 

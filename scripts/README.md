@@ -98,24 +98,9 @@ export DOCKER_HOST=unix:///run/user/1000/podman/podman.sock
 export LOG_LEVEL=info
 ```
 
-## Legacy Script Mapping
+## Legacy Scripts
 
-This consolidation replaces the following locations:
-
-| Old Location                       | New Location                  | Purpose                |
-| ---------------------------------- | ----------------------------- | ---------------------- |
-| `./script/restart-all.sh`          | `scripts/vault restart`       | Restart all services   |
-| `./apps/mcp/restart-mcp.sh`        | `scripts/vault restart`       | Restart MCP service    |
-| `./apps/vaulty/restart-vaulty.sh`  | `scripts/vault restart`       | Restart Vaulty service |
-| `./podman/run-all.sh`              | `scripts/vault start`         | Start all services     |
-| `./podman/run-mcp.sh`              | `scripts/vault start` (mcp)   | Start MCP service      |
-| `./podman/run-vault.sh`            | `scripts/vault start` (vault) | Start Vault service    |
-| `./podman/podman-compose.sh`       | `scripts/vault` (build)       | Compose services       |
-| `./script/common.sh`               | `scripts/common.sh`           | Shared utilities       |
-| `./script/init-volume.sh`          | `scripts/vault init`          | Initialize volumes     |
-| `./script/sync-volume-to-local.sh` | `scripts/vault sync-vault`    | Sync vault             |
-| `./script/verify-shared-vault.sh`  | `scripts/vault verify-vault`  | Verify vault           |
-| `./script/cloudflared.tunnel.sh`   | `scripts/vault tunnel`        | Start tunnel           |
+The legacy `podman/`, `script/`, and app-level script directories/restart scripts have been removed. Use `scripts/vault` for all orchestration.
 
 ## Script Development
 
@@ -186,4 +171,3 @@ bash -x ./scripts/vault start
 
 - [TESTING_CHECKLIST.md](../TESTING_CHECKLIST.md) - Testing procedures
 - [doc/SCRIPTS.md](../doc/SCRIPTS.md) - Detailed script documentation
-- [podman/](../podman/) - Container orchestration configuration

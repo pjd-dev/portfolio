@@ -20,7 +20,7 @@ Variables are resolved in this order - **first match wins**:
 1. Runtime environment (set at execution time)
    └─ Highest priority
 
-2. Container environment (Dockerfile ENV, podman-compose env_file)
+2. Container environment (Dockerfile ENV, scripts/services/start.sh env files)
 
 3. App-level .env file (apps/*/. env)
 
@@ -227,9 +227,9 @@ ENABLE_TRACING=true
 
 ---
 
-## Docker Compose Environment Management
+## Script Environment Management
 
-The `podman-compose.sh` script loads environments in order:
+The `scripts/services/start.sh` script loads environments in order:
 
 ```bash
 load_env_files() {
@@ -241,7 +241,7 @@ load_env_files() {
   fi
 
   # 2. App-level .env (overrides root)
-  for app in vaulty mcp auth llm-adapter; do
+  for app in mcp vaulty; do
     local app_env="$REPO_ROOT/apps/$app/.env"
     if [[ -f "$app_env" ]]; then
       set -o allexport

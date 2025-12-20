@@ -264,20 +264,22 @@ BG_RED, BG_GREEN, BG_YELLOW, BG_BLUE, BG_MAGENTA, BG_CYAN, BG_WHITE
 
 ### Script Consolidation Mapping
 
-| Purpose        | Old Location                       | New Command                    |
-| -------------- | ---------------------------------- | ------------------------------ |
-| Restart all    | `./script/restart-all.sh`          | `./scripts/vault restart`      |
-| Restart MCP    | `./apps/mcp/restart-mcp.sh`        | `./scripts/vault restart`      |
-| Restart Vaulty | `./apps/vaulty/restart-vaulty.sh`  | `./scripts/vault restart`      |
-| Run all        | `./podman/run-all.sh`              | `./scripts/vault start`        |
-| Run MCP        | `./podman/run-mcp.sh`              | `./scripts/vault start`        |
-| Run Vault      | `./podman/run-vault.sh`            | `./scripts/vault start`        |
-| Build          | `./podman/podman-compose.sh`       | `./scripts/vault build`        |
-| Common utils   | `./script/common.sh`               | `./scripts/common.sh`          |
-| Initialize     | `./script/init-volume.sh`          | `./scripts/vault init`         |
-| Sync vault     | `./script/sync-volume-to-local.sh` | `./scripts/vault sync-vault`   |
-| Verify         | `./script/verify-shared-vault.sh`  | `./scripts/vault verify-vault` |
-| Tunnel         | `./script/cloudflared.tunnel.sh`   | `./scripts/vault tunnel`       |
+Legacy locations listed below were removed; use the new commands.
+
+| Purpose        | Old Location                        | New Command                    |
+| -------------- | ----------------------------------- | ------------------------------ |
+| Restart all    | `restart-all.sh` (removed)          | `./scripts/vault restart`      |
+| Restart MCP    | `restart-mcp.sh` (removed)          | `./scripts/vault restart`      |
+| Restart Vaulty | `restart-vaulty.sh` (removed)       | `./scripts/vault restart`      |
+| Run all        | `run-all.sh` (removed)              | `./scripts/vault start`        |
+| Run MCP        | `run-mcp.sh` (removed)              | `./scripts/vault start`        |
+| Run Vault      | `run-vault.sh` (removed)            | `./scripts/vault start`        |
+| Build          | `podman-compose.sh` (removed)       | `./scripts/vault build`        |
+| Common utils   | `common.sh` (removed)               | `./scripts/common.sh`          |
+| Initialize     | `init-volume.sh` (removed)          | `./scripts/vault init`         |
+| Sync vault     | `sync-volume-to-local.sh` (removed) | `./scripts/vault sync-vault`   |
+| Verify         | `verify-shared-vault.sh` (removed)  | `./scripts/vault verify-vault` |
+| Tunnel         | `cloudflared.tunnel.sh` (removed)   | `./scripts/vault tunnel`       |
 
 ### Environment Variables
 
@@ -442,38 +444,14 @@ Total: 1000+ lines of well-organized, documented code
 
 ## Backward Compatibility
 
-### Migration Path
-
-**Old style (still works):**
-
-```bash
-./script/restart-all.sh
-./podman/run-all.sh
-./apps/mcp/restart-mcp.sh
-```
-
-**New style (recommended):**
-
-```bash
-./scripts/vault restart
-./scripts/vault start
-./scripts/vault restart  # includes mcp
-```
-
-### Deprecation Timeline
-
-- Phase 3 (Current): Both old and new methods work
-- Phase 4: Old scripts moved to `legacy/` directory
-- Post Phase 4: Old scripts removed
+Legacy script directories have been removed; use `./scripts/vault`.
 
 ## Next Steps (Phase 3 Continuation)
 
 ### Immediate Tasks
 
-1. **Script Migration** (1-2 hours)
-   - Review existing scripts in `./script/`, `./podman/`, `./apps/`
-   - Migrate logic to new scripts where applicable
-   - Preserve backward compatibility
+1. **Script Migration** ✅
+   - Legacy scripts removed and consolidated into `./scripts/vault`
 
 2. **Integration Testing** (2-3 hours)
    - Test each command with real services

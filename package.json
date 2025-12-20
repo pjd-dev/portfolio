@@ -8,12 +8,6 @@
   ],
   "scripts": {
     "bootstrap": "pnpm install",
-    "podman:run-all": "bash ./podman/run-all.sh",
-    "podman:run-mcp": "bash ./podman/run-mcp.sh",
-    "podman:run-vault": "bash ./podman/run-vault.sh",
-    "podman:compose": "bash ./podman/podman-compose.sh",
-    "podman:run-mcp-detached": "bash ./podman/run-mcp.sh &",
-    "podman:run-all-detached": "bash ./podman/run-all.sh &",
     "script:restart-all": "bash ./scripts/services/restart.sh",
     "script:init-volume": "bash ./scripts/infrastructure/init.sh",
     "script:sync": "bash ./scripts/utilities/sync-vault.sh",
@@ -43,8 +37,7 @@
     "test:watch": "vitest --watch",
     "test:ci": "vitest run --runInBand --coverage",
     "test:all": "pnpm test && pnpm -w -r run test --if-present",
-    "test:coverage": "vitest run --coverage",
-    "test:podman": "vitest run __tests__/podman/"
+    "test:coverage": "vitest run --coverage"
   },
   "prepare": "husky install",
   "engines": {

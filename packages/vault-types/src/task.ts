@@ -34,6 +34,7 @@ export interface Blocker {
 }
 
 export interface Reward {
+  id?: string;
   content: string;
   milestone: number;
   impactScore?: number;
@@ -60,8 +61,20 @@ export interface Task {
   checklist?: ChecklistItem[];
   needs?: Need[];
   blockers?: Blocker[];
+  rewards?: Reward[];
   history?: HistoryEntry[];
-  reward?: Reward;
+  tags?: string[];
+}
+
+export interface TaskMetrics {
+  currentMilestone: number;
+  effortRemaining: number;
+  estimatedCompletionMin: number | null;
+  needFulfillment: number | null;
+  blockerImpact: number | null;
+  focusEfficiency: number | null;
+  rewardPotential: number;
+  effortRewardRatio: number | null;
 }
 
 export interface TaskDependency {

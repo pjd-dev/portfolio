@@ -8,7 +8,7 @@
 
 ## Problem
 
-When running the compose script (`podman-compose.sh`), the MCP container build was failing with:
+When running the service startup workflow (`./scripts/vault start`), the MCP container build was failing with:
 
 ```
 error: Cannot read file '/app/tsconfig.base.json'
@@ -92,23 +92,19 @@ localhost/mcp           test       0760a9a6747e   2 minutes ago    489 MB
 
 ## Related Files
 
-- **Compose Script**: [podman/podman-compose.sh](../podman/podman-compose.sh) (line 167 - uses root as build context)
+- **Service Start Script**: [scripts/services/start.sh](../scripts/services/start.sh) (uses repo root as build context)
 - **MCP tsconfig**: [apps/mcp/tsconfig.json](../apps/mcp/tsconfig.json) (extends root tsconfig.base.json)
 - **Vaulty Dockerfile**: [apps/vaulty/Dockerfile](../apps/vaulty/Dockerfile) (no TypeScript, no issue)
 - **LLM-Adapter Dockerfile**: [apps/llm-adapter/Dockerfile](../apps/llm-adapter/Dockerfile) (no root tsconfig dependency)
 
 ---
 
-## Testing the Compose Script
+## Testing the Service Script
 
-Now the compose script should work properly:
+Now the startup workflow should work properly:
 
 ```bash
-# Option 1: Using the new service script (recommended)
 pnpm vault:services:start
-
-# Option 2: Using the compose script (deprecated but now working)
-bash podman/podman-compose.sh
 ```
 
 ---

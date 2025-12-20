@@ -180,28 +180,12 @@ test_environment_variables() {
   fi
 }
 
-# Test 12: Deprecation notices are present in legacy scripts
-test_deprecation_notices() {
-  local legacy_scripts=(
-    "podman/run-mcp.sh"
-    "podman/run-vault.sh"
-    "script/init-volume.sh"
-    "script/sync-volume-to-local.sh"
-    "script/cloudflared.tunnel.sh"
-    "script/verify-shared-vault.sh"
-  )
-  
-  local missing_notice=()
-  for script in "${legacy_scripts[@]}"; do
-    if ! grep -q "DEPRECATED" "$PROJECT_ROOT/$script"; then
-      missing_notice+=("$script")
-    fi
-  done
-  
-  if [[ ${#missing_notice[@]} -eq 0 ]]; then
-    pass "All legacy scripts have deprecation notices"
+# Test 12: Legacy script directories removed
+test_legacy_directories_removed() {
+  if [[ ! -d "$PROJECT_ROOT/podman" && ! -d "$PROJECT_ROOT/script" && ! -d "$PROJECT_ROOT/apps/mcp/script" && ! -d "$PROJECT_ROOT/apps/vaulty/script" && ! -f "$PROJECT_ROOT/apps/mcp/restart-mcp.sh" && ! -f "$PROJECT_ROOT/apps/vaulty/restart-vaulty.sh" ]]; then
+    pass "Legacy script directories removed"
   else
-    fail "Missing deprecation notices in: ${missing_notice[*]}"
+    fail "Legacy script directories still present"
   fi
 }
 
@@ -271,7 +255,7 @@ test_infrastructure_validate_command
 test_utilities_sync_command
 test_required_functions
 test_environment_variables
-test_deprecation_notices
+test_legacy_directories_removed
 test_new_infrastructure_scripts
 test_scripts_executable
 test_gitignore_allows_build

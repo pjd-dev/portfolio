@@ -79,19 +79,9 @@ scripts/
 └── vault                 ✅ command router with subcommands
 ```
 
-### Legacy Scripts (Deprecated)
+### Legacy Scripts
 
-```
-⚠️ podman/run-mcp.sh              → scripts/services/start.sh
-⚠️ podman/run-vault.sh            → scripts/services/start.sh
-⚠️ script/init-volume.sh          → scripts/infrastructure/init.sh
-⚠️ script/sync-volume-to-local.sh → scripts/utilities/sync-vault.sh
-⚠️ script/cloudflared.tunnel.sh   → scripts/utilities/tunnel.sh
-⚠️ script/verify-shared-vault.sh  → scripts/utilities/verify-vault.sh
-
-All marked with deprecation notices.
-Migration timeline: 3 months → 6 months → removal
-```
+Legacy `podman/`, `script/`, and app restart scripts have been removed. Use `./scripts/vault`.
 
 ---
 

@@ -35,14 +35,11 @@ pnpm build            # Build all apps
 ### Running Services
 
 ```bash
-# Podman containers
-pnpm podman:run-all           # Start all containers
-pnpm podman:compose           # Full compose with sync
-
-# Scripts
-pnpm script:restart-all       # Restart all services
-pnpm script:tunnel            # Start Cloudflare tunnel
-pnpm script:sync              # Sync volume to local
+# Single entrypoint
+./scripts/vault start         # Start all services
+./scripts/vault restart       # Restart all services
+./scripts/vault tunnel        # Start Cloudflare tunnel
+./scripts/vault sync-vault    # Sync volume to local
 ```
 
 ### Configuration
@@ -59,7 +56,7 @@ export MINUTES_PER_EFFORT_UNIT=15
 
 ### Podman / SELinux note
 
-On SELinux-enabled systems (Fedora, RHEL, etc.) Podman bind-mounts may deny container write access to host directories. When running the Vault container you must use a relabel option such as `:Z` on the mount so the container can write to `/vault`. The provided `podman/run-vault.sh` script applies `:Z` automatically; if you run `podman` manually, add `-v /host/path:/vault:Z` or use a proper volume.
+On SELinux-enabled systems (Fedora, RHEL, etc.) Podman bind-mounts may deny container write access to host directories. The `./scripts/vault start` workflow mounts `/vault` with `:Z` automatically; if you run `podman` manually, add `-v /host/path:/vault:Z` or use a proper volume.
 
 ---
 
@@ -173,7 +170,6 @@ obsidian_fix_note_structure({ path: '...', previewOnly: true });
 | Location | File                                       | Tests |
 | -------- | ------------------------------------------ | ----- |
 | Root     | `__tests__/monorepo-integration.test.ts`   | 10    |
-| Root     | `__tests__/podman/podman-scripts.test.ts`  | 35    |
 | mcp      | `services/task-graph.service.test.ts`      | 19    |
 | mcp      | `services/session-planner.service.test.ts` | 18    |
 | mcp      | `scripts/prepare.test.ts`                  | 11    |
@@ -185,7 +181,6 @@ Run tests:
 pnpm test              # All tests
 pnpm test:watch        # Watch mode
 pnpm test:coverage     # With coverage
-pnpm test:podman       # Podman tests only
 ```
 
 ---
@@ -264,19 +259,13 @@ vault-platform-full/
 │
 ├── __tests__/                        # Root integration tests
 │   ├── monorepo-integration.test.ts
-│   └── podman/podman-scripts.test.ts
+│   └── scripts/                      # Script integration tests
 │
-├── podman/                           # Container scripts
-│   ├── run-all.sh
-│   ├── run-mcp.sh
-│   ├── run-vault.sh
-│   └── podman-compose.sh
-│
-├── script/                           # Utility scripts
-│   ├── restart-all.sh
-│   ├── cloudflared.tunnel.sh
-│   ├── sync-volume-to-local.sh
-│   └── init-volume.sh
+├── scripts/                          # Single entrypoint + service scripts
+│   ├── vault                         # Entry point
+│   ├── services/                     # Start/stop/status/logs
+│   ├── infrastructure/               # Init/clean/verify/prune
+│   └── utilities/                    # Sync/verify/tunnel
 │
 ├── doc/                              # Documentation
 │   ├── TESTING_GUIDE.md
@@ -350,7 +339,6 @@ Optimize work based on time and energy:
 pnpm test                 # Run all tests
 pnpm test:watch           # Watch mode
 pnpm test:coverage        # Coverage report
-pnpm test:podman          # Podman script tests
 pnpm test:ci              # CI mode (sequential)
 ```
 
@@ -364,14 +352,14 @@ pnpm typecheck            # Type checking
 
 ### Available Scripts
 
-| Command                   | Description               |
-| ------------------------- | ------------------------- |
-| `pnpm podman:run-all`     | Start all containers      |
-| `pnpm podman:compose`     | Full compose with sync    |
-| `pnpm script:restart-all` | Restart all services      |
-| `pnpm script:tunnel`      | Start Cloudflare tunnel   |
-| `pnpm script:sync`        | Sync volume to local      |
-| `pnpm script:verify`      | Verify shared vault mount |
+| Command                       | Description         |
+| ----------------------------- | ------------------- |
+| `pnpm vault:services:start`   | Start all services  |
+| `pnpm vault:services:stop`    | Stop all services   |
+| `pnpm vault:services:status`  | Service status      |
+| `pnpm vault:services:logs`    | Service logs        |
+| `pnpm vault:utilities:sync`   | Sync vault to local |
+| `pnpm vault:utilities:verify` | Verify vault mount  |
 
 ---
 

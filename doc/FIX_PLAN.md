@@ -1399,23 +1399,10 @@ Current plan: Keep Python as-is.
 find . -name "*.sh" -type f | grep -E "(script|podman)" | sort
 ````
 
-Expected:
+Expected (current):
 
-```
-./podman/podman-compose.sh
-./podman/run-all.sh
-./podman/run-mcp.sh
-./podman/run-vault.sh
-./script/cloudflared.tunnel.sh
-./script/common.sh
-./script/init-volume.sh
-./script/restart-all.sh
-./script/sync-volume-to-local.sh
-./script/verify-shared-vault.sh
-./apps/vaulty/restart-vaulty.sh
-./apps/vaulty/src/git-sync.sh
-./apps/vaulty/src/vault-init.sh
-```
+- No `./podman/` or `./script/` entries (removed)
+- Results should list `./scripts/...` and app `src` scripts only
 
 **Time**: 10 min
 
@@ -1426,46 +1413,33 @@ Expected:
 ````markdown
 # Scripts Directory
 
-## Podman Management
+## Orchestration
 
-- `podman-compose.sh` - Full orchestration (setup, cleanup, run)
-- `run-all.sh` - Start all containers
-- `run-mcp.sh` - Start MCP server only
-- `run-vault.sh` - Start vault + sync only
+- `scripts/vault start|stop|restart|status|logs`
+
+## Build
+
+- `scripts/vault build`
+- `scripts/vault rebuild`
+
+## Infrastructure
+
+- `scripts/vault init`
+- `scripts/vault clean`
+- `scripts/vault prune`
 
 ## Utilities
 
-- `common.sh` - Shared shell functions (sourced by other scripts)
-- `init-volume.sh` - Initialize vault volume
-- `sync-volume-to-local.sh` - Sync volume data locally
-- `verify-shared-vault.sh` - Health check
-
-## Networking
-
-- `cloudflared.tunnel.sh` - Expose services via Cloudflare tunnel
-
-## Deprecation Path
-
-Future (Phase 5):
-
-- Consolidate podman scripts into single `manage-containers.sh`
-- Merge `common.sh` into main script
-- Create `Makefile` for common operations
+- `scripts/vault sync-vault`
+- `scripts/vault verify-vault`
+- `scripts/vault tunnel`
 
 ## Usage Examples
 
 ```bash
-# Start everything
-./podman/podman-compose.sh
-
-# Restart all services
-./script/restart-all.sh
-
-# Check health
-./script/verify-shared-vault.sh
-
-# Setup tunnel
-./script/cloudflared.tunnel.sh
+./scripts/vault start
+./scripts/vault build
+./scripts/vault verify-vault
 ```
 ````
 
@@ -1613,7 +1587,7 @@ Add comment:
 
 **Task 4.6.2: Create Dockerfile.build script**
 
-Create [script/docker-build.sh](script/docker-build.sh):
+Create [scripts/build/docker-build.sh](scripts/build/docker-build.sh):
 
 ```bash
 #!/bin/bash
@@ -1644,7 +1618,7 @@ esac
 echo "Build complete!"
 ```
 
-**File**: [script/docker-build.sh](script/docker-build.sh)  
+**File**: [scripts/build/docker-build.sh](scripts/build/docker-build.sh)  
 **Time**: 15 min
 
 ---
@@ -1753,7 +1727,7 @@ git push origin v2.0.0
 **Step 3**: Deploy containers
 
 ```bash
-./script/docker-build.sh all
+./scripts/build/docker-build.sh all
 docker push mcp-server:latest
 docker push vaulty:latest
 ```

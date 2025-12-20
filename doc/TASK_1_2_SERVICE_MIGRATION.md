@@ -4,6 +4,8 @@
 **Status:** ✅ COMPLETED  
 **Task:** Migrate critical startup logic from legacy podman scripts to new centralized service management system
 
+> Update (2025-12-20): Legacy `podman/`, `script/`, and app restart scripts were removed. All orchestration now flows through `scripts/vault`.
+
 ## Overview
 
 Successfully migrated MCP and Vault service startup logic from scattered legacy scripts into unified, maintainable service scripts. The new system provides:
@@ -45,8 +47,8 @@ Successfully migrated MCP and Vault service startup logic from scattered legacy 
 
 #### Migrated Logic Sources:
 
-- From `podman/run-mcp.sh`: Image building, container startup, environment handling
-- From `podman/run-vault.sh`: Pod creation, port binding, volume mounting
+- From legacy `run-mcp.sh` (removed): Image building, container startup, environment handling
+- From legacy `run-vault.sh` (removed): Pod creation, port binding, volume mounting
 
 ### 2. `scripts/services/stop.sh` (47 lines) ✅
 
@@ -244,7 +246,7 @@ The `scripts/vault` command now calls these scripts:
 
 ## Migration Completeness
 
-### Migrated From `podman/run-mcp.sh`:
+### Migrated From legacy run-mcp.sh (removed):
 
 - ✅ Environment loading logic
 - ✅ Image building for MCP
@@ -254,7 +256,7 @@ The `scripts/vault` command now calls these scripts:
 - ✅ User/group mapping
 - ✅ Container startup with all flags
 
-### Migrated From `podman/run-vault.sh`:
+### Migrated From legacy run-vault.sh (removed):
 
 - ✅ Port binding setup (4000:4000)
 - ✅ Image building for Vault
@@ -275,17 +277,17 @@ The `scripts/vault` command now calls these scripts:
 
 ## Legacy Script Status
 
-### Still in Use (Required):
+### Removed (Legacy):
 
-- `podman/run-mcp.sh` → Can be deprecated (logic migrated)
-- `podman/run-vault.sh` → Can be deprecated (logic migrated)
-- `script/common.sh` → Still in use (legacy utilities)
+- Legacy run-mcp.sh → Removed (logic consolidated in `scripts/services/start.sh`)
+- Legacy run-vault.sh → Removed (logic consolidated in `scripts/services/start.sh`)
+- Legacy common.sh → Removed; replaced by `scripts/common.sh`
+- Build scripts (app-level script dirs) → Removed; use `scripts/vault build`
 
-### To Be Migrated Later (Tasks 1.3-1.5):
+### Migrated (Tasks 1.3-1.5 Complete):
 
-- Infrastructure scripts (init-volume.sh, verify-shared-vault.sh)
-- Utility scripts (sync-volume-to-local.sh, tunnel.sh)
-- Build scripts (apps/mcp/script/_, apps/vaulty/script/_)
+- Infrastructure scripts now live under `scripts/infrastructure/`
+- Utility scripts now live under `scripts/utilities/`
 
 ## Performance Impact
 
@@ -303,30 +305,16 @@ The `scripts/vault` command now calls these scripts:
 
 ## Backwards Compatibility
 
-**Breaking Changes:** None
+**Breaking Changes:** Legacy podman/app scripts removed
 
 - All environment variables still supported
 - Default values maintain compatibility
-- Legacy scripts can still be called directly if needed
+- Primary entry point: `./scripts/vault {start,stop,restart}`
 
-**Enhancement Only:**
+## Next Steps
 
-- New primary entry point: `./scripts/vault {start,stop,restart}`
-- Legacy scripts remain functional but unused
-
-## Next Steps (Task 1.3+)
-
-### Task 1.3: Migrate Infrastructure Scripts
-
-- `scripts/infrastructure/init-volume.sh` - Volume initialization
-- `scripts/infrastructure/verify.sh` - Health checking
-- `scripts/infrastructure/validate.sh` - Configuration validation
-
-### Task 1.4: Migrate Utility Scripts
-
-- `scripts/utilities/sync-to-local.sh` - Volume synchronization
-- `scripts/utilities/tunnel.sh` - Cloudflared tunnel management
-- `scripts/utilities/cleanup.sh` - Resource cleanup
+- Runtime verification of `./scripts/vault` commands
+- CI/CD alignment to `scripts/vault`
 
 ### Task 1.5: Deprecate Legacy Scripts
 
@@ -382,8 +370,8 @@ Related: PHASE4_DETAILED_PLAN.md, LEGACY_SCRIPTS_ANALYSIS.md
 - [Phase 4 Detailed Plan](PHASE4_DETAILED_PLAN.md) - Overall objectives and timeline
 - [Legacy Scripts Analysis](LEGACY_SCRIPTS_ANALYSIS.md) - Source scripts and migration strategy
 - [Phase 4 Quick Start](PHASE4_QUICK_START.md) - Quick reference for Phase 4 work
-- `podman/run-mcp.sh` - Source for MCP startup logic
-- `podman/run-vault.sh` - Source for Vault startup logic
+- Legacy run-mcp.sh - Source for MCP startup logic (removed)
+- Legacy run-vault.sh - Source for Vault startup logic (removed)
 - `scripts/common.sh` - Shared utilities and logging
 
 ---

@@ -4,6 +4,8 @@
 **Session:** Phase 4 Execution  
 **Branch:** feature/phase4-final-integration
 
+> Update (2025-12-20): Tasks 1.3–1.5 completed and legacy script directories removed. `scripts/vault` is now the single orchestration entrypoint.
+
 ## Summary
 
 ✅ **Task 1.2: Service Script Migration - COMPLETE**
@@ -15,8 +17,8 @@ Successfully migrated all critical service startup and shutdown logic from scatt
 ### Files Modified (2 files)
 
 1. **scripts/services/start.sh** (199 lines)
-   - Complete MCP startup logic from podman/run-mcp.sh
-   - Complete Vault startup logic from podman/run-vault.sh
+   - Complete MCP startup logic from legacy podman scripts (removed)
+   - Complete Vault startup logic from legacy podman scripts (removed)
    - Environment file loading with multi-file support
    - Smart volume handling with automatic fallback
    - Container health verification
@@ -136,7 +138,7 @@ Priority:   LOCAL_VAULT_PATH (if set and accessible)
 
 ## Migration Completeness
 
-### From podman/run-mcp.sh
+### From legacy run-mcp.sh (removed)
 
 - ✅ Environment file loading
 - ✅ Image building (MCP)
@@ -145,7 +147,7 @@ Priority:   LOCAL_VAULT_PATH (if set and accessible)
 - ✅ Container startup
 - ✅ Error handling
 
-### From podman/run-vault.sh
+### From legacy run-vault.sh (removed)
 
 - ✅ Port binding (4000:4000)
 - ✅ Image building (Vault)
@@ -165,26 +167,8 @@ Priority:   LOCAL_VAULT_PATH (if set and accessible)
 
 ## Next Steps
 
-### Immediate (Task 1.3)
-
-- Migrate infrastructure scripts
-  - `scripts/infrastructure/init-volume.sh`
-  - `scripts/infrastructure/verify.sh`
-  - `scripts/infrastructure/validate.sh`
-
-### Following (Task 1.4)
-
-- Migrate utility scripts
-  - `scripts/utilities/sync-to-local.sh`
-  - `scripts/utilities/tunnel.sh`
-  - `scripts/utilities/cleanup.sh`
-
-### Final (Task 1.5)
-
-- Deprecate legacy scripts
-- Add deprecation notices
-- Archive old locations
-- Update documentation
+- Runtime verification of `./scripts/vault` commands with live containers
+- CI/CD alignment (ensure pipelines call `scripts/vault`)
 
 ## Objective 1 Progress
 
@@ -192,12 +176,12 @@ Priority:   LOCAL_VAULT_PATH (if set and accessible)
 Objective 1: Legacy Script Consolidation
 ├── Task 1.1: Analyze Legacy Scripts ............ ✅ COMPLETE
 ├── Task 1.2: Migrate Service Scripts .......... ✅ COMPLETE
-├── Task 1.3: Migrate Infrastructure Scripts ... ⏳ PENDING
-├── Task 1.4: Migrate Utility Scripts .......... ⏳ PENDING
-└── Task 1.5: Deprecate Old Scripts ........... ⏳ PENDING
+├── Task 1.3: Migrate Infrastructure Scripts ... ✅ COMPLETE
+├── Task 1.4: Migrate Utility Scripts .......... ✅ COMPLETE
+└── Task 1.5: Deprecate Old Scripts ........... ✅ COMPLETE
 
-Progress: 2/5 tasks complete (40%)
-Estimated Completion: 2 hours remaining
+Progress: 5/5 tasks complete (100%)
+Estimated Completion: Completed
 ```
 
 ## Documentation Created

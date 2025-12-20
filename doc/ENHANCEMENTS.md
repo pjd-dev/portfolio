@@ -235,12 +235,12 @@ app.use('/mcp', jwtAuth, requireScope('vault:write'));
 
 ### Container Orchestration
 
-Existing Podman setup in `podman/`:
+Orchestration runs through `scripts/vault` (Podman or Docker):
 
-- `podman-compose.sh`: Container composition
-- `run-all.sh`: Start all services
-- `run-mcp.sh`, `run-vault.sh`: Individual services
-- `*.service`: Systemd service definitions
+- `./scripts/vault start` - Start MCP + Vaulty
+- `./scripts/vault stop` - Stop services
+- `./scripts/vault build` - Build container images
+- `./scripts/vault status` - Service status
 
 ### Private Tunnel Access
 

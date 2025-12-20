@@ -686,7 +686,7 @@ See earlier sections for details
 1. **Test in development**: `pnpm dev`
 2. **Try new tools**: Use MCP tools list to see all features
 3. **Configure JWT** (optional): Set JWT_SECRET environment variable
-4. **Deploy**: Use existing Podman setup in `podman/` directory
+4. **Deploy**: Use `./scripts/vault start` for orchestration
 5. **Build workflows**: Combine features for powerful automation
 
 ---

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Cloudflared tunnel management
-# Migrated logic from script/cloudflared.tunnel.sh with enhancements
+# Migrated logic from legacy tunnel script with enhancements
 
 set -euo pipefail
 
@@ -105,4 +105,3 @@ case "${1:-start}" in
 esac
 
 log_success "Tunnel command completed"
-

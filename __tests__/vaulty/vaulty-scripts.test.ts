@@ -11,13 +11,8 @@ import { join } from 'path';
 const REPO_ROOT = join(__dirname, '../..');
 const VAULTY_DIR = join(REPO_ROOT, 'apps/vaulty');
 const VAULTY_SRC = join(VAULTY_DIR, 'src');
-const VAULTY_SCRIPTS = join(VAULTY_DIR, 'script');
 
 describe('Vaulty Scripts - File Existence', () => {
-  it('should have restart-vaulty.sh', () => {
-    expect(existsSync(join(VAULTY_DIR, 'restart-vaulty.sh'))).toBe(true);
-  });
-
   it('should have vault-init.sh', () => {
     expect(existsSync(join(VAULTY_SRC, 'vault-init.sh'))).toBe(true);
   });
@@ -40,35 +35,6 @@ describe('Vaulty Scripts - File Existence', () => {
 });
 
 describe('Vaulty Scripts - Script Structure', () => {
-  describe('restart-vaulty.sh', () => {
-    let content: string;
-
-    it('should exist and be readable', () => {
-      expect(() => {
-        content = readFileSync(join(VAULTY_DIR, 'restart-vaulty.sh'), 'utf-8');
-      }).not.toThrow();
-    });
-
-    it('should have proper error handling', () => {
-      content = readFileSync(join(VAULTY_DIR, 'restart-vaulty.sh'), 'utf-8');
-      expect(content).toContain('set -euo pipefail');
-    });
-
-    it('should source required script files', () => {
-      content = readFileSync(join(VAULTY_DIR, 'restart-vaulty.sh'), 'utf-8');
-      expect(content).toContain('source "$SCRIPT_DIR/common.sh"');
-      expect(content).toContain('source "$SCRIPT_DIR/prepare.sh"');
-      expect(content).toContain('source "$SCRIPT_DIR/build.sh"');
-      expect(content).toContain('source "$SCRIPT_DIR/pod.sh"');
-      expect(content).toContain('source "$SCRIPT_DIR/run.sh"');
-    });
-
-    it('should check for healthcheck', () => {
-      content = readFileSync(join(VAULTY_DIR, 'restart-vaulty.sh'), 'utf-8');
-      expect(content).toContain('health_check');
-    });
-  });
-
   describe('vault-init.sh', () => {
     let content: string;
 

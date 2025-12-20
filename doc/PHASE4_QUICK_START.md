@@ -9,27 +9,14 @@
 
 ### 🎯 Start Here (Priority Order)
 
-#### 1️⃣ Analyze Legacy Scripts (30 minutes)
+#### 1️⃣ Legacy Scripts (Removed)
 
-```bash
-# Review what needs to be migrated
-find . -name "*.sh" -type f | grep -E "^\./(script|podman|apps)" | head -20
-
-# Check what logic exists
-cat ./script/*.sh | head -100
-cat ./podman/*.sh | head -100
-```
-
-**Output:** Document in `doc/LEGACY_SCRIPTS_ANALYSIS.md`
+Legacy `podman/`, `script/`, and app restart scripts have been removed. See `doc/LEGACY_SCRIPTS_ANALYSIS.md` for historical context.
 
 #### 2️⃣ Migrate Service Scripts (1 hour)
 
 ```bash
-# Start services
-cat ./podman/run-mcp.sh
-cat ./podman/run-vault.sh
-
-# Update scripts/services/start.sh with full logic
+# Review and update unified startup logic
 nano scripts/services/start.sh
 
 # Test
@@ -163,11 +150,8 @@ nano scripts/services/start.sh
 ### Analysis
 
 ```bash
-# See what legacy scripts do
-find ./script -name "*.sh" -exec echo {} \; -exec cat {} \;
-
-# See what podman scripts do
-find ./podman -name "*.sh" -exec echo {} \; -exec cat {} \;
+# Review unified scripts
+find ./scripts -name "*.sh" -exec echo {} \; -exec sed -n '1,120p' {} \;
 
 # Find all shell scripts
 find . -name "*.sh" -type f | grep -v node_modules

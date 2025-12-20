@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Verify platform infrastructure and container health
-# Migrated logic from script/verify-shared-vault.sh with enhancements
+# Migrated logic from legacy verify script with enhancements
 
 set -euo pipefail
 

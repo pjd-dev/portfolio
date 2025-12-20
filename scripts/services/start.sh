@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Start all vault platform services
-# Integrated logic from podman/run-mcp.sh and podman/run-vault.sh
+# Integrated logic from legacy service scripts (removed)
 # Plus environment loading and container orchestration
 
 set -euo pipefail

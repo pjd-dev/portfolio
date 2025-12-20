@@ -121,14 +121,11 @@ Total: 36 tests passing, 1 skipped = 97.2% success rate
 - ✅ `scripts/vault` - 74 lines updated (command router enhancement)
 - ✅ `scripts/common.sh` - 380+ lines (shared library)
 
-**Legacy Scripts Deprecated:**
+**Legacy Scripts Removed:**
 
-- ⚠️ `podman/run-mcp.sh`
-- ⚠️ `podman/run-vault.sh`
-- ⚠️ `script/init-volume.sh`
-- ⚠️ `script/sync-volume-to-local.sh`
-- ⚠️ `script/cloudflared.tunnel.sh`
-- ⚠️ `script/verify-shared-vault.sh`
+- ✅ `podman/` and `script/` directories removed
+- ✅ App restart scripts removed
+- ✅ `scripts/vault` is the single orchestration entrypoint
 
 **Documentation Created:**
 

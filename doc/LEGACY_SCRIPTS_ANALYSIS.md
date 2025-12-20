@@ -1,23 +1,25 @@
 # Phase 4 - Task 1.1: Legacy Scripts Analysis
 
 **Date:** December 18, 2025  
-**Status:** 🔄 In Progress  
+**Status:** ✅ Complete (legacy removed)  
 **Task:** Analyze all legacy scripts to identify migration requirements
+
+> Update (2025-12-20): Legacy `podman/`, `script/`, and app restart scripts were removed after consolidation. This analysis is retained for historical reference.
 
 ---
 
 ## Summary
 
-Found **26 legacy scripts** across 4 directories that need analysis for Phase 4 migration:
+Found **26 legacy scripts** across 4 directories (historical; directories removed after migration):
 
 ```
-./script/          6 scripts
-./podman/          4 scripts
-./apps/mcp/        5 scripts (in script/ subdirectory)
-./apps/vaulty/     7 scripts (in script/ and src/ subdirectories)
+./script/          6 scripts (removed)
+./podman/          4 scripts (removed)
+./apps/mcp/        5 scripts (script/ removed)
+./apps/vaulty/     7 scripts (script/ removed; src/ remains)
 ```
 
-**New scripts already in place:** 14 scripts in `./scripts/` (created in Phase 3)
+**New scripts now in place:** 14+ scripts in `./scripts/` (Phase 3 consolidation)
 
 ---
 
@@ -402,10 +404,8 @@ podman build -t vault -f "$REPO_ROOT/apps/vaulty/Dockerfile" "$REPO_ROOT/apps/va
 ## Next Steps
 
 1. ✅ **Task 1.1 Complete:** Analysis done
-2. 🔄 **Task 1.2 Next:** Migrate service scripts
-   - Update `scripts/services/start.sh` with MCP + Vault logic
-   - Update `scripts/services/stop.sh` with shutdown logic
-   - Test each command
+2. ✅ **Tasks 1.2–1.5 Complete:** Scripts consolidated; legacy dirs removed
+   - Runtime verification pending
 
 ---
 
@@ -424,10 +424,10 @@ podman build -t vault -f "$REPO_ROOT/apps/vaulty/Dockerfile" "$REPO_ROOT/apps/va
 ## Files to Deprecate
 
 ```
-./script/                → Move to ./legacy/script/
-./podman/                → Move to ./legacy/podman/
-./apps/*/restart-*.sh    → Move to ./legacy/apps/
-./apps/*/script/         → Move to ./legacy/apps/ (reference)
+./script/                → Removed (no archive)
+./podman/                → Removed (no archive)
+./apps/*/restart-*.sh    → Removed (no archive)
+./apps/*/script/         → Removed (no archive)
 ```
 
 ## Files to Keep
@@ -439,8 +439,6 @@ podman build -t vault -f "$REPO_ROOT/apps/vaulty/Dockerfile" "$REPO_ROOT/apps/va
 
 ---
 
-**Status:** ✅ Task 1.1 COMPLETE - Analysis Documented
+**Status:** ✅ Complete - Analysis Documented
 
-**Next Task:** Task 1.2 - Migrate Service Scripts (start.sh)
-
-**Estimated Time:** 1 hour
+**Next Task:** Runtime verification of `scripts/vault`
