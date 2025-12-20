@@ -92,7 +92,7 @@ build_mcp_image() {
   fi
   
   log_info "Building MCP image..."
-  $RUNTIME build -t vault-mcp:latest -f "$dockerfile" "$PROJECT_ROOT" || die "MCP build failed"
+  $RUNTIME build --format=docker -t vault-mcp:latest -f "$dockerfile" "$PROJECT_ROOT" || die "MCP build failed"
   log_success "MCP image built"
 }
 
@@ -104,7 +104,7 @@ build_vault_image() {
   fi
   
   log_info "Building Vault image..."
-  $RUNTIME build -t vault-vaulty:latest -f "$dockerfile" "$PROJECT_ROOT/apps/vaulty" || die "Vault build failed"
+  $RUNTIME build --format=docker -t vault-vaulty:latest -f "$dockerfile" "$PROJECT_ROOT/apps/vaulty" || die "Vault build failed"
   log_success "Vault image built"
 }
 
