@@ -60,6 +60,42 @@ On SELinux-enabled systems (Fedora, RHEL, etc.) Podman bind-mounts may deny cont
 
 ---
 
+## AI Model Compatibility
+
+The MCP server exposes **90+ tools** with complex JSON parameters, multi-step orchestration, and tool group activation patterns. Not all AI models can effectively use these tools.
+
+### ✅ Recommended Models
+
+| Model                 | Status          | Notes                                                                            |
+| --------------------- | --------------- | -------------------------------------------------------------------------------- |
+| **Claude Opus 4**     | ✅ Full Support | Best performance - handles complex tool chains, error recovery, and long context |
+| **Claude Sonnet 4**   | ✅ Full Support | Excellent balance of capability and speed                                        |
+| **Claude Sonnet 3.5** | ✅ Full Support | Good tool-use capabilities                                                       |
+| **GPT-4o**            | ✅ Full Support | Strong reasoning and tool orchestration                                          |
+| **Gemini 1.5 Pro**    | ⚠️ Partial      | May struggle with complex multi-tool workflows                                   |
+
+### ⚠️ Limited Compatibility
+
+| Model            | Status     | Notes                                                                                                     |
+| ---------------- | ---------- | --------------------------------------------------------------------------------------------------------- |
+| **Claude Haiku** | ⚠️ Limited | Smaller context window, struggles with: tool group activation, complex JSON params, multi-step operations |
+| **GPT-4o Mini**  | ⚠️ Limited | May fail on complex tool chains                                                                           |
+| **Gemini Flash** | ⚠️ Limited | Speed-optimized, reduced reasoning capability                                                             |
+
+### Why Some Models Struggle
+
+1. **Tool Group Activation** — Must call `activate_*` tools before using specialized MCP functions
+2. **Complex JSON Parameters** — Tasks require nested objects, arrays, and precise field names
+3. **Multi-Step Orchestration** — Creating tasks → adding rewards → rebuilding graph → querying
+4. **Context Management** — Long sessions accumulate significant context that smaller models lose
+5. **Error Recovery** — When tools fail, stronger models can diagnose and retry appropriately
+
+### Recommendation
+
+For production use with the full MCP toolset, use **Claude Opus 4**, **Claude Sonnet 4**, or **GPT-4o**. Lighter models are suitable for simple read operations but may fail on complex workflows.
+
+---
+
 ## Documentation
 
 ### �️ Documentation Index
