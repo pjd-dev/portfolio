@@ -41,18 +41,27 @@ export class CODValidator {
   }
 
   // Instance methods that delegate to static methods for compatibility
-  validateTask = CODValidator.validateTask;
-  validateSession = CODValidator.validateSession;
-  validateDependencyGraph = CODValidator.validateDependencyGraph;
+  validateTask = (data: TaskState) => CODValidator.validateTask(data);
+  validateSession = (data: SessionState) => CODValidator.validateSession(data);
+  validateDependencyGraph = (data: unknown) =>
+    CODValidator.validateDependencyGraph(
+      data as Record<string, Partial<TaskState>>
+    );
 
   // Stub methods for MCP compatibility (return PASS by default)
-  validateLinkSuggestion = CODValidator.validateLinkSuggestion;
-  validateOperation = CODValidator.validateOperation;
-  validateMoveOperation = CODValidator.validateMoveOperation;
-  validateMetadataModel = CODValidator.validateMetadataModel;
-  validateSessionStart = CODValidator.validateSessionStart;
-  validateBlockerResolution = CODValidator.validateBlockerResolution;
-  validateChecklistItem = CODValidator.validateChecklistItem;
+  validateLinkSuggestion = (data: unknown) =>
+    CODValidator.validateLinkSuggestion(data);
+  validateOperation = (data: unknown) => CODValidator.validateOperation(data);
+  validateMoveOperation = (data: unknown) =>
+    CODValidator.validateMoveOperation(data);
+  validateMetadataModel = (data: unknown) =>
+    CODValidator.validateMetadataModel(data);
+  validateSessionStart = (data: unknown) =>
+    CODValidator.validateSessionStart(data);
+  validateBlockerResolution = (data: unknown) =>
+    CODValidator.validateBlockerResolution(data);
+  validateChecklistItem = (data: unknown) =>
+    CODValidator.validateChecklistItem(data);
 
   /** Helper to create a PASS result with compatibility fields */
   private static _passResult(): ValidationResult {
@@ -246,7 +255,7 @@ export class CODValidator {
       });
     }
 
-    return this._buildResult(issues, options);
+    return CODValidator._buildResult(issues, options);
   }
 
   /**
@@ -310,7 +319,7 @@ export class CODValidator {
       }
     }
 
-    return this._buildResult(issues, options);
+    return CODValidator._buildResult(issues, options);
   }
 
   /**
@@ -395,7 +404,7 @@ export class CODValidator {
       }
     }
 
-    return this._buildResult(issues, options);
+    return CODValidator._buildResult(issues, options);
   }
 
   /**
