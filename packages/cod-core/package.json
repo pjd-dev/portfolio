@@ -1,0 +1,36 @@
+{
+  "name": "@vault/cod",
+  "version": "1.0.0",
+  "description": "COD (Canonical Operation Description) validator core library for deterministic task validation",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./validator": {
+      "import": "./dist/validator/index.js",
+      "types": "./dist/validator/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@vault/types": "workspace:*",
+    "@vault/errors": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "vitest": "^1.1.0"
+  }
+}
