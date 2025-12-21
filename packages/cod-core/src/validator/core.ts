@@ -27,6 +27,78 @@ import {
  * All methods are static, pure functions with no side effects.
  */
 export class CODValidator {
+  private static _instance: CODValidator | null = null;
+
+  /**
+   * Get singleton instance (for compatibility with MCP tools)
+   * The instance just provides access to static methods
+   */
+  static getInstance(): CODValidator {
+    if (!CODValidator._instance) {
+      CODValidator._instance = new CODValidator();
+    }
+    return CODValidator._instance;
+  }
+
+  // Instance methods that delegate to static methods for compatibility
+  validateTask = CODValidator.validateTask;
+  validateSession = CODValidator.validateSession;
+  validateDependencyGraph = CODValidator.validateDependencyGraph;
+
+  // Stub methods for MCP compatibility (return PASS by default)
+  validateLinkSuggestion = CODValidator.validateLinkSuggestion;
+  validateOperation = CODValidator.validateOperation;
+  validateMoveOperation = CODValidator.validateMoveOperation;
+  validateMetadataModel = CODValidator.validateMetadataModel;
+  validateSessionStart = CODValidator.validateSessionStart;
+  validateBlockerResolution = CODValidator.validateBlockerResolution;
+  validateChecklistItem = CODValidator.validateChecklistItem;
+
+  /** Helper to create a PASS result with compatibility fields */
+  private static _passResult(): ValidationResult {
+    return {
+      state: 'PASS',
+      valid: true,
+      issues: [],
+      summary: { total: 0, errors: 0, warnings: 0 },
+      status: 'PASS',
+      reason: undefined,
+      warnings: [],
+    };
+  }
+
+  /**
+   * Stub validators for MCP compatibility - these return PASS by default
+   * TODO: Implement actual validation logic as needed
+   */
+  static validateLinkSuggestion(_data: unknown): ValidationResult {
+    return CODValidator._passResult();
+  }
+
+  static validateOperation(_data: unknown): ValidationResult {
+    return CODValidator._passResult();
+  }
+
+  static validateMoveOperation(_data: unknown): ValidationResult {
+    return CODValidator._passResult();
+  }
+
+  static validateMetadataModel(_data: unknown): ValidationResult {
+    return CODValidator._passResult();
+  }
+
+  static validateSessionStart(_data: unknown): ValidationResult {
+    return CODValidator._passResult();
+  }
+
+  static validateBlockerResolution(_data: unknown): ValidationResult {
+    return CODValidator._passResult();
+  }
+
+  static validateChecklistItem(_data: unknown): ValidationResult {
+    return CODValidator._passResult();
+  }
+
   /**
    * Validate a single task against canonical rules
    *

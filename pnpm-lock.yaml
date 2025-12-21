@@ -133,6 +133,9 @@ importers:
       '@types/diff':
         specifier: ^8.0.0
         version: 8.0.0
+      '@vault/cod':
+        specifier: workspace:*
+        version: link:../../packages/cod-core
       '@vault/common':
         specifier: workspace:*
         version: link:../../packages/vault-common

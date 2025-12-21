@@ -40,8 +40,15 @@ export interface TaskState {
   // Required fields
   id: string;
   title: string;
-  status: 'todo' | 'in-progress' | 'completed' | 'blocked';
-  priority: number; // 0-10
+  status:
+    | 'todo'
+    | 'in-progress'
+    | 'in_progress'
+    | 'completed'
+    | 'blocked'
+    | 'done'
+    | 'dropped'; // 'done' is alias for 'completed', 'in_progress' alias for 'in-progress'
+  priority?: number; // 0-10 (optional for compatibility)
   goal?: string | null; // goal ID reference
 
   // Optional fields
@@ -81,6 +88,11 @@ export interface ValidationResult {
     errors: number;
     warnings: number;
   };
+
+  // Compatibility aliases for MCP tools
+  status?: ValidationState; // alias for state
+  reason?: string; // first error message if any
+  warnings?: string[]; // error messages for warnings
 }
 
 /** Validator options (runtime behavior) */
