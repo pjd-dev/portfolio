@@ -1,442 +1,540 @@
-# Vault Platform - Operations Guide
+# Operations Guide - Vault Platform Phase 4
 
-**Version**: 1.0  
-**Date**: December 21, 2025  
-**Audience**: DevOps, Operations Team
+**Status**: ✅ PRODUCTION READY  
+**Last Updated**: December 21, 2025  
+**Version**: 1.0
 
 ---
 
-## Quick Reference
+## Table of Contents
 
-### Daily Operations
+1. [Daily Operations](#daily-operations)
+2. [Common Tasks](#common-tasks)
+3. [Troubleshooting](#troubleshooting)
+4. [Performance Tuning](#performance-tuning)
+5. [Backup & Recovery](#backup--recovery)
+6. [Health Monitoring](#health-monitoring)
+
+---
+
+## Daily Operations
+
+### Morning Checklist
 
 ```bash
-# Morning check
+# 1. Verify services running
 ./scripts/vault status
 
-# View recent activity
-./scripts/vault logs mcp | tail -50
-./scripts/vault logs vaulty | tail -50
-
-# Check disk usage
-du -sh .vault logs/
-
-# Verify git sync
-cd /vault && git log --oneline | head -3
+# Expected output:
+# ✓ mcp is running
+# ✓ vaulty is running
+# ✓ vault is running
 ```
 
-### Emergency Procedures
+### Service Health
 
 ```bash
-# Emergency stop
-./scripts/vault stop
+# Check detailed health
+podman ps | grep -E "mcp|vault|vaulty"
 
-# Emergency start
-./scripts/vault start
-
-# Emergency logs
-./scripts/vault logs -f mcp
+# Expected: All containers "Up" and with status indicators
 ```
 
----
-
-## Starting Services
-
-### Full System Start
+### Log Review
 
 ```bash
-./scripts/vault start
-```
+# Check for errors in last hour
+./scripts/vault logs | grep -i error | tail -20
 
-**What it does**:
-
-1. Builds images (with cache)
-2. Creates pod infrastructure
-3. Starts Vault service
-4. Starts MCP service
-5. Verifies all services running
-
-**Expected output**:
-
-```
-✓ Vault service started: vaulty
-✓ MCP service started: mcp-server-dev
-✓ MCP service verified running
-✓ Vault service verified running
-✓ All services started successfully
-```
-
-### Service-Specific Start
-
-```bash
-# View available scripts
-ls scripts/services/
-
-# Manually start specific service
-bash scripts/services/start.sh
-```
-
----
-
-## Stopping Services
-
-### Graceful Stop
-
-```bash
-./scripts/vault stop
-```
-
-**What it does**:
-
-1. Stops MCP service
-2. Stops Vault service
-3. Removes pod infrastructure
-4. Verifies all stopped
-
-**Expected output**:
-
-```
-✓ Stopped: mcp-server-dev
-✓ Stopped: vaulty
-✓ All services stopped
-```
-
-### Force Stop (if graceful fails)
-
-```bash
-podman stop mcp-server-dev vaulty
-podman rm mcp-server-dev vaulty
-```
-
----
-
-## Restarting Services
-
-### Full Restart
-
-```bash
-./scripts/vault restart
-```
-
-**Duration**: ~20-30 seconds
-
-**What it does**:
-
-1. Stops all services
-2. Waits for clean shutdown
-3. Removes containers
-4. Starts fresh services
-5. Verifies health
-
-### Restart Individual Service
-
-```bash
-# Restart MCP only
-podman stop mcp-server-dev
-podman rm mcp-server-dev
-bash scripts/services/start.sh
-```
-
----
-
-## Viewing Logs
-
-### Real-time MCP Logs
-
-```bash
-./scripts/vault logs mcp
-# or
-./scripts/vault logs mcp -f
-```
-
-### Real-time Vault Logs
-
-```bash
-./scripts/vault logs vaulty -f
-```
-
-### All Logs
-
-```bash
-./scripts/vault logs
-```
-
-### Filter Logs
-
-```bash
-# Errors only
+# For specific service
 ./scripts/vault logs mcp | grep -i error
-
-# Last 50 lines
-podman logs mcp-server-dev | tail -50
-
-# Last hour (if timestamps available)
-podman logs mcp-server-dev --until 1h
-```
-
-### Archive Logs
-
-```bash
-# Create daily archive
-mkdir -p logs/archive
-cp logs/mcp.log logs/archive/mcp-$(date +%Y-%m-%d).log
-
-# Compress old logs
-gzip logs/archive/mcp-*.log
 ```
 
 ---
 
 ## Common Tasks
 
-### Checking Service Status
+### Starting Services
+
+**Option 1: Quick Start (if infrastructure exists)**
 
 ```bash
-# Full status
-./scripts/vault status
-
-# Container details
-podman ps
-podman inspect mcp-server-dev
-
-# Port status
-lsof -i :4000
-lsof -i :3333
+./scripts/vault start
 ```
 
-### Monitoring Resource Usage
+**Option 2: Full Initialization**
 
 ```bash
-# Live monitoring
-podman stats --no-stream
+./scripts/vault infrastructure init
+./scripts/vault build
+./scripts/vault start
+```
 
-# Memory usage
-podman stats --no-stream | awk '{print $1, $4}'
+### Stopping Services
 
-# Disk usage
-du -sh .vault logs/ .vault/
+```bash
+./scripts/vault stop
+```
+
+Services will stop gracefully in 30 seconds.
+
+### Restarting Services
+
+```bash
+./scripts/vault restart
+```
+
+Complete stop + start cycle takes ~20-30 seconds.
+
+### Viewing Logs
+
+```bash
+# Real-time logs (tail -f mode)
+./scripts/vault logs -f
+
+# Specific service
+./scripts/vault logs mcp
+./scripts/vault logs vaulty
+
+# Search for specific events
+./scripts/vault logs | grep "sync"
 ```
 
 ### Syncing Vault Data
 
 ```bash
-# Sync from volume to local
+# Sync vault volume to local filesystem
 ./scripts/vault utilities sync
 
-# Verify vault integrity
+# Creates backup at: ./.vault/
+```
+
+### Verifying Vault Integrity
+
+```bash
+# Check vault structure and file counts
 ./scripts/vault utilities verify
 
-# Force git pull
-cd /vault && git pull origin main
-```
-
-### Building Images
-
-```bash
-# Build with cache (fast)
-./scripts/vault build
-
-# Rebuild without cache (slower but fresh)
-./scripts/vault rebuild
-```
-
-### Cleaning Up
-
-```bash
-# Remove stopped containers
-./scripts/vault infrastructure prune
-
-# Remove old images
-podman image prune
-
-# Full cleanup (with volume removal)
-echo "y" | ./scripts/vault infrastructure clean
-```
-
----
-
-## Monitoring & Alerts
-
-### Critical Metrics
-
-1. **Service Availability**: All services running
-2. **Response Time**: < 100ms
-3. **Memory Usage**: < 2GB
-4. **CPU Usage**: < 50%
-5. **Disk Space**: > 1GB free
-6. **Git Sync**: < 1 hour behind
-
-### Health Check Script
-
-```bash
-#!/bin/bash
-# Save as scripts/health-check.sh
-
-echo "=== Health Check ==="
-echo "Services: $(./scripts/vault status | grep -c '✓')/3"
-echo "Memory: $(podman stats --no-stream | tail -1 | awk '{print $4}')"
-echo "Disk: $(df -h . | tail -1 | awk '{print $5}')"
-echo "Git: $(cd /vault && git log --oneline -1)"
-```
-
-### Running Health Checks Regularly
-
-```bash
-# Hourly via cron
-0 * * * * cd /path/to/vault && ./scripts/vault status >> logs/health.log 2>&1
-
-# Every 5 minutes
-*/5 * * * * cd /path/to/vault && podman stats --no-stream >> logs/metrics.log 2>&1
+# Shows:
+# - Required directories
+# - File count
+# - Large files
+# - Integrity issues
 ```
 
 ---
 
 ## Troubleshooting
 
-### Service Won't Start
+### Problem: Services Won't Start
 
-```bash
-# 1. Check logs
-./scripts/vault logs mcp
+**Symptoms:**
 
-# 2. Check ports
-lsof -i :4000
-
-# 3. Check disk space
-df -h
-
-# 4. Force clean start
-./scripts/vault stop
-./scripts/vault infrastructure clean
-./scripts/vault start
+```
+[✗] Failed to start container
 ```
 
-### High Memory Usage
+**Solution:**
 
 ```bash
-# Check what's using memory
-podman stats
+# 1. Check what went wrong
+./scripts/vault logs
 
-# Restart the service
+# 2. Try restart
 ./scripts/vault restart
 
-# If persists, check logs for memory leaks
-./scripts/vault logs mcp | grep -i "memory\|outofmemory"
-```
-
-### Git Sync Errors
-
-```bash
-# Check git status
-cd /vault
-git status
-
-# Show errors
-git pull -v
-
-# Force sync
-git fetch origin
-git reset --hard origin/main
-```
-
-### Network Issues
-
-```bash
-# Check container network
-podman network ls
-podman network inspect vault-network
-
-# Test connectivity
-podman exec mcp-server-dev ping -c 1 vaulty
-
-# Check ports
-netstat -an | grep -E "4000|3333"
-```
-
----
-
-## Backup & Recovery
-
-### Automated Backup
-
-```bash
-# Daily backup
-0 2 * * * tar -czf /backups/vault-$(date +%Y%m%d).tar.gz /path/to/.vault
-
-# Weekly full backup
-0 3 * * 0 tar -czf /backups/vault-full-$(date +%Y%m%d).tar.gz /path/to/
-```
-
-### Manual Backup
-
-```bash
-tar -czf vault-backup-$(date +%Y%m%d-%H%M%S).tar.gz .vault logs/
-
-# Verify backup
-tar -tzf vault-backup-*.tar.gz | head -10
-```
-
-### Recovery
-
-```bash
-# Stop services
-./scripts/vault stop
-
-# Restore backup
-tar -xzf vault-backup-YYYYMMDD-HHMMSS.tar.gz
-
-# Restart services
+# 3. If still failing, full reset
+./scripts/vault infrastructure clean
+./scripts/vault infrastructure init
 ./scripts/vault start
+```
 
-# Verify
-./scripts/vault status
+### Problem: High CPU Usage
+
+**Check:**
+
+```bash
+podman stats vault mcp-server-dev vaulty
+```
+
+**Typical causes:**
+
+- Git sync in progress (temporary)
+- Large file operations
+- Excessive logging
+
+**Solution:**
+
+```bash
+# Check what's running
+podman top vaulty
+podman top mcp-server-dev
+
+# View logs during high CPU
+./scripts/vault logs -f
+```
+
+### Problem: Out of Disk Space
+
+**Check:**
+
+```bash
+df -h
+podman volume inspect vault | grep Mountpoint
+du -sh /path/to/vault
+```
+
+**Solution:**
+
+```bash
+# 1. Clean up dangling images
+./scripts/vault infrastructure prune
+
+# 2. Archive old logs
+tar -czf logs-archive-$(date +%Y%m%d).tar.gz logs/
+rm -rf logs/*
+
+# 3. If still full, check vault volume
+du -sh ~/.obsidian/vault
+```
+
+### Problem: Git Sync Failing
+
+**Check logs:**
+
+```bash
+./scripts/vault logs vaulty | grep -i "git\|sync"
+```
+
+**Common issues:**
+
+- Network connectivity
+- Git credentials expired
+- Repository corrupted
+
+**Solution:**
+
+```bash
+# 1. Check network
+ping github.com
+
+# 2. Restart sync service
+./scripts/vault restart
+
+# 3. Check git status
+podman exec vaulty git -C /vault status
+
+# 4. Manual fix
+podman exec vaulty git -C /vault fetch origin
+podman exec vaulty git -C /vault pull origin main
+```
+
+### Problem: MCP Server Not Responding
+
+**Check:**
+
+```bash
+curl http://localhost:4000/
+```
+
+**If getting connection refused:**
+
+```bash
+# 1. Check if running
+podman ps | grep mcp-server-dev
+
+# 2. Check logs
+./scripts/vault logs mcp
+
+# 3. Restart
+./scripts/vault restart
+
+# 4. Check port
+lsof -i :4000
 ```
 
 ---
 
 ## Performance Tuning
 
-### Container Resource Limits
+### Optimize Build Time
 
 ```bash
-# Check current limits
-podman inspect mcp-server-dev | grep -A 10 Resources
+# Build once, reuse images
+./scripts/vault build  # ~2 minutes
 
-# Set memory limit (edit docker-compose or scripts)
-# 512M for MCP
-# 256M for Vault
-# 128M for LLM Adapter
+# Use cached builds
+./scripts/vault start  # Uses cache if not changed
 ```
 
-### Git Sync Optimization
+### Optimize Sync Interval
+
+Edit environment or script:
 
 ```bash
-# Adjust sync interval in environment
-export GIT_SYNC_INTERVAL=60  # seconds
+# In scripts/services/start.sh or container env
+GIT_SYNC_INTERVAL=30  # seconds (adjust as needed)
 
-# Shallow clone for faster pulls
-export GIT_SHALLOW=true
+# Less frequent = lower CPU, more lag
+# More frequent = higher CPU, more current
 ```
 
-### Image Optimization
+### Resource Limits
+
+Current allocation:
+
+- MCP: 533 MB image
+- Vault: 81.9 MB image
+- Memory: 2048 MB (podman default)
+
+To limit memory:
 
 ```bash
-# Remove unused images
-podman image prune
-
-# List image sizes
-podman images --format "{{.Repository}}:{{.Tag}}\t{{.Size}}"
+podman run -m 1024m <image>
 ```
 
 ---
 
-## Documentation
+## Backup & Recovery
 
-- **Deployment Guide**: [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)
-- **Scripts Reference**: [SCRIPTS_REFERENCE.md](SCRIPTS_REFERENCE.md)
-- **Architecture**: [Architecture docs](ARCHITECTURE_REVIEW.md)
+### Creating Backups
+
+**Automatic (on startup):**
+
+```bash
+# Backups created: vault-backup-prod-TIMESTAMP.tar.gz
+./scripts/vault start
+```
+
+**Manual backup:**
+
+```bash
+tar -czf vault-backup-$(date +%Y%m%d-%H%M%S).tar.gz \
+  .vault \
+  logs/ \
+  --exclude=node_modules
+```
+
+**Backup location:** Project root directory
+
+### Restoring from Backup
+
+```bash
+# 1. Stop services
+./scripts/vault stop
+
+# 2. Extract backup
+tar -xzf vault-backup-prod-20251221-120144.tar.gz
+
+# 3. Restart services
+./scripts/vault start
+
+# 4. Verify
+./scripts/vault status
+```
+
+### Full System Recovery
+
+```bash
+# 1. Clean everything
+./scripts/vault infrastructure clean
+echo "y" | podman volume rm vault mcp-data vaulty-data
+
+# 2. Re-initialize
+./scripts/vault infrastructure init
+
+# 3. Restore data
+tar -xzf vault-backup-prod-20251221-120144.tar.gz
+
+# 4. Start fresh
+./scripts/vault start
+
+# 5. Verify
+./scripts/vault status
+./scripts/vault logs | grep -i error
+```
+
+---
+
+## Health Monitoring
+
+### Regular Health Checks
+
+```bash
+#!/bin/bash
+# Run hourly via cron
+
+echo "=== Vault Platform Health Check ==="
+echo "Time: $(date)"
+echo
+
+# Check services
+./scripts/vault status
+
+# Check endpoints
+echo "MCP Endpoint:"
+curl -s -o /dev/null -w "HTTP %{http_code} - Response: %{time_total}s\n" http://localhost:4000/
+
+# Check logs for errors
+echo "Recent Errors:"
+./scripts/vault logs | grep -i error | tail -5 || echo "No errors"
+
+# Check disk usage
+echo "Disk Usage:"
+df -h | grep -E "Filesystem|/$"
+```
+
+### Set Up Monitoring (crontab)
+
+```bash
+# Add to crontab -e
+0 * * * * /path/to/vault-platform/scripts/health-check.sh >> /var/log/vault-health.log 2>&1
+```
+
+### Metrics to Track
+
+| Metric            | Healthy | Warning | Critical |
+| ----------------- | ------- | ------- | -------- |
+| Service Uptime    | >99%    | >95%    | <95%     |
+| API Response Time | <100ms  | <500ms  | >500ms   |
+| CPU Usage         | <20%    | <50%    | >50%     |
+| Memory Usage      | <30%    | <60%    | >60%     |
+| Disk Free         | >50%    | >20%    | <20%     |
+| Sync Success Rate | 100%    | >95%    | <95%     |
+
+---
+
+## Emergency Procedures
+
+### Service Crash
+
+```bash
+# Immediate action
+./scripts/vault restart
+
+# Monitor recovery
+./scripts/vault logs -f
+
+# Verify stability
+for i in {1..10}; do
+  sleep 5
+  ./scripts/vault status
+done
+```
+
+### Complete System Failure
+
+```bash
+# 1. Full stop
+echo "Stopping services..."
+./scripts/vault stop
+
+# 2. Clean state
+echo "Cleaning..."
+./scripts/vault infrastructure clean
+
+# 3. Re-initialize
+echo "Initializing..."
+./scripts/vault infrastructure init
+
+# 4. Restore from backup
+echo "Restoring..."
+tar -xzf vault-backup-prod-*.tar.gz
+
+# 5. Start services
+echo "Starting..."
+./scripts/vault start
+
+# 6. Verify
+echo "Verifying..."
+./scripts/vault status
+./scripts/vault logs | grep -E "error|failed"
+```
+
+### Disk Full Emergency
+
+```bash
+# 1. Free up space immediately
+./scripts/vault infrastructure prune
+rm -rf logs/* 2>/dev/null
+rm -f vault-backup-prod-*.tar.gz  # Keep latest only
+
+# 2. Check free space
+df -h /
+
+# 3. If still full, expand volume or add storage
+# Contact infrastructure team
+```
+
+---
+
+## Maintenance Windows
+
+### Recommended Schedule
+
+- **Daily**: Check logs, verify uptime
+- **Weekly**: Run full health checks, review metrics
+- **Monthly**: Backup verification, update review
+- **Quarterly**: Security audit, dependency updates
+
+### Planned Downtime
+
+If maintenance required:
+
+```bash
+# 1. Announce downtime
+# 2. Backup systems
+tar -czf vault-backup-maintenance-$(date +%Y%m%d).tar.gz .vault logs/
+
+# 3. Perform maintenance
+# 4. Restart services
+./scripts/vault restart
+
+# 5. Verify all systems
+./scripts/vault status
+./scripts/vault logs | head -50
+```
+
+---
+
+## Quick Reference Commands
+
+```bash
+# Status & Health
+./scripts/vault status                    # Check all services
+./scripts/vault logs                      # View all logs
+./scripts/vault logs mcp                  # View MCP logs
+./scripts/vault logs vaulty               # View Vault logs
+
+# Start/Stop
+./scripts/vault start                     # Start services
+./scripts/vault stop                      # Stop services
+./scripts/vault restart                   # Restart services
+
+# Infrastructure
+./scripts/vault infrastructure init       # Initialize
+./scripts/vault infrastructure clean      # Clean
+./scripts/vault infrastructure prune      # Prune
+
+# Utilities
+./scripts/vault utilities sync            # Sync vault data
+./scripts/vault utilities verify          # Verify vault
+
+# Build
+./scripts/vault build                     # Build images
+./scripts/vault rebuild                   # Rebuild (no cache)
+```
+
+---
+
+## Support & Documentation
+
+- **Quick Start**: PHASE4_QUICK_START.md
+- **Deployment Guide**: PHASE4_DEPLOYMENT_GUIDE.md
+- **Production Runbooks**: PRODUCTION_RUNBOOKS.md
+- **Troubleshooting**: See section above
 
 ---
 
 **Last Updated**: December 21, 2025  
-**Phase**: 4 of 4 - Complete ✅
+**Next Review**: January 21, 2026
