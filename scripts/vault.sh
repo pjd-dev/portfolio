@@ -78,6 +78,8 @@ COMMANDS:
     sync-vault      Sync vault to local filesystem
     verify-vault    Verify vault integrity
     tunnel          Start Cloudflared tunnel
+    smoke           Run smoke tests (quick health check)
+    watchdog        Run watchdog (monitor + auto-restart)
     
   General:
     help            Show this help message
@@ -224,6 +226,18 @@ main() {
       ;;
     version)
       show_version
+      ;;
+    
+    # Smoke tests
+    smoke)
+      log_info "Running smoke tests..."
+      bash "$SCRIPT_DIR/smoke.sh" "${@:2}"
+      ;;
+    
+    # Watchdog
+    watchdog)
+      log_info "Running watchdog..."
+      bash "$SCRIPT_DIR/watchdog.sh" "${@:2}"
       ;;
     
     *)
