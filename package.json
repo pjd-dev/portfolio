@@ -44,17 +44,17 @@
     "node": ">=20"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^6.2.0",
-    "@typescript-eslint/parser": "^6.2.0",
-    "@vitest/coverage-v8": "^2.0.0",
-    "eslint": "^8.0.0",
-    "husky": "^8.0.0",
-    "lint-staged": "^14.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "@vitest/coverage-v8": "^2.1.9",
+    "eslint": "^8.57.1",
+    "husky": "^8.0.3",
+    "lint-staged": "^14.0.1",
     "prettier": "^3.7.4",
-    "ts-node": "^10.9.1",
-    "typescript": "^5.4.0",
-    "vite-tsconfig-paths": "^6.0.1",
-    "vitest": "^4.0.15"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3",
+    "vite-tsconfig-paths": "^6.0.3",
+    "vitest": "^4.0.16"
   },
   "husky": {
     "hooks": {

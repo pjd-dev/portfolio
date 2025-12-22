@@ -14,14 +14,14 @@
     "dist"
   ],
   "dependencies": {
-    "dotenv": "^16.4.7",
-    "zod": "^3.23.11"
+    "dotenv": "^16.6.1",
+    "zod": "^3.25.76"
   },
   "scripts": {
     "build": "tsc",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "typescript": "^5.4.0"
+    "typescript": "^5.9.3"
   }
 }

@@ -26,11 +26,11 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@vault/types": "workspace:*",
-    "@vault/errors": "workspace:*"
+    "@vault/errors": "workspace:*",
+    "@vault/types": "workspace:*"
   },
   "devDependencies": {
-    "typescript": "^5.3.3",
-    "vitest": "^1.1.0"
+    "typescript": "^5.9.3",
+    "vitest": "^1.6.1"
   }
 }
