@@ -1,3 +1,4 @@
+import { describe, it, expect, afterAll } from 'vitest';
 import {
   resolveNotePath,
   readNote,
