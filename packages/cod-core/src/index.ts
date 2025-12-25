@@ -1,10 +1,10 @@
 /**
  * @vault/cod
  *
- * COD (Canonical Operation Description) validator framework
+ * COD (Cognitive Organizer & Operator) core library.
  *
- * Pure, deterministic validation for tasks and sessions.
- * No I/O, no external dependencies, no side effects.
+ * Deterministic validation for tasks/sessions plus shared effort/cost helpers.
+ * Pure utilities only: no I/O, no external dependencies, no side effects.
  * Designed for reuse in MCP adapters and tests.
  *
  * Spec: Projects/COD/05-Validation-Spec.md
@@ -12,3 +12,8 @@
 
 export { CODValidator } from './validator/core.js';
 export * from './validator/types.js';
+export {
+  EFFORT_UNIT_MIN,
+  computeTaskEffortScore,
+  computeTaskCostMin,
+} from './runtime.js';
