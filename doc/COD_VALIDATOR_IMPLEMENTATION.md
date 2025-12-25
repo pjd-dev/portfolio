@@ -11,9 +11,9 @@ author: Agent
 
 ## What Was Built
 
-### `@vault/cod-core` Package
+### `@vault/cod` Package
 
-Pure, deterministic validation library for COD (Canonical Operation Description).
+Pure, deterministic validation library for COD (Cognitive Organizer & Operator).
 
 **Location:** `packages/cod-core/`
 
@@ -188,7 +188,7 @@ This implementation unblocks:
 1. **task-1765552458913** - MCP gate obsidian_plan_session with COD validation
 2. **task-1765552406193** - MCP gate obsidian_task_next_actions with COD validation
 
-Both can now import `@vault/cod-core` and use CODValidator.
+Both can now import `@vault/cod` and use CODValidator.
 
 ## Enforcement Points (Not Yet Wired)
 
@@ -218,7 +218,7 @@ Both can now import `@vault/cod-core` and use CODValidator.
 ✅ Reusable API  
 ✅ Comprehensive tests
 
-**Reference:** Projects/COD/05-Validation-Spec.md
+**Reference:** doc/COD_VALIDATION_SPEC.md
 
 ## Known Constraints
 

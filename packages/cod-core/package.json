@@ -1,7 +1,7 @@
 {
   "name": "@vault/cod",
   "version": "1.0.0",
-  "description": "COD (Canonical Operation Description) validator core library for deterministic task validation",
+  "description": "COD (Cognitive Organizer & Operator) core library for deterministic task validation",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

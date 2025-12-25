@@ -7,7 +7,7 @@
  * - Same input → same output (determinism)
  * - Reusable by MCP adapters and tests
  *
- * Canonical Reference: Projects/COD/05-Validation-Spec.md
+ * Canonical Reference: doc/COD_VALIDATION_SPEC.md
  */
 
 import {

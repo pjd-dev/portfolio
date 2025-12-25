@@ -7,7 +7,7 @@
  * Pure utilities only: no I/O, no external dependencies, no side effects.
  * Designed for reuse in MCP adapters and tests.
  *
- * Spec: Projects/COD/05-Validation-Spec.md
+ * Spec: doc/COD_VALIDATION_SPEC.md
  */
 
 export { CODValidator } from './validator/core.js';

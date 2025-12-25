@@ -4,7 +4,7 @@
  * Test suite for deterministic validation rules.
  * Every rule must have explicit test coverage.
  *
- * Canonical Reference: Projects/COD/05-Validation-Spec.md
+ * Canonical Reference: doc/COD_VALIDATION_SPEC.md
  */
 
 import { describe, it, expect } from 'vitest';

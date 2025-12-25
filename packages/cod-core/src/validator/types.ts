@@ -4,7 +4,7 @@
  * Domain model for deterministic validation.
  * All types are pure data structures (no methods, no side effects).
  *
- * Canonical Reference: Projects/COD/05-Validation-Spec.md
+ * Canonical Reference: doc/COD_VALIDATION_SPEC.md
  */
 
 /** Validation verdict state (spec-mandated three states) */

@@ -17,7 +17,7 @@ author: Agent
 
 ### Integration
 
-- Added import: `import { CODValidator, type TaskState } from '@vault/cod-core';`
+- Added import: `import { CODValidator, type TaskState } from '@vault/cod';`
 - Calls CODValidator before planning session
 - Validates session parameters and selected tasks
 

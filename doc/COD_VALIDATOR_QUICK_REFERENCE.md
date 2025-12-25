@@ -1,5 +1,7 @@
 # COD Validator - Quick Reference Guide
 
+COD = **Cognitive Organizer & Operator**.
+
 ## Installation
 
 ```bash
@@ -389,7 +391,7 @@ Suggestion: Add blocker IDs or change status
 
 - **Core Validator:** `@vault/cod/validator/core.ts`
 - **Type Definitions:** `@vault/cod/validator/types.ts`
-- **Validation Spec:** `doc/Projects/COD/05-Validation-Spec.md`
+- **Validation Spec:** `doc/COD_VALIDATION_SPEC.md`
 - **Integration Tests:** `packages/cod-core/src/__tests__/integration.test.ts`
 - **Live Test Results:** `doc/COD_VALIDATOR_LIVE_TEST_RESULTS.md`
 
