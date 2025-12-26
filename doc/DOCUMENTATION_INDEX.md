@@ -80,6 +80,7 @@ A comprehensive guide to all documentation files in the vault-platform-full proj
 | [PIPELINE_IMPLEMENTATION_SUMMARY.md](PIPELINE_IMPLEMENTATION_SUMMARY.md)     | Pipeline implementation summary    |
 | [OPERATION_JOURNAL.md](OPERATION_JOURNAL.md)                                 | Journal system architecture        |
 | [STRUCTURE_SCHEMA_VALIDATION.md](STRUCTURE_SCHEMA_VALIDATION.md)             | Schema validation system           |
+| [RECURRING_TEMPLATES.md](RECURRING_TEMPLATES.md)                             | Recurring template schema & usage  |
 | [TEMPLATE_DISCOVERY_API.md](TEMPLATE_DISCOVERY_API.md)                       | Template discovery API             |
 | [TEMPLATE_DISCOVERY_IMPLEMENTATION.md](TEMPLATE_DISCOVERY_IMPLEMENTATION.md) | Template discovery implementation  |
 | [TEMPLATE_DISCOVERY_QUICK_REF.md](TEMPLATE_DISCOVERY_QUICK_REF.md)           | Template discovery quick reference |
