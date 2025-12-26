@@ -8,9 +8,22 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
 fi
 
 automation_state_resolve_path() {
-  local root="${AUTOMATION_STATE_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
-  local path="${AUTOMATION_STATE_PATH:-$root/dump/_automation-state.json}"
-  echo "$path"
+  local root
+  local shared_mount
+
+  if [[ -n "${AUTOMATION_STATE_PATH:-}" ]]; then
+    echo "$AUTOMATION_STATE_PATH"
+    return
+  fi
+
+  shared_mount="${SHARED_MOUNT:-}"
+  if [[ -n "$shared_mount" ]]; then
+    echo "${shared_mount%/}/_automation-state.json"
+    return
+  fi
+
+  root="${AUTOMATION_STATE_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
+  echo "$root/dump/_automation-state.json"
 }
 
 automation_state_update() {
