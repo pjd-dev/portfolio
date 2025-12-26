@@ -58,6 +58,7 @@ logs/
 *.log
 *.log.*
 *.tmp
+dump/
 tmp/
 temp/
 

@@ -9,6 +9,10 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
+if [[ -f "$ROOT_DIR/scripts/automation_state.sh" ]]; then
+  # shellcheck source=/dev/null
+  source "$ROOT_DIR/scripts/automation_state.sh"
+fi
 
 # Colors
 RED='\033[0;31m'
@@ -159,6 +163,22 @@ main() {
   echo "═══════════════════════════════════════════════════════"
   echo -e " Results: ${GREEN}$PASSED passed${NC}, ${RED}$FAILED failed${NC}"
   echo "═══════════════════════════════════════════════════════"
+
+  if type automation_state_update >/dev/null 2>&1; then
+    local status
+    local now
+    if [[ "$FAILED" -eq 0 ]]; then
+      status="pass"
+    elif [[ "$PASSED" -gt 0 ]]; then
+      status="partial"
+    else
+      status="fail"
+    fi
+    now=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+    payload=$(printf '{"status":"%s","last_run":"%s","passed":%s,"failed":%s}' \
+      "$status" "$now" "$PASSED" "$FAILED")
+    automation_state_update "smoke" "$payload"
+  fi
   
   [[ $FAILED -eq 0 ]] && exit 0 || exit 1
 }

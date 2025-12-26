@@ -8,6 +8,11 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(dirname "$SCRIPT_DIR")"
+if [[ -f "$ROOT_DIR/scripts/automation_state.sh" ]]; then
+  # shellcheck source=/dev/null
+  source "$ROOT_DIR/scripts/automation_state.sh"
+fi
 
 # ─────────────────────────────────────────────────────────────
 # Configuration
@@ -18,6 +23,8 @@ MAX_FAILURES="${WATCHDOG_MAX_FAILURES:-3}"
 CHECK_INTERVAL="${WATCHDOG_INTERVAL:-30}"
 STATE_FILE="${WATCHDOG_STATE:-/tmp/mcp-watchdog.state}"
 LOG_FILE="${WATCHDOG_LOG:-/tmp/mcp-watchdog.log}"
+WATCHDOG_HTTP_CODE="0"
+WATCHDOG_ERROR=""
 
 # Colors
 RED='\033[0;31m'
@@ -69,8 +76,11 @@ check_mcp_health() {
   
   # Quick connectivity check
   http_code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 5 --connect-timeout 2 "$MCP_URL" 2>/dev/null || echo "000")
+  WATCHDOG_HTTP_CODE="$http_code"
+  WATCHDOG_ERROR=""
   
   if [[ "$http_code" == "000" ]]; then
+    WATCHDOG_ERROR="connection_failed"
     log DEBUG "MCP not reachable (connection failed)"
     return 1
   fi
@@ -86,6 +96,7 @@ check_mcp_health() {
   if echo "$response" | grep -q '"tools"'; then
     return 0
   else
+    WATCHDOG_ERROR="tools_list_failed"
     log DEBUG "MCP responded but tools/list failed"
     return 1
   fi
@@ -125,6 +136,10 @@ restart_mcp() {
 # ─────────────────────────────────────────────────────────────
 run_check() {
   local failures
+  local status
+  local now
+  local error_json
+  local http_code
   failures=$(get_failure_count)
   
   if check_mcp_health; then
@@ -132,11 +147,28 @@ run_check() {
       log INFO "MCP recovered after $failures failure(s)"
     fi
     reset_failure_count
+    failures=0
+    status="healthy"
+    if type automation_state_update >/dev/null 2>&1; then
+      now=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+      http_code="${WATCHDOG_HTTP_CODE:-0}"
+      if [[ "$http_code" == "000" ]]; then
+        http_code="0"
+      fi
+      error_json="null"
+      if [[ -n "${WATCHDOG_ERROR:-}" ]]; then
+        error_json="\"${WATCHDOG_ERROR}\""
+      fi
+      payload=$(printf '{"status":"%s","last_check":"%s","http_code":%s,"error":%s,"consecutive_failures":%s}' \
+        "$status" "$now" "$http_code" "$error_json" "$failures")
+      automation_state_update "mcp" "$payload"
+    fi
     return 0
   else
     failures=$((failures + 1))
     set_failure_count "$failures"
     log WARN "MCP health check failed ($failures/$MAX_FAILURES)"
+    status="unhealthy"
     
     if [[ "$failures" -ge "$MAX_FAILURES" ]]; then
       log ERROR "Max failures reached ($MAX_FAILURES), triggering restart"
@@ -146,6 +178,20 @@ run_check() {
         sleep 10
         if check_mcp_health; then
           log INFO "MCP restart successful"
+          if type automation_state_update >/dev/null 2>&1; then
+            now=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+            http_code="${WATCHDOG_HTTP_CODE:-0}"
+            if [[ "$http_code" == "000" ]]; then
+              http_code="0"
+            fi
+            error_json="null"
+            if [[ -n "${WATCHDOG_ERROR:-}" ]]; then
+              error_json="\"${WATCHDOG_ERROR}\""
+            fi
+            payload=$(printf '{"status":"%s","last_check":"%s","http_code":%s,"error":%s,"consecutive_failures":%s}' \
+              "healthy" "$now" "$http_code" "$error_json" "0")
+            automation_state_update "mcp" "$payload"
+          fi
           return 0
         else
           log ERROR "MCP still unhealthy after restart"
@@ -154,6 +200,20 @@ run_check() {
       else
         return 1
       fi
+    fi
+    if type automation_state_update >/dev/null 2>&1; then
+      now=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+      http_code="${WATCHDOG_HTTP_CODE:-0}"
+      if [[ "$http_code" == "000" ]]; then
+        http_code="0"
+      fi
+      error_json="null"
+      if [[ -n "${WATCHDOG_ERROR:-}" ]]; then
+        error_json="\"${WATCHDOG_ERROR}\""
+      fi
+      payload=$(printf '{"status":"%s","last_check":"%s","http_code":%s,"error":%s,"consecutive_failures":%s}' \
+        "$status" "$now" "$http_code" "$error_json" "$failures")
+      automation_state_update "mcp" "$payload"
     fi
     return 1
   fi
