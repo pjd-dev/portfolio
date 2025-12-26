@@ -58,15 +58,19 @@ For `VAULT_PATH`:
 
 ### MCP App (apps/mcp/)
 
-| Variable         | Default      | Required | Type    | Description                           |
-| ---------------- | ------------ | -------- | ------- | ------------------------------------- |
-| `MCP_PORT`       | `3001`       | No       | number  | MCP server port                       |
-| `MCP_HOST`       | `0.0.0.0`    | No       | string  | Bind address                          |
-| `VAULT_ROOT`     | `/vault`     | Yes      | path    | Obsidian vault directory              |
-| `POD_NAME`       | `vaulty-pod` | No       | string  | Container pod name for MCP connection |
-| `MAX_WORKERS`    | `4`          | No       | number  | Thread pool size                      |
-| `CACHE_TTL`      | `3600`       | No       | number  | Cache expiration in seconds           |
-| `ENABLE_TRACING` | `false`      | No       | boolean | Enable OpenTelemetry tracing          |
+| Variable                                   | Default      | Required | Type    | Description                           |
+| ------------------------------------------ | ------------ | -------- | ------- | ------------------------------------- |
+| `MCP_PORT`                                 | `3001`       | No       | number  | MCP server port                       |
+| `MCP_HOST`                                 | `0.0.0.0`    | No       | string  | Bind address                          |
+| `VAULT_ROOT`                               | `/vault`     | Yes      | path    | Obsidian vault directory              |
+| `POD_NAME`                                 | `vaulty-pod` | No       | string  | Container pod name for MCP connection |
+| `MAX_WORKERS`                              | `4`          | No       | number  | Thread pool size                      |
+| `CACHE_TTL`                                | `3600`       | No       | number  | Cache expiration in seconds           |
+| `PIPELINE_SCHEDULER_ENABLED`               | `false`      | No       | boolean | Enable scheduled pipeline runs        |
+| `PIPELINE_SCHEDULER_INTERVAL_MS`           | `60000`      | No       | number  | Pipeline scheduler interval (ms)      |
+| `RECURRING_TEMPLATE_SCHEDULER_ENABLED`     | `false`      | No       | boolean | Enable recurring template scheduler   |
+| `RECURRING_TEMPLATE_SCHEDULER_INTERVAL_MS` | `60000`      | No       | number  | Recurring template interval (ms)      |
+| `ENABLE_TRACING`                           | `false`      | No       | boolean | Enable OpenTelemetry tracing          |
 
 **Notes**:
 
