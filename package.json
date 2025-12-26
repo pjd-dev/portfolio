@@ -36,7 +36,7 @@
     "test": "vitest run",
     "test:watch": "vitest --watch",
     "test:ci": "vitest run --runInBand --coverage",
-    "test:all": "pnpm test && pnpm -w -r run test --if-present",
+    "test:all": "pnpm -w -r --if-present run test",
     "test:coverage": "vitest run --coverage"
   },
   "prepare": "husky install",
