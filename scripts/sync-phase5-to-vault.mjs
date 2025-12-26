@@ -53,6 +53,11 @@ async function syncTasksToVault() {
   console.log('🔄 Syncing Phase 5 Tasks to Vault via Vaulty MCP...\n');
 
   const tasksDir = './tasks';
+  if (!fs.existsSync(tasksDir)) {
+    console.log('⚠️  No ./tasks directory found; nothing to sync.');
+    return;
+  }
+
   const phase5Files = fs
     .readdirSync(tasksDir)
     .filter((f) => f.startsWith('phase5-') && f.endsWith('.md'));
@@ -65,14 +70,15 @@ async function syncTasksToVault() {
   for (const file of phase5Files) {
     const filePath = path.join(tasksDir, file);
     const content = fs.readFileSync(filePath, 'utf-8');
+    const base64 = Buffer.from(content, 'utf-8').toString('base64');
     const vaultPath = `tasks/${file}`;
 
     console.log(`📝 Creating: ${file}`);
 
     try {
-      const result = await callMcpTool('obsidian_create_note', {
+      const result = await callMcpTool('obsidian_write_note', {
         path: vaultPath,
-        content: content,
+        base64,
       });
 
       if (result.result?.content) {
@@ -106,7 +112,7 @@ async function syncTasksToVault() {
     console.log('🎉 All Phase 5 tasks synced to vault successfully!');
     console.log('\n📍 Tasks are now discoverable via:');
     console.log('   • obsidian_task_graph (see all tasks with phase5 tag)');
-    console.log('   • obsidian_next_actions (filter by phase5)');
+    console.log('   • obsidian_task_next_actions (filter by phase5)');
     console.log('   • obsidian_plan_session (include in session planning)');
   } else {
     console.log(

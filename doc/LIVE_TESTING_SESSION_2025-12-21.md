@@ -144,7 +144,7 @@ Total tasks: 53
 
 ### 3.1 Next Actions with Validation (EP2)
 
-**Tool:** `obsidian_next_actions`
+**Tool:** `obsidian_task_next_actions`
 
 **Status:** ✅ PASS
 

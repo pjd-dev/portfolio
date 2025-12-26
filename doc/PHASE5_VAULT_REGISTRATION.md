@@ -10,57 +10,57 @@ All Phase 5 tasks have been created as markdown files in the vault system with p
 
 ### 📋 Main Planning Epic
 
-**File:** `tasks/phase5-planning.md`
+**File:** `tasks/phase5-planning-epic.md`
 
-- **ID:** phase5-main-planning
-- **Status:** planning
-- **Effort:** 40 points
-- **Type:** epic
+- **ID:** task-1766355964739-tasks-phase5-phase5-planning-epic-md
+- **Status:** todo
+- **Effort:** effortScore=8 (estimatedTimeMin=480)
+- **Type:** task (epic)
 - **Priority:** high
 
 ### Task 1: Enhanced Reporting & Export
 
-**File:** `tasks/phase5-reporting.md`
+**File:** `tasks/phase5-1-reporting.md`
 
-- **ID:** phase5-reporting
-- **Status:** not-started
-- **Effort:** 10 points
-- **Type:** feature
+- **ID:** task-1766355964746-tasks-phase5-phase5-1-reporting-md
+- **Status:** todo
+- **Effort:** effortScore=5 (estimatedTimeMin=120)
+- **Type:** task
 - **Priority:** high
-- **Depends On:** phase5-main-planning
+- **Depends On:** task-1766355964739-tasks-phase5-phase5-planning-epic-md
 
 ### Task 2: Automation Framework
 
-**File:** `tasks/phase5-automation.md`
+**File:** `tasks/phase5-2-automation.md`
 
-- **ID:** phase5-automation
-- **Status:** not-started
-- **Effort:** 12 points
-- **Type:** feature
+- **ID:** task-1766355964759-tasks-phase5-phase5-2-automation-md
+- **Status:** todo
+- **Effort:** effortScore=6 (estimatedTimeMin=150)
+- **Type:** task
 - **Priority:** high
-- **Depends On:** phase5-main-planning
+- **Depends On:** task-1766355964739-tasks-phase5-phase5-planning-epic-md
 
 ### Task 3: Collaboration Features
 
-**File:** `tasks/phase5-collaboration.md`
+**File:** `tasks/phase5-3-collaboration.md`
 
-- **ID:** phase5-collaboration
-- **Status:** not-started
-- **Effort:** 10 points
-- **Type:** feature
+- **ID:** task-1766355964763-tasks-phase5-phase5-3-collaboration-md
+- **Status:** todo
+- **Effort:** effortScore=5 (estimatedTimeMin=120)
+- **Type:** task
 - **Priority:** medium
-- **Depends On:** phase5-main-planning
+- **Depends On:** task-1766355964739-tasks-phase5-phase5-planning-epic-md
 
 ### Task 4: Performance Optimization
 
-**File:** `tasks/phase5-performance.md`
+**File:** `tasks/phase5-4-performance.md`
 
-- **ID:** phase5-performance
-- **Status:** not-started
-- **Effort:** 8 points
-- **Type:** feature
+- **ID:** task-1766355964770-tasks-phase5-phase5-4-performance-md
+- **Status:** todo
+- **Effort:** effortScore=4 (estimatedTimeMin=100)
+- **Type:** task
 - **Priority:** medium
-- **Depends On:** phase5-main-planning
+- **Depends On:** task-1766355964739-tasks-phase5-phase5-planning-epic-md
 
 ---
 
@@ -74,8 +74,8 @@ Phase 5 Main Epic (40pt)
 └── Phase 5.4: Performance Optimization (8pt)
 ```
 
-**Total Effort:** 40 points
-**All Tasks:** In vault at `/tasks/phase5-*.md`
+**Total Effort:** effortScore=28 (estimatedTimeMin=970)
+**All Tasks:** In vault at `/tasks/phase5-*.md` (current naming)
 
 ---
 
@@ -84,7 +84,7 @@ Phase 5 Main Epic (40pt)
 These tasks are now discoverable by:
 
 1. **Task Graph Tool** - Run `obsidian_task_graph` and filter for `phase5` tag
-2. **Next Actions** - Run `obsidian_next_actions` to see available tasks
+2. **Next Actions** - Run `obsidian_task_next_actions` to see available tasks
 3. **Session Planning** - Tasks available for `obsidian_plan_session` operations
 4. **Direct File Access** - Located in `/tasks/` folder
 
@@ -96,18 +96,19 @@ Each task file includes YAML frontmatter:
 
 ```yaml
 ---
-id: phase5-{taskname}
+id: task-{timestamp}-{path}
 title: 'Phase 5.{n}: {description}'
-status: not-started
-type: feature
+status: todo
+type: task
 priority: high/medium
-estimatedEffort: { points }
+effortScore: { 1-10 }
+estimatedTimeMin: { minutes }
 tags:
   - phase5
   - { feature-category }
 created: 2025-12-21
 dependsOn:
-  - phase5-main-planning
+  - task-1766355964739-tasks-phase5-phase5-planning-epic-md
 ---
 ```
 
@@ -133,11 +134,11 @@ This enables:
 2. **Plan Phase 5.1 Session:**
 
    ```bash
-   # Use obsidian_plan_session with phase5-reporting task
+   # Use obsidian_plan_session with phase5-1-reporting task
    ```
 
 3. **Track Progress:** Update task statuses as work progresses
-   - not-started → in-progress → in-review → done
+   - todo → in-progress → done
 
 4. **Monitor Effort:** Tasks total 40 points across 4 sub-tasks
 
