@@ -22,6 +22,8 @@ scripts/
 │   ├── init.sh            # Initialize volumes and networks
 │   ├── clean.sh           # Clean up resources
 │   └── prune.sh           # Prune unused resources
+├── repro/                 # Reproduction harnesses
+│   └── vaulty-batch-ops.mjs # Batch/glob repro script
 ├── utilities/            # Utility scripts
 │   ├── sync-vault.sh     # Sync vault to local filesystem
 │   ├── verify-vault.sh   # Verify vault integrity
