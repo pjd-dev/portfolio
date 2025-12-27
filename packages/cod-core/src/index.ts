@@ -17,3 +17,5 @@ export {
   computeTaskEffortScore,
   computeTaskCostMin,
 } from './runtime.js';
+
+export * from './goals.js';
