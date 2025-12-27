@@ -312,7 +312,8 @@ export const evaluateHumanStateSnapshot = (
     };
   }
 
-  const ageHours = Math.abs(now.getTime() - parsedTs.getTime()) / 36e5;
+  const rawAgeHours = (now.getTime() - parsedTs.getTime()) / 36e5;
+  const ageHours = Math.max(0, rawAgeHours);
   if (ageHours > maxStaleHours) {
     warnings.push(`HS4 stale snapshot (${ageHours.toFixed(1)}h old)`);
     const snapshot = makeUnknownSnapshot(now);
