@@ -41,8 +41,16 @@ export class CODValidator {
   }
 
   // Instance methods that delegate to static methods for compatibility
-  validateTask = (data: TaskState) => CODValidator.validateTask(data);
-  validateSession = (data: SessionState) => CODValidator.validateSession(data);
+  validateTask = (
+    data: TaskState,
+    context?: {
+      goalsMap?: Record<string, boolean>;
+      tasksMap?: Record<string, boolean>;
+    },
+    options?: ValidatorOptions
+  ) => CODValidator.validateTask(data, context, options);
+  validateSession = (data: SessionState, options?: ValidatorOptions) =>
+    CODValidator.validateSession(data, options);
   validateDependencyGraph = (data: unknown) =>
     CODValidator.validateDependencyGraph(
       data as Record<string, Partial<TaskState>>
