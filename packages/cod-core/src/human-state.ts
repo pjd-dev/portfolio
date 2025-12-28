@@ -1,6 +1,7 @@
 import type { ContextTolerance } from './goals.js';
 
 export type FocusCapacity = 'low' | 'med' | 'high';
+export type WorldBand = 'green' | 'amber' | 'red';
 export type HumanStateSource =
   | 'morning-check'
   | 'moment-check'
@@ -18,6 +19,8 @@ export type HumanStateSnapshot = {
   sleepDebt: number;
   timeAvailableMin: number;
   contextTolerance?: ContextTolerance;
+  healthBand?: WorldBand;
+  runwayBand?: WorldBand;
 };
 
 export type HumanStateEvaluation = {
@@ -50,6 +53,7 @@ const ALLOWED_CONTEXT_TOLERANCE = new Set<ContextTolerance>([
   'med',
   'high',
 ]);
+const ALLOWED_WORLD_BAND = new Set<WorldBand>(['green', 'amber', 'red']);
 
 const clamp = (value: number, min: number, max: number): number =>
   Math.max(min, Math.min(max, value));
@@ -59,6 +63,14 @@ const toDate = (value?: Date | string | number): Date => {
   if (value instanceof Date) return value;
   const parsed = new Date(value);
   return Number.isNaN(parsed.getTime()) ? new Date() : parsed;
+};
+
+const normalizeWorldBand = (value: unknown): WorldBand | undefined => {
+  if (typeof value !== 'string') return undefined;
+  if (ALLOWED_WORLD_BAND.has(value as WorldBand)) {
+    return value as WorldBand;
+  }
+  return undefined;
 };
 
 const makeUnknownSnapshot = (now: Date): HumanStateSnapshot => ({
@@ -275,6 +287,26 @@ export const evaluateHumanStateSnapshot = (
     }
   }
 
+  const healthBandValue = input.healthBand;
+  if (healthBandValue !== undefined && healthBandValue !== null) {
+    if (
+      typeof healthBandValue !== 'string' ||
+      !ALLOWED_WORLD_BAND.has(healthBandValue as WorldBand)
+    ) {
+      enumErrors.push(`healthBand=${String(healthBandValue)}`);
+    }
+  }
+
+  const runwayBandValue = input.runwayBand;
+  if (runwayBandValue !== undefined && runwayBandValue !== null) {
+    if (
+      typeof runwayBandValue !== 'string' ||
+      !ALLOWED_WORLD_BAND.has(runwayBandValue as WorldBand)
+    ) {
+      enumErrors.push(`runwayBand=${String(runwayBandValue)}`);
+    }
+  }
+
   if (missingFields.length > 0 || invalidFields.length > 0) {
     const missing = [...missingFields, ...invalidFields];
     warnings.push(`HS1 missing required fields: ${missing.join(', ')}`);
@@ -339,6 +371,8 @@ export const evaluateHumanStateSnapshot = (
     contextTolerance:
       (contextToleranceValue as ContextTolerance | undefined) ??
       DEFAULT_CONTEXT_TOLERANCE,
+    healthBand: normalizeWorldBand(healthBandValue),
+    runwayBand: normalizeWorldBand(runwayBandValue),
   };
 
   const status: HumanStateEvaluation['status'] = 'ok';

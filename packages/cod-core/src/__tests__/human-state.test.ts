@@ -45,6 +45,21 @@ describe('Human State evaluation', () => {
     expect(res.durationCapMin).toBe(25);
   });
 
+  it('preserves world bands when provided', () => {
+    const res = evaluateHumanStateSnapshot(
+      {
+        ...baseSnapshot,
+        healthBand: 'amber',
+        runwayBand: 'red',
+      },
+      { now: NOW }
+    );
+
+    expect(res.status).toBe('ok');
+    expect(res.snapshot.healthBand).toBe('amber');
+    expect(res.snapshot.runwayBand).toBe('red');
+  });
+
   it('treats stale snapshots as unknown with HS4 warning', () => {
     const res = evaluateHumanStateSnapshot(
       {
