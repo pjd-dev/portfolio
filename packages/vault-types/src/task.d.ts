@@ -46,6 +46,7 @@ export interface Task {
   effortScore?: number;
   focusCost?: number;
   started?: string | null;
+  completedAt?: string | null;
   completed?: string | null;
   estimatedTimeMin?: number;
   actualTimeMin?: number | null;

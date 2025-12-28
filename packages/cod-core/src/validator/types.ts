@@ -61,6 +61,7 @@ export interface TaskState {
   tags?: string[];
   dueDate?: string; // ISO 8601
   scheduledDate?: string; // ISO 8601
+  completedAt?: string; // ISO 8601
 
   // Metadata (passed through without validation)
   [key: string]: unknown;
