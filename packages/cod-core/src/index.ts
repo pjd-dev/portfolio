@@ -19,3 +19,4 @@ export {
 } from './runtime.js';
 
 export * from './goals.js';
+export * from './human-state.js';
