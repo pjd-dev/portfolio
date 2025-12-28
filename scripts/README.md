@@ -22,6 +22,8 @@ scripts/
 │   ├── init.sh            # Initialize volumes and networks
 │   ├── clean.sh           # Clean up resources
 │   └── prune.sh           # Prune unused resources
+├── automation/            # Task automation helpers
+│   └── cod-delegation-runner.mjs # Delegate tasks to GitHub Projects
 ├── repro/                 # Reproduction harnesses
 │   └── vaulty-batch-ops.mjs # Batch/glob repro script
 ├── utilities/            # Utility scripts
@@ -80,6 +82,10 @@ scripts/
 - `scripts/vault init` - Initialize platform (volumes, networks)
 - `scripts/vault clean` - Clean up containers and volumes
 - `scripts/vault prune` - Remove unused Docker resources
+
+### Automation
+
+- `VAULT_PATH=... GITHUB_TOKEN=... GITHUB_PROJECT_ID=... node scripts/automation/cod-delegation-runner.mjs --dry-run`
 
 ### Utilities
 
