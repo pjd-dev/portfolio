@@ -53,6 +53,21 @@ export const fieldMessagesSchema = z.object({
 
 export type FieldMessages = z.infer<typeof fieldMessagesSchema>;
 
+export const formDeliverySchema = z.enum(["mail", "airtable", "mail+airtable"]);
+
+export const formMetaSchema = sectionMetaSchema.extend({
+  delivery: formDeliverySchema.optional(),
+  airtable: z
+    .object({
+      baseId: z.string().optional(),
+      table: z.string().optional(),
+    })
+    .optional(),
+});
+
+export type FormDelivery = z.infer<typeof formDeliverySchema>;
+export type FormMetaSchema = z.infer<typeof formMetaSchema>;
+
 /* ---------- validation rules (value checks) ---------- */
 export const fieldRuleSchema = z.discriminatedUnion("type", [
   z.object({
@@ -170,7 +185,7 @@ export const fieldSchema = z.discriminatedUnion("type", [
 /* ---------- form section schema ---------- */
 export const formSectionSchema = baseSectionSchema.extend({
   kind: z.literal("form"),
-  meta: sectionMetaSchema,
+  meta: formMetaSchema,
   messages: sectionMessagesSchema.optional(),
   title: z.string().optional(),
   description: z.string().optional(),

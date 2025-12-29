@@ -2,11 +2,36 @@ import { NextRequest, NextResponse } from "next/server";
 
 // import { sendContactEmail } from "@/lib/mail";
 import { getSectionById } from "@/lib/dictionary";
+import { sendAirtableRecord } from "@/lib/integrations/airtable";
 import { createFormSchema } from "@/lib/validation/generateSchemaFromDict";
 import type { FormSection } from "@/lib/validation/section";
 import { ZodError } from "zod";
 
 import { sendJsonValuesEmail } from "@/lib/mail/sender";
+
+type DeliveryMode = "mail" | "airtable" | "mail+airtable";
+type DeliveryHandler = "mail" | "airtable";
+type DeliveryResult = { handler: DeliveryHandler; success: boolean; error?: string };
+
+function resolveDeliveryHandlers(mode?: string | null): DeliveryHandler[] {
+  switch (mode) {
+    case "airtable":
+      return ["airtable"];
+    case "mail+airtable":
+      return ["mail", "airtable"];
+    case "mail":
+    default:
+      return ["mail"];
+  }
+}
+
+function createSubmissionId(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
 export async function POST(request: NextRequest) {
   try {
     // Parse request body
@@ -36,23 +61,70 @@ export async function POST(request: NextRequest) {
 
     const validatedData = formSchema.parse(values);
 
-    const emailSubject = `New form submission: ${page.replace(/^\/+/, "") || "Untitled Form"}`;
+    const pageSlug = page.replace(/^\/+/, "") || "Untitled Form";
+    const emailSubject = `New form submission: ${pageSlug}`;
     const emailPreheader = `New submission from : ${sectionId || "Unknown Section"} at ${new Date().toLocaleString()}`;
 
-    const sendResult = await sendJsonValuesEmail(
-      emailSubject,
-      emailPreheader,
-      validatedData,
-    );
+    const deliveryMode = (FormSectionDict.meta?.delivery ??
+      "mail") as DeliveryMode;
+    const handlers = resolveDeliveryHandlers(deliveryMode);
+    const results: DeliveryResult[] = [];
 
-    if (!sendResult.success) {
+    if (handlers.includes("mail")) {
+      const mailResult = await sendJsonValuesEmail(
+        emailSubject,
+        emailPreheader,
+        validatedData,
+      );
+      results.push({ handler: "mail", ...mailResult });
+    }
+
+    if (handlers.includes("airtable")) {
+      const airtableResult = await sendAirtableRecord({
+        baseId: FormSectionDict.meta?.airtable?.baseId,
+        table: FormSectionDict.meta?.airtable?.table,
+        fields: {
+          ...validatedData,
+          sectionId,
+          page: pageSlug,
+          lang,
+          submittedAt: new Date().toISOString(),
+          submissionId: createSubmissionId(),
+        },
+      });
+      results.push({ handler: "airtable", ...airtableResult });
+    }
+
+    const failures = results.filter((result) => !result.success);
+    if (failures.length === results.length) {
       return NextResponse.json(
-        { ok: false, error: sendResult.error || "Failed to send email" },
+        {
+          ok: false,
+          error:
+            failures[0]?.error ||
+            "Form submission failed in all configured handlers",
+        },
         { status: 500 },
       );
     }
 
-    return NextResponse.json({ ok: true }, { status: 200 });
+    if (failures.length > 0) {
+      console.warn("Form submission partially failed", {
+        failures,
+        deliveryMode,
+      });
+    }
+
+    return NextResponse.json(
+      {
+        ok: true,
+        warnings: failures.map((failure) => ({
+          handler: failure.handler,
+          error: failure.error,
+        })),
+      },
+      { status: 200 },
+    );
   } catch (error) {
     // Handle Zod validation errors
     if (error instanceof ZodError) {

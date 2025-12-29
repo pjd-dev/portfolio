@@ -1,6 +1,6 @@
 import { POST } from "@/app/api/form/route";
 import { NextRequest } from "next/server";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { ZodError } from "zod";
 
 import type { FormSection } from "@/lib/validation/section";
@@ -9,17 +9,45 @@ vi.mock("@/lib/dictionary", () => ({
   getSectionById: vi.fn(),
 }));
 
+vi.mock("@/lib/mail/sender", () => ({
+  sendJsonValuesEmail: vi.fn(),
+}));
+
+vi.mock("@/lib/integrations/airtable", () => ({
+  sendAirtableRecord: vi.fn(),
+}));
+
 // Mock the validation module
 vi.mock("@/lib/validation/generateSchemaFromDict", () => ({
   createFormSchema: vi.fn(),
 }));
 
 const { getSectionById } = await import("@/lib/dictionary");
+const { sendJsonValuesEmail } = await import("@/lib/mail/sender");
+const { sendAirtableRecord } = await import("@/lib/integrations/airtable");
 const { createFormSchema } = await import("@/lib/validation/generateSchemaFromDict");
 
 describe("Form API Route", () => {
+  const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+  const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+  const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+  beforeAll(() => {
+    logSpy.mockClear();
+    warnSpy.mockClear();
+    errorSpy.mockClear();
+  });
+
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(sendJsonValuesEmail).mockResolvedValue({ success: true });
+    vi.mocked(sendAirtableRecord).mockResolvedValue({ success: true });
+  });
+
+  afterAll(() => {
+    logSpy.mockRestore();
+    warnSpy.mockRestore();
+    errorSpy.mockRestore();
   });
 
   it("should return 200 for valid form data", async () => {
@@ -76,6 +104,55 @@ describe("Form API Route", () => {
     });
     expect(createFormSchema).toHaveBeenCalledWith(mockFormSection);
     expect(mockSchema.parse).toHaveBeenCalledWith(validData.values);
+    expect(sendJsonValuesEmail).toHaveBeenCalled();
+    expect(sendAirtableRecord).not.toHaveBeenCalled();
+  });
+
+  it("should route to airtable when delivery is airtable", async () => {
+    const mockFormSection = {
+      kind: "form",
+      meta: {
+        delivery: "airtable",
+        airtable: { table: "Quotes" },
+      },
+      fields: [
+        {
+          id: "name",
+          type: "text",
+          label: "Name",
+          width: "full",
+          errors: [{ rule: { type: "required" }, message: "Name is required" }],
+        },
+      ],
+    } as FormSection;
+
+    vi.mocked(getSectionById).mockResolvedValue(mockFormSection);
+    const mockSchema = {
+      parse: vi.fn().mockReturnValue({ name: "Jane Doe" }),
+    };
+    vi.mocked(createFormSchema).mockReturnValue(
+      mockSchema as unknown as ReturnType<typeof createFormSchema>,
+    );
+
+    const validData = {
+      sectionId: "quoteForm",
+      lang: "en",
+      page: "contact",
+      values: { name: "Jane Doe" },
+    };
+
+    const request = new NextRequest("http://localhost:3000/api/form", {
+      method: "POST",
+      body: JSON.stringify(validData),
+    });
+
+    const response = await POST(request);
+    const data = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(data.ok).toBe(true);
+    expect(sendAirtableRecord).toHaveBeenCalled();
+    expect(sendJsonValuesEmail).not.toHaveBeenCalled();
   });
 
   it("should return 400 for missing required fields in request body", async () => {

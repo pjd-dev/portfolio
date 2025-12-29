@@ -13,7 +13,8 @@
           "headers": { "Content-Type": "application/json" }
         },
         "successRedirect": null,
-        "captcha": false
+        "captcha": false,
+        "delivery": "mail"
       },
       "messages": {
         "success": "Message sent successfully!",
