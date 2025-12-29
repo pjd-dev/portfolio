@@ -140,12 +140,14 @@ export function FormRenderer({ config }: FormRendererProps) {
           <FormBody>
             {fields.map((field: FormSectionField) => {
               const key = field.name ?? field.id;
+              const rawValue = values[key];
+              const fieldValue = rawValue === null ? undefined : rawValue;
               return (
                 <FormFieldRenderer
                   key={field.id}
                   config={field}
                   values={values}
-                  value={values[key]}
+                  value={fieldValue}
                   onChange={handleFieldChange(field)}
                   onError={handleFieldError}
                 />

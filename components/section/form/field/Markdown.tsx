@@ -19,7 +19,8 @@ export function MarkdownField({
   const { id, name, label, placeholder, width, messages, rows, defaultValue } = config;
   const [localError, setLocalError] = useState<string | null>(null);
   const controlName = name ?? id;
-  const currentValue = value ?? "";
+  const currentValue =
+    typeof value === "string" ? value : value == null ? "" : String(value);
   const runValidation = useCallback(
     (raw: string) => {
       const errorMessage = validateFieldValueFromConfig(config, raw, values);
@@ -30,7 +31,12 @@ export function MarkdownField({
   );
   useEffect(() => {
     if (value === undefined || value === null) {
-      const raw = defaultValue ?? "";
+      const raw =
+        typeof defaultValue === "string"
+          ? defaultValue
+          : defaultValue == null
+            ? ""
+            : String(defaultValue);
       onChange?.(raw);
       // If you want initial validation, uncomment the next line:
       // runValidation(raw);
@@ -38,14 +44,16 @@ export function MarkdownField({
   }, [defaultValue, value, onChange]);
 
   const handleBlur = useCallback(() => {
-    runValidation(value ?? "");
-  }, [runValidation, value]);
+    runValidation(currentValue);
+  }, [runValidation, currentValue]);
 
-  const handleChange = useCallback(() => {
-    const next = value;
-    onChange?.(next);
-    runValidation(next);
-  }, [value, onChange, runValidation]);
+  const handleChange = useCallback(
+    (next: string) => {
+      onChange?.(next);
+      runValidation(next);
+    },
+    [onChange, runValidation],
+  );
 
   const hasError = !!localError;
 

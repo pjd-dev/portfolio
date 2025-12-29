@@ -27,6 +27,7 @@ export function SelectField({
   } = config;
   const [localError, setLocalError] = useState<string | null>(null);
   const controlName = name ?? id;
+  const currentValue = value == null ? "" : String(value);
 
   const runValidation = useCallback(
     (raw: string) => {
@@ -43,15 +44,16 @@ export function SelectField({
       (value === undefined || value === null) &&
       (defaultValue !== undefined || options.length > 0)
     ) {
-      const raw = defaultValue ?? options[0]?.value ?? "";
+      const rawOption = defaultValue ?? options[0]?.value ?? "";
+      const raw = String(rawOption);
       onChange?.(raw);
       // runValidation(raw as string);
     }
   }, [defaultValue, value, options, onChange]);
 
   const handleBlur = useCallback(() => {
-    runValidation(value ?? "");
-  }, [runValidation, value]);
+    runValidation(currentValue);
+  }, [runValidation, currentValue]);
 
   const handleChange = useCallback(
     (e: ChangeEvent<HTMLSelectElement>) => {
@@ -75,7 +77,7 @@ export function SelectField({
         <Select
           id={id}
           name={controlName}
-          value={value ?? ""}
+          value={currentValue}
           onChange={handleChange}
           onBlur={handleBlur}
           hasError={hasError}

@@ -16,11 +16,17 @@ export function TextField({ value, values, onChange, config, onError }: TextFiel
   const { id, type, name, label, placeholder, width, messages, defaultValue } = config;
   const [localError, setLocalError] = useState<string | null>(null);
   const controlName = name ?? id;
-  const currentValue = value ?? "";
+  const currentValue =
+    typeof value === "string" ? value : value == null ? "" : String(value);
 
   useEffect(() => {
     if (value === undefined || value === null) {
-      const raw = defaultValue ?? "";
+      const raw =
+        typeof defaultValue === "string"
+          ? defaultValue
+          : defaultValue == null
+            ? ""
+            : String(defaultValue);
       onChange?.(raw);
     }
     // runValidation(raw);

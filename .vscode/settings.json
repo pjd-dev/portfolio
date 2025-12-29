@@ -56,7 +56,7 @@
   "editor.scrollbar.verticalScrollbarSize": 6,
   "editor.scrollbar.horizontalScrollbarSize": 6,
 
-  "editor.hover.enabled": false, // less popups, more focus
+  "editor.hover.enabled": "off", // less popups, more focus
   "editor.parameterHints.enabled": false,
   "editor.suggest.snippetsPreventQuickSuggestions": false,
   "editor.inlineSuggest.enabled": true, // ghost text is fine, not intrusive

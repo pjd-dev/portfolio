@@ -18,10 +18,16 @@ export function TextAreaField({
   const { id, name, label, placeholder, width, messages, rows, defaultValue } = config;
   const [localError, setLocalError] = useState<string | null>(null);
   const controlName = name ?? id;
-  const currentValue = value ?? "";
+  const currentValue =
+    typeof value === "string" ? value : value == null ? "" : String(value);
   useEffect(() => {
-    const raw = defaultValue ?? "";
     if (value === undefined || value === null) {
+      const raw =
+        typeof defaultValue === "string"
+          ? defaultValue
+          : defaultValue == null
+            ? ""
+            : String(defaultValue);
       onChange?.(raw);
     }
     // runValidation(raw);
