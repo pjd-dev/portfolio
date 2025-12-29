@@ -17,6 +17,11 @@
     "baseUrl": ".",
     "paths": {
       "@vault/common": ["packages/vault-common/src"],
+      "@vault/common/*": ["packages/vault-common/src/*"],
+      "@vault/mcp-core": ["packages/mcp-core/src"],
+      "@vault/obsidian-tools": ["packages/obsidian/src"],
+      "@vault/cod-tools": ["packages/cod/src"],
+      "@vault/vault-tools": ["packages/vault/src"],
       "@vault/types": ["packages/vault-types/src"],
       "@vault/errors": ["packages/vault-errors/src"]
     }

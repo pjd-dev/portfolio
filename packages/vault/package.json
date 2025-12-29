@@ -1,0 +1,28 @@
+{
+  "name": "@vault/vault-tools",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Vault tool handlers and MCP adapters",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@vault/mcp-core": "workspace:*",
+    "zod": "^4.2.1"
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.3",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.16"
+  }
+}
