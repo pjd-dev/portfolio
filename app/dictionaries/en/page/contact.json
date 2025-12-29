@@ -20,7 +20,9 @@
         "success": "Message sent successfully!",
         "error": "Failed to send message. Please try again.",
         "validation": "Some fields are invalid.",
-        "loading": "Sending..."
+        "loading": "Sending...",
+        "scrollHint": "Scroll to see all the form fields.",
+        "requiredHint": "Fields marked with * are required."
       },
       "fields": [
         {

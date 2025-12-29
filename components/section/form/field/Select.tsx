@@ -8,7 +8,13 @@ export type SelectFieldProps = FormFieldComponentProps & {
   config: SelectFormField;
 };
 
-export function SelectField({ value, onChange, config, onError }: SelectFieldProps) {
+export function SelectField({
+  value,
+  values,
+  onChange,
+  config,
+  onError,
+}: SelectFieldProps) {
   const {
     id,
     name,
@@ -24,11 +30,11 @@ export function SelectField({ value, onChange, config, onError }: SelectFieldPro
 
   const runValidation = useCallback(
     (raw: string) => {
-      const errorMessage = validateFieldValueFromConfig(config, raw);
+      const errorMessage = validateFieldValueFromConfig(config, raw, values);
       setLocalError(errorMessage ?? null);
       onError?.(id, errorMessage ?? null);
     },
-    [config, id, onError],
+    [config, id, onError, values],
   );
 
   useEffect(() => {

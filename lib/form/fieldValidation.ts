@@ -1,3 +1,4 @@
+import { runCustomValidator } from "@/lib/form/customValidators";
 import type {
   FieldRule,
   FormSectionField,
@@ -63,7 +64,6 @@ function checkRule(rule: FieldRule, rawValue: unknown): boolean {
     }
 
     case "custom":
-      // still a no-op here, real implementation should live elsewhere
       return true;
 
     case "email":
@@ -88,12 +88,31 @@ function checkRule(rule: FieldRule, rawValue: unknown): boolean {
 export function validateFieldValueFromConfig(
   config: FormSectionField,
   rawValue: unknown,
+  values?: FormValues,
 ): string | null {
   const rules = config.errors;
   if (!rules || rules.length === 0) return null;
 
+  const key = config.name ?? config.id;
+  const valuesForValidation: FormValues = values ? { ...values } : {};
+  if (rawValue !== undefined) {
+    valuesForValidation[key] = rawValue as PrimitiveValue | null | undefined;
+  }
+
   for (const errorCfg of rules) {
     const ok = checkRule(errorCfg.rule, rawValue);
+    if (errorCfg.rule.type === "custom") {
+      const result = runCustomValidator(errorCfg.rule.functionName, {
+        value: rawValue,
+        values: valuesForValidation,
+        field: config,
+        rule: errorCfg.rule,
+      });
+      if (!result.ok) {
+        return result.message ?? errorCfg.message;
+      }
+      continue;
+    }
     if (!ok) return errorCfg.message;
   }
 

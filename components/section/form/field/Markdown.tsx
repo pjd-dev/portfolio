@@ -9,18 +9,24 @@ export type MarkdownFieldProps = FormFieldComponentProps & {
   config: MarkdownFormField;
 };
 
-export function MarkdownField({ value, onChange, config, onError }: MarkdownFieldProps) {
+export function MarkdownField({
+  value,
+  values,
+  onChange,
+  config,
+  onError,
+}: MarkdownFieldProps) {
   const { id, name, label, placeholder, width, messages, rows, defaultValue } = config;
   const [localError, setLocalError] = useState<string | null>(null);
   const controlName = name ?? id;
   const currentValue = value ?? "";
   const runValidation = useCallback(
     (raw: string) => {
-      const errorMessage = validateFieldValueFromConfig(config, raw);
+      const errorMessage = validateFieldValueFromConfig(config, raw, values);
       setLocalError(errorMessage ?? null);
       onError?.(id, errorMessage ?? null);
     },
-    [config, id, onError],
+    [config, id, onError, values],
   );
   useEffect(() => {
     if (value === undefined || value === null) {

@@ -13,6 +13,12 @@ type DeliveryMode = "mail" | "airtable" | "mail+airtable";
 type DeliveryHandler = "mail" | "airtable";
 type DeliveryResult = { handler: DeliveryHandler; success: boolean; error?: string };
 
+function sanitizePageSlug(page: string): string {
+  const trimmed = page.trim();
+  const withoutQuery = trimmed.split(/[?#]/)[0];
+  return withoutQuery.replace(/^\/+/, "").replace(/\/+$/, "");
+}
+
 function resolveDeliveryHandlers(mode?: string | null): DeliveryHandler[] {
   switch (mode) {
     case "airtable":
@@ -36,7 +42,6 @@ export async function POST(request: NextRequest) {
   try {
     // Parse request body
     const body = await request.json();
-    console.log("Received form data:", body);
     const { sectionId, lang, page, values } = body;
     if (!sectionId || !lang || !page || !values) {
       return NextResponse.json(
@@ -44,9 +49,20 @@ export async function POST(request: NextRequest) {
         { status: 400 },
       );
     }
+
+    const pageSlug = sanitizePageSlug(page);
+    const pageKey = pageSlug || "landing";
+    const pageLabel = pageSlug || "Untitled Form";
+    console.info("Form submission received", {
+      sectionId,
+      lang,
+      page: pageLabel,
+      fieldCount: Object.keys(values ?? {}).length,
+    });
+
     const FormSectionDict = (await getSectionById({
       locale: lang,
-      target: page,
+      target: pageKey,
       sectionId,
     })) as FormSection | null;
 
@@ -61,8 +77,7 @@ export async function POST(request: NextRequest) {
 
     const validatedData = formSchema.parse(values);
 
-    const pageSlug = page.replace(/^\/+/, "") || "Untitled Form";
-    const emailSubject = `New form submission: ${pageSlug}`;
+    const emailSubject = `New form submission: ${pageLabel}`;
     const emailPreheader = `New submission from : ${sectionId || "Unknown Section"} at ${new Date().toLocaleString()}`;
 
     const deliveryMode = (FormSectionDict.meta?.delivery ??
@@ -86,7 +101,7 @@ export async function POST(request: NextRequest) {
         fields: {
           ...validatedData,
           sectionId,
-          page: pageSlug,
+          page: pageKey,
           lang,
           submittedAt: new Date().toISOString(),
           submissionId: createSubmissionId(),

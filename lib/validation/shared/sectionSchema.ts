@@ -21,6 +21,8 @@ export const sectionMessagesSchema = z
     empty: z.string().optional(), // optional, for list or text sections
     info: z.string().optional(), // optional, for hints
     submit: z.string().optional(), // e.g. "Submit"
+    scrollHint: z.string().optional(), // e.g. "Scroll to see all fields."
+    requiredHint: z.string().optional(), // e.g. "Fields marked * are required."
   })
   .default({});
 

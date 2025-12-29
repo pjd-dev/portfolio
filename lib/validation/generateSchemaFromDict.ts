@@ -1,4 +1,6 @@
 // lib/validation/generateSchemaFromDict.ts
+import { runCustomValidator } from "@/lib/form/customValidators";
+import { shouldShowFieldByConfig, type FormValues } from "@/lib/form/formShowWhen";
 import type {
   FormSection,
   FormSectionField,
@@ -22,7 +24,37 @@ export function generateSchemaFromDict(dict: FormSection) {
     shape[key] = buildFieldSchema(field);
   }
 
-  return z.object(shape);
+  const baseSchema = z.object(shape);
+
+  return baseSchema.superRefine((values, ctx) => {
+    const formValues = values as FormValues;
+
+    for (const field of dict.fields) {
+      const key = field.name ?? field.id;
+      const errors = field.errors ?? [];
+      if (errors.length === 0) continue;
+      if (!shouldShowFieldByConfig(field, formValues)) continue;
+
+      for (const errorCfg of errors) {
+        if (errorCfg.rule.type !== "custom") continue;
+
+        const result = runCustomValidator(errorCfg.rule.functionName, {
+          value: formValues[key],
+          values: formValues,
+          field,
+          rule: errorCfg.rule,
+        });
+
+        if (!result.ok) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: result.message ?? errorCfg.message,
+            path: [key],
+          });
+        }
+      }
+    }
+  });
 }
 
 /**

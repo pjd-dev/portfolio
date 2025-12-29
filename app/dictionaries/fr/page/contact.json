@@ -23,7 +23,9 @@
         "error": "Échec de l'envoi du message. Veuillez réessayer.",
         "validation": "Certains champs sont invalides.",
         "loading": "Envoi en cours...",
-        "submit": "Envoyer le message"
+        "submit": "Envoyer le message",
+        "scrollHint": "Faites défiler pour voir tous les champs du formulaire.",
+        "requiredHint": "Tous les champs marqués d’un * sont obligatoires."
       },
       "fields": [
         {

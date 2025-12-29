@@ -18,6 +18,9 @@ export function FormRenderer({ config }: FormRendererProps) {
   const [values, setValues] = useState<FormValues>({});
   const [errors, setErrors] = useState<Record<string, string | null>>({});
   const [status, setStatus] = useState<FormState>("idle");
+  const scrollHint = messages?.scrollHint ?? null;
+  const requiredHint = messages?.requiredHint ?? null;
+  const submitLabel = config.submit ?? messages?.submit ?? "Submit";
 
   const handleFieldChange = useCallback(
     (field: FormSectionField) => (next: FormValues[keyof FormValues] | undefined) => {
@@ -61,7 +64,7 @@ export function FormRenderer({ config }: FormRendererProps) {
     const hasError = (fields ?? []).some((field) => {
       if (!shouldShowFieldByConfig(field, values)) return false;
       const key = field.name ?? field.id;
-      const msg = validateFieldValueFromConfig(field, values[key]);
+      const msg = validateFieldValueFromConfig(field, values[key], values);
       setErrors((prev) => ({
         ...prev,
         [key]: msg,
@@ -152,9 +155,11 @@ export function FormRenderer({ config }: FormRendererProps) {
 
           <FormFooter.Root>
             <FormFooter.Top>
-              <FormFooter.ScrollHint visible={canScroll && !reachedEnd}>
-                Faites défiler pour voir tous les champs du formulaire.
-              </FormFooter.ScrollHint>
+              {scrollHint && (
+                <FormFooter.ScrollHint visible={canScroll && !reachedEnd}>
+                  {scrollHint}
+                </FormFooter.ScrollHint>
+              )}
               <FormFooter.Status
                 visible={status !== "idle" && !!statusMessage}
                 tone={status}
@@ -164,15 +169,13 @@ export function FormRenderer({ config }: FormRendererProps) {
             </FormFooter.Top>
 
             <FormFooter.Base>
-              <FormFooter.BaseHint>
-                Tous les champs marqués d’un * sont obligatoires.
-              </FormFooter.BaseHint>
+              {requiredHint && <FormFooter.BaseHint>{requiredHint}</FormFooter.BaseHint>}
 
               <FormFooter.Submit
                 submitting={status === "submitting"}
                 disabled={!isFormValid || status === "submitting"}
               >
-                Envoyer le message
+                {submitLabel}
               </FormFooter.Submit>
             </FormFooter.Base>
           </FormFooter.Root>

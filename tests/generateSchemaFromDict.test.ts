@@ -1,10 +1,18 @@
+import {
+  clearCustomValidators,
+  registerCustomValidator,
+} from "@/lib/form/customValidators";
 import { generateSchemaFromDict } from "@/lib/validation/generateSchemaFromDict";
 import type { FormSection } from "@/lib/validation/section";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 
 import { z } from "zod";
 
 describe("generateSchemaFromDict", () => {
+  afterEach(() => {
+    clearCustomValidators();
+  });
+
   it("should throw error for invalid FormSection missing fields", () => {
     const invalidDict = {} as FormSection;
     expect(() => generateSchemaFromDict(invalidDict)).toThrow(
@@ -190,7 +198,7 @@ describe("generateSchemaFromDict", () => {
     expect(schema.parse({})).toEqual({ conditionalField: undefined });
   });
 
-  it("should ignore custom rules", () => {
+  it("should enforce custom rules when registered", () => {
     const dict: FormSection = {
       kind: "form",
       meta: {},
@@ -210,10 +218,12 @@ describe("generateSchemaFromDict", () => {
         },
       ],
     };
+    registerCustomValidator("someFunc", ({ value }) => value === "allowed");
     const schema = generateSchemaFromDict(dict);
-    // Custom rules are not enforced, so schema should be optional string
-    expect(schema.parse({})).toEqual({ customField: undefined });
-    expect(schema.parse({ customField: "value" })).toEqual({ customField: "value" });
+    expect(schema.parse({ customField: "allowed" })).toEqual({
+      customField: "allowed",
+    });
+    expect(() => schema.parse({ customField: "blocked" })).toThrow(z.ZodError);
   });
 
   it("should handle pattern rule for string fields", () => {

@@ -29,11 +29,13 @@ const { createFormSchema } = await import("@/lib/validation/generateSchemaFromDi
 
 describe("Form API Route", () => {
   const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+  const infoSpy = vi.spyOn(console, "info").mockImplementation(() => {});
   const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
   const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
   beforeAll(() => {
     logSpy.mockClear();
+    infoSpy.mockClear();
     warnSpy.mockClear();
     errorSpy.mockClear();
   });
@@ -46,6 +48,7 @@ describe("Form API Route", () => {
 
   afterAll(() => {
     logSpy.mockRestore();
+    infoSpy.mockRestore();
     warnSpy.mockRestore();
     errorSpy.mockRestore();
   });

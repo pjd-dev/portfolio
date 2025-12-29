@@ -33,6 +33,7 @@ export function FormFieldRenderer({
         <TextAreaField
           config={config}
           value={value}
+          values={values}
           onChange={onChange}
           onError={onError}
         />
@@ -43,6 +44,7 @@ export function FormFieldRenderer({
         <MarkdownField
           config={config}
           value={value}
+          values={values}
           onChange={onChange}
           onError={onError}
         />
@@ -53,6 +55,7 @@ export function FormFieldRenderer({
         <SelectField
           config={config}
           value={value}
+          values={values}
           onChange={onChange}
           onError={onError}
         />
@@ -63,6 +66,7 @@ export function FormFieldRenderer({
         <CheckboxField
           config={config}
           value={value}
+          values={values}
           onChange={onChange}
           onError={onError}
         />
@@ -73,6 +77,7 @@ export function FormFieldRenderer({
         <NumberField
           config={config}
           value={value}
+          values={values}
           onChange={onChange}
           onError={onError}
         />
@@ -83,7 +88,13 @@ export function FormFieldRenderer({
     case "url":
     default:
       return (
-        <TextField config={config} value={value} onChange={onChange} onError={onError} />
+        <TextField
+          config={config}
+          value={value}
+          values={values}
+          onChange={onChange}
+          onError={onError}
+        />
       );
   }
 }

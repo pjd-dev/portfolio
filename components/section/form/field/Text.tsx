@@ -12,7 +12,7 @@ export type TextFieldProps = FormFieldComponentProps & {
   config: TextFormField | EmailFormField | UrlFormField;
 };
 
-export function TextField({ value, onChange, config, onError }: TextFieldProps) {
+export function TextField({ value, values, onChange, config, onError }: TextFieldProps) {
   const { id, type, name, label, placeholder, width, messages, defaultValue } = config;
   const [localError, setLocalError] = useState<string | null>(null);
   const controlName = name ?? id;
@@ -27,11 +27,11 @@ export function TextField({ value, onChange, config, onError }: TextFieldProps) 
   }, [defaultValue, value, onChange]);
   const runValidation = useCallback(
     (raw: string) => {
-      const errorMessage = validateFieldValueFromConfig(config, raw);
+      const errorMessage = validateFieldValueFromConfig(config, raw, values);
       setLocalError(errorMessage ?? null);
       onError?.(id, errorMessage ?? null);
     },
-    [config, id, onError],
+    [config, id, onError, values],
   );
 
   const handleBlur = useCallback(() => {

@@ -8,7 +8,13 @@ export type TextAreaFieldProps = FormFieldComponentProps & {
   config: TextAreaFormField;
 };
 
-export function TextAreaField({ value, onChange, config, onError }: TextAreaFieldProps) {
+export function TextAreaField({
+  value,
+  values,
+  onChange,
+  config,
+  onError,
+}: TextAreaFieldProps) {
   const { id, name, label, placeholder, width, messages, rows, defaultValue } = config;
   const [localError, setLocalError] = useState<string | null>(null);
   const controlName = name ?? id;
@@ -22,11 +28,11 @@ export function TextAreaField({ value, onChange, config, onError }: TextAreaFiel
   }, [defaultValue, value, onChange]);
   const runValidation = useCallback(
     (raw: string) => {
-      const errorMessage = validateFieldValueFromConfig(config, raw);
+      const errorMessage = validateFieldValueFromConfig(config, raw, values);
       setLocalError(errorMessage ?? null);
       onError?.(id, errorMessage ?? null);
     },
-    [config, id, onError],
+    [config, id, onError, values],
   );
 
   const handleBlur = useCallback(() => {

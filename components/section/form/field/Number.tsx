@@ -8,7 +8,13 @@ export type NumberFieldProps = FormFieldComponentProps & {
   config: NumberFormField;
 };
 
-export function NumberField({ value, onChange, config, onError }: NumberFieldProps) {
+export function NumberField({
+  value,
+  values,
+  onChange,
+  config,
+  onError,
+}: NumberFieldProps) {
   const { id, name, label, placeholder, width, messages, defaultValue } = config;
   const [localError, setLocalError] = useState<string | null>(null);
   const controlName = name ?? id;
@@ -25,11 +31,11 @@ export function NumberField({ value, onChange, config, onError }: NumberFieldPro
 
   const runValidation = useCallback(
     (raw: string) => {
-      const errorMessage = validateFieldValueFromConfig(config, raw);
+      const errorMessage = validateFieldValueFromConfig(config, raw, values);
       setLocalError(errorMessage ?? null);
       onError?.(id, errorMessage ?? null);
     },
-    [config, id, onError],
+    [config, id, onError, values],
   );
 
   const handleBlur = useCallback(() => {

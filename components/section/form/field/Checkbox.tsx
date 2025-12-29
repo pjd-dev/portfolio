@@ -7,7 +7,13 @@ export type CheckboxFieldProps = FormFieldComponentProps & {
   config: CheckboxFormField;
 };
 
-export function CheckboxField({ value, onChange, config, onError }: CheckboxFieldProps) {
+export function CheckboxField({
+  value,
+  values,
+  onChange,
+  config,
+  onError,
+}: CheckboxFieldProps) {
   const { id, name, label, width, messages, defaultValue } = config;
   const [localError, setLocalError] = useState<string | null>(null);
   const controlName = name ?? id;
@@ -23,11 +29,11 @@ export function CheckboxField({ value, onChange, config, onError }: CheckboxFiel
   }, [defaultValue, value, onChange]);
   const runValidation = useCallback(
     (raw: boolean) => {
-      const errorMessage = validateFieldValueFromConfig(config, raw);
+      const errorMessage = validateFieldValueFromConfig(config, raw, values);
       setLocalError(errorMessage ?? null);
       onError?.(id, errorMessage ?? null);
     },
-    [config, id, onError],
+    [config, id, onError, values],
   );
 
   const handleBlur = useCallback(() => {
