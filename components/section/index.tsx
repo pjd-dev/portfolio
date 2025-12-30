@@ -27,7 +27,7 @@ type SectionRendererProps = {
 export function SectionRenderer({ sections }: SectionRendererProps) {
   return (
     <Wrapper>
-      {sections.map((section) => {
+      {sections.map((section, index) => {
         const Component = SECTION_COMPONENTS[section.kind];
 
         if (!Component) {
@@ -39,7 +39,8 @@ export function SectionRenderer({ sections }: SectionRendererProps) {
         }
 
         // TS narrows by kind inside the component, which expects the specific type
-        return <Component key={section.id} {...section} />;
+        const key = section.id ?? `${section.kind}-${index}`;
+        return <Component key={key} {...section} />;
       })}
     </Wrapper>
   );
