@@ -9,9 +9,7 @@ const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID || "";
 const AIRTABLE_TABLE = process.env.AIRTABLE_TABLE || "";
 const AIRTABLE_API_ROOT = "https://api.airtable.com/v0";
 
-function normalizeAirtableValue(
-  value: unknown,
-): string | number | boolean | undefined {
+function normalizeAirtableValue(value: unknown): string | number | boolean | undefined {
   if (value === undefined || value === null) return undefined;
   if (
     typeof value === "string" ||
@@ -75,7 +73,7 @@ export async function sendAirtableRecord(
       body: JSON.stringify({
         records: [
           {
-            fields: normalizeAirtableFields(input.fields),
+            fields: { ...normalizeAirtableFields(input.fields), Status: "New" },
           },
         ],
         typecast: true,

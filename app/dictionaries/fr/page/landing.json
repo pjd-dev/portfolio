@@ -25,9 +25,9 @@
         },
         {
           "type": "internal",
-          "label": "travailler avec moi",
-          "href": "/fr/contact",
-          "alt": "Bouton travailler avec moi"
+          "label": "Travaillons ensemble",
+          "href": "/fr/work-with-me",
+          "alt": "Bouton Travaillons ensemble"
         },
         {
           "type": "external",

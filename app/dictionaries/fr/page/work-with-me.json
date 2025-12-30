@@ -1,13 +1,13 @@
 {
-  "title": "Darrybook - Portfolio of Jean Paulette | Formulaire de contact",
-  "subtitle": "Vous avez un projet en tête ou simplement envie de dire bonjour ?",
+  "title": "Darrybook – Travaillons ensemble | Jean Paulette",
+  "subtitle": "Construisons quelque chose ensemble.",
   "meta": { "version": 1, "locale": "fr" },
   "sections": [
     {
-      "id": "form_contact_fr",
+      "id": "work_with_me_form",
       "kind": "form",
-      "title": "Envoyez-moi un message",
-      "description": "Un projet en tête ou une collaboration à proposer ? Contactez-moi ici. Je vous réponds rapidement.",
+      "title": "Travaillons ensemble",
+      "description": "Parlez-moi de votre projet, du timing et des objectifs. Dites-moi ce dont vous avez besoin et je reviens vers vous rapidement.",
       "meta": {
         "api": {
           "endpoint": "/api/form",
@@ -16,16 +16,15 @@
         },
         "successRedirect": null,
         "captcha": false,
-        "delivery": "mail"
+        "delivery": "airtable"
       },
       "messages": {
-        "success": "Message envoyé avec succès !",
-        "error": "Échec de l'envoi du message. Veuillez réessayer.",
-        "validation": "Certains champs sont invalides.",
+        "success": "Merci ! Votre demande a bien été envoyée.",
+        "error": "Une erreur est survenue. Veuillez réessayer.",
+        "validation": "Veuillez vérifier les champs en surbrillance.",
         "loading": "Envoi en cours...",
-        "submit": "Envoyer le message",
         "scrollHint": "Faites défiler pour voir tous les champs du formulaire.",
-        "requiredHint": "Tous les champs marqués d’un * sont obligatoires."
+        "requiredHint": "Les champs marqués d’un * sont obligatoires."
       },
       "fields": [
         {
@@ -36,10 +35,7 @@
           "placeholder": "Votre nom",
           "width": "1/2",
           "errors": [
-            {
-              "rule": { "type": "required" },
-              "message": "Ce champ est requis"
-            },
+            { "rule": { "type": "required" }, "message": "Ce champ est requis" },
             {
               "rule": { "type": "minLength", "value": 2 },
               "message": "Doit contenir au moins 2 caractères"
@@ -54,10 +50,7 @@
           "placeholder": "votre.email@exemple.com",
           "width": "1/2",
           "errors": [
-            {
-              "rule": { "type": "required" },
-              "message": "Ce champ est requis"
-            },
+            { "rule": { "type": "required" }, "message": "Ce champ est requis" },
             {
               "rule": { "type": "email" },
               "message": "Veuillez entrer une adresse email valide"
@@ -65,34 +58,39 @@
           ]
         },
         {
-          "id": "subject",
-          "name": "subject",
-          "label": "Sujet",
+          "id": "engagement",
+          "name": "engagement",
+          "label": "Comment pouvons-nous travailler ensemble ?",
           "type": "select",
+          "placeholder": "Choisissez une option",
           "width": "full",
           "options": [
-            { "value": "recruitment", "label": "Opportunité d'emploi" },
-            { "value": "freelance", "label": "Projet Freelance" },
+            { "value": "full-time", "label": "Poste full-time" },
+            { "value": "contract", "label": "Mission / contrat" },
+            { "value": "freelance", "label": "Projet freelance" },
             { "value": "collab", "label": "Collaboration" },
             { "value": "other", "label": "Autre" }
           ],
           "errors": [
-            {
-              "rule": { "type": "required" },
-              "message": "Veuillez sélectionner un sujet"
-            }
+            { "rule": { "type": "required" }, "message": "Veuillez choisir une option" }
           ]
         },
         {
           "id": "company",
           "name": "company",
-          "label": "Entreprise",
+          "label": "Entreprise / Organisation",
           "type": "text",
           "placeholder": "Nom de votre entreprise",
           "width": "1/3",
           "showWhen": {
             "mode": "and",
-            "conditions": [{ "fieldId": "subject", "op": "in", "values": ["freelance"] }]
+            "conditions": [
+              {
+                "fieldId": "engagement",
+                "op": "in",
+                "values": ["full-time", "contract", "freelance"]
+              }
+            ]
           },
           "errors": [
             {
@@ -106,6 +104,7 @@
           "name": "budget",
           "label": "Budget",
           "type": "select",
+          "placeholder": "Sélectionnez une tranche",
           "width": "1/3",
           "options": [
             { "value": "<1k", "label": "< 1 000 €" },
@@ -116,19 +115,23 @@
           ],
           "showWhen": {
             "mode": "and",
-            "conditions": [{ "fieldId": "subject", "op": "in", "values": ["freelance"] }]
+            "conditions": [
+              { "fieldId": "engagement", "op": "in", "values": ["freelance", "contract"] }
+            ]
           }
         },
         {
-          "id": "deadline",
-          "name": "deadline",
+          "id": "timeline",
+          "name": "timeline",
           "label": "Délai",
           "type": "text",
           "placeholder": "ex: 2 semaines, 1 mois",
           "width": "1/3",
           "showWhen": {
             "mode": "and",
-            "conditions": [{ "fieldId": "subject", "op": "in", "values": ["freelance"] }]
+            "conditions": [
+              { "fieldId": "engagement", "op": "in", "values": ["freelance", "contract"] }
+            ]
           }
         },
         {
@@ -140,40 +143,25 @@
           "width": "full",
           "showWhen": {
             "mode": "and",
-            "conditions": [{ "fieldId": "subject", "op": "in", "values": ["collab"] }]
-          },
-          "errors": [
-            {
-              "rule": { "type": "url" },
-              "message": "Veuillez entrer une URL valide"
-            }
-          ]
-        },
-        {
-          "id": "goal",
-          "name": "goal",
-          "label": "Objectif du projet",
-          "type": "text",
-          "placeholder": "Décrivez ce que vous souhaitez accomplir",
-          "width": "full",
-          "showWhen": {
-            "mode": "and",
-            "conditions": [{ "fieldId": "subject", "op": "in", "values": ["collab"] }]
+            "conditions": [
+              {
+                "fieldId": "engagement",
+                "op": "in",
+                "values": ["freelance", "contract", "collab"]
+              }
+            ]
           }
         },
         {
           "id": "message",
           "name": "message",
-          "label": "Message",
+          "label": "Détails du projet",
           "type": "textarea",
-          "placeholder": "Parlez-moi de votre projet ou de votre demande...",
+          "placeholder": "Parlez-moi des objectifs, du périmètre et des contraintes...",
           "rows": 5,
           "width": "full",
           "errors": [
-            {
-              "rule": { "type": "required" },
-              "message": "Ce champ est requis"
-            },
+            { "rule": { "type": "required" }, "message": "Ce champ est requis" },
             {
               "rule": { "type": "minLength", "value": 10 },
               "message": "Le message doit contenir au moins 10 caractères"
@@ -185,14 +173,11 @@
           "name": "privacy",
           "label": "En envoyant ce formulaire, vous acceptez que vos données soient utilisées pour vous répondre et puissent être envoyées par email ou enregistrées dans Airtable selon la configuration du formulaire.",
           "type": "checkbox",
-          "errors": [
-            {
-              "rule": { "type": "required" },
-              "message": "Ce champ est requis"
-            }
-          ]
+          "errors": [{ "rule": { "type": "required" }, "message": "Ce champ est requis" }]
         }
-      ]
+      ],
+      "submit": "Envoyer la demande",
+      "ctas": []
     }
   ]
 }
