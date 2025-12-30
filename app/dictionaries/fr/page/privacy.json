@@ -41,9 +41,9 @@
       "id": "PC_text_001",
       "kind": "legal",
       "title": "Politique de confidentialité",
-      "content": "\n\nCe site est un **portfolio personnel** hébergé sur [Vercel](https://vercel.com).\n\n## Données collectées  \nAucune donnée personnelle n’est collectée ou stockée actuellement.  \nAucun cookie, outil d’analyse ou formulaire de contact n’est actif.\n\n## Hébergement  \nL’hébergement est assuré par *Vercel Inc.* (États-Unis).  \nLes journaux techniques du serveur (logs anonymes) peuvent contenir votre adresse IP pour la sécurité et la maintenance.\n\n## Vos droits  \nConformément au **Règlement Général sur la Protection des Données (RGPD)**,  \nvous pouvez exercer vos droits d’accès, de rectification et de suppression une fois que la collecte de données sera mise en place.\n\n",
-      "lastUpdated": "Dernière mise à jour : novembre 2025",
-      "note": "Ce document sera mis à jour dès qu’un formulaire ou un outil de suivi sera ajouté."
+      "content": "\n\nCe site est un **portfolio personnel** hébergé sur [Vercel](https://vercel.com).\n\n## Données collectées\nLorsque vous utilisez le formulaire de contact, je collecte les informations saisies (nom, email, sujet, message et détails optionnels). Ces données sont utilisées uniquement pour répondre à votre demande. L'envoi du formulaire vaut consentement au traitement.\n\n## Stockage et traitement\nSelon la configuration du formulaire, les messages sont envoyés par email et peuvent être enregistrés dans Airtable pour le suivi. Les données sont conservées le temps nécessaire pour traiter votre demande et peuvent être supprimées sur demande.\n\n## Cookies\nCe site n'utilise pas de cookies publicitaires ni d'analytics. Des cookies essentiels peuvent être déposés par l'hébergeur pour la sécurité et les performances.\n\n## Hébergement\nL'hébergement est assuré par *Vercel Inc.* (États-Unis). Les journaux techniques du serveur (logs anonymes) peuvent contenir votre adresse IP pour la sécurité et la maintenance.\n\n## Vos droits\nConformément au **Règlement Général sur la Protection des Données (RGPD)**, vous pouvez demander l'accès, la rectification ou la suppression de vos données en écrivant à : contact@darrybook.fr.\n\n",
+      "lastUpdated": "Dernière mise à jour : décembre 2025",
+      "note": "Cette politique reflète le traitement actuel des formulaires et sera mise à jour si les outils ou le stockage évoluent."
     }
   ]
 }

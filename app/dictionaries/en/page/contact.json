@@ -178,7 +178,7 @@
           ]
         }
       ],
-      "privacy": "By submitting this form, you agree to your data being used to contact you.",
+      "privacy": "By submitting this form, you agree that your data is used to respond and may be delivered by email or stored in Airtable depending on the form settings.",
       "submit": "Send Message",
       "ctas": []
     }

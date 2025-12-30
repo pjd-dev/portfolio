@@ -4,9 +4,9 @@
     {
       "kind": "legal",
       "title": "Privacy Policy",
-      "content": "\n\nThis website is a **personal portfolio** hosted on [Vercel](https://vercel.com).\n\n## Data Collected\nNo personal data is collected or stored at present.\nNo cookies, analytics tools or contact forms are active.\n\n## Hosting\nHosting is provided by *Vercel Inc.* (United States).\nServer logs (anonymous) may contain your IP address for security and maintenance.\n\n## Your Rights\nUnder the **General Data Protection Regulation (GDPR)**,\nyou may exercise your rights of access, rectification and deletion once data collection is implemented.\n\n",
-      "lastUpdated": "Last updated: November 2025",
-      "note": "This document will be updated whenever a form or tracking tool is added."
+      "content": "\n\nThis website is a **personal portfolio** hosted on [Vercel](https://vercel.com).\n\n## Data Collected\nWhen you use the contact form, I collect the information you submit (e.g. name, email, subject, message, and optional project details). This data is used only to respond to your request. Submitting the form is treated as consent to this processing.\n\n## Storage & Processing\nDepending on the form configuration, submissions are delivered by email and may also be stored in Airtable for follow-up. Data is kept only as long as needed to handle your request and can be deleted upon request.\n\n## Cookies\nThis site does not use advertising or analytics cookies. Essential cookies may be set by the hosting provider for security and performance.\n\n## Hosting\nHosting is provided by *Vercel Inc.* (United States). Server logs (anonymous) may contain your IP address for security and maintenance.\n\n## Your Rights\nUnder the **General Data Protection Regulation (GDPR)**, you can request access, correction, or deletion of your data by contacting: contact@darrybook.fr.\n\n",
+      "lastUpdated": "Last updated: December 2025",
+      "note": "This policy reflects current form handling and will be updated if tools or storage change."
     }
   ]
 }
