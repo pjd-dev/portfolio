@@ -13,6 +13,7 @@ export default defineConfig({
   },
   use: {
     baseURL,
+    screenshot: "off",
     trace: "on-first-retry",
   },
   webServer: process.env.PLAYWRIGHT_NO_WEB_SERVER
