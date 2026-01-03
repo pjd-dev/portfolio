@@ -70,6 +70,7 @@
           "label": "Sujet",
           "type": "select",
           "placeholder": "Choisissez un sujet",
+          "defaultValue": "freelance",
           "width": "full",
           "options": [
             { "value": "recruitment", "label": "Opportunité d'emploi" },

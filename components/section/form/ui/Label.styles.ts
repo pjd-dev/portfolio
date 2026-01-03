@@ -2,6 +2,7 @@ import { styled } from "@/stitches.config";
 export const Label = styled("label", {
   display: "inline-flex",
   alignItems: "baseline",
+  gap: "0.4rem",
   fontSize: "0.875rem",
   fontWeight: "600",
   marginBottom: 0,

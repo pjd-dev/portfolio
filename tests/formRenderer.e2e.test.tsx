@@ -33,6 +33,7 @@ describe("FormRenderer end-to-end", () => {
   beforeEach(() => {
     fetchMock.mockClear();
     globalThis.fetch = fetchMock;
+    window.localStorage.clear();
   });
 
   afterEach(() => {

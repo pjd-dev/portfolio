@@ -1,7 +1,14 @@
 import { validateFieldValueFromConfig } from "@/lib/form/fieldValidation";
 import { CheckboxFormField } from "@/lib/validation/section/formDictionarySchema";
 import { useCallback, useEffect, useState, type ChangeEvent } from "react";
-import { ErrorMessage, FieldGroup, ToggleInput, ToggleLabel, ToggleWrapper } from "../ui";
+import {
+  ErrorMessage,
+  FieldGroup,
+  FieldStatus,
+  ToggleInput,
+  ToggleLabel,
+  ToggleWrapper,
+} from "../ui";
 import type { FormFieldComponentProps } from "./shared";
 import { isFieldRequired } from "./utils";
 export type CheckboxFieldProps = FormFieldComponentProps & {
@@ -21,6 +28,7 @@ export function CheckboxField({
   const isRequired = isFieldRequired(config);
 
   const checked = value === "true" || value === "on" || value === "1" || value === true;
+  const showValid = checked && !validateFieldValueFromConfig(config, true, values);
 
   useEffect(() => {
     const raw = Boolean(defaultValue ?? false);
@@ -54,11 +62,11 @@ export function CheckboxField({
   );
 
   return (
-    <FieldGroup width={width} className="flex flex-col items-center justify-center gap-2">
+    <FieldGroup span={width} className="flex flex-col items-center justify-center gap-2">
       {messages?.description && (
         <p className="text-muted-background text-xs">{messages.description}</p>
       )}
-      <div className="inline-flex w-full max-w-xl items-center gap-3 self-center rounded-full border border-[rgba(var(--background-rgb),0.12)] bg-[rgba(var(--foreground-rgb),0.35)] px-4 py-2 backdrop-blur-md">
+      <div className="inline-flex w-full max-w-xl items-center gap-3 self-center rounded-full border border-[rgba(var(--background-rgb),0.2)] bg-[rgba(var(--foreground-rgb),0.22)] px-4 py-2 backdrop-blur-md">
         <ToggleWrapper>
           <ToggleInput
             id={id}
@@ -78,6 +86,11 @@ export function CheckboxField({
             style={{ color: "var(--background)" }}
           >
             {label}
+            {showValid && (
+              <FieldStatus className="ml-2" aria-hidden="true">
+                ✓
+              </FieldStatus>
+            )}
             {isRequired && (
               <span style={{ color: "var(--error)" }} aria-hidden="true">
                 {" "}

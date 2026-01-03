@@ -56,7 +56,7 @@ export const Select = styled("select", {
     backgroundColor: "rgba(var(--foreground-rgb), 0.14)",
     color: "rgba(var(--background-rgb), 1)",
     boxShadow:
-      "0 0 0 2px rgba(var(--background-rgb), 0.22), 0 0 0 4px rgba(var(--foreground-rgb), 0.35)",
+      "0 0 0 3px rgba(var(--background-rgb), 0.28), 0 0 0 6px rgba(var(--foreground-rgb), 0.4)",
   },
 
   "&:hover": {

@@ -67,6 +67,7 @@
           "label": "How can we work together?",
           "type": "select",
           "placeholder": "Choose an option",
+          "defaultValue": "freelance",
           "width": "full",
           "options": [
             { "value": "full-time", "label": "Full-time role" },

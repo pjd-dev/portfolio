@@ -5,9 +5,9 @@ import {
   UrlFormField,
 } from "@/lib/validation/section/formDictionarySchema";
 import { useCallback, useEffect, useState, type ChangeEvent } from "react";
-import { ErrorMessage, FieldGroup, Input, Label } from "../ui";
+import { ErrorMessage, FieldGroup, FieldStatus, Input, Label } from "../ui";
 import type { FormFieldComponentProps } from "./shared";
-import { isFieldRequired } from "./utils";
+import { hasFieldValue, isFieldRequired, resolveAutoComplete } from "./utils";
 
 export type TextFieldProps = FormFieldComponentProps & {
   config: TextFormField | EmailFormField | UrlFormField;
@@ -20,6 +20,10 @@ export function TextField({ value, values, onChange, config, onError }: TextFiel
   const isRequired = isFieldRequired(config);
   const currentValue =
     typeof value === "string" ? value : value == null ? "" : String(value);
+  const autoComplete = resolveAutoComplete(config);
+  const showValid =
+    hasFieldValue(currentValue) &&
+    !validateFieldValueFromConfig(config, currentValue, values);
 
   useEffect(() => {
     if (value === undefined || value === null) {
@@ -58,10 +62,11 @@ export function TextField({ value, values, onChange, config, onError }: TextFiel
   const hasError = !!localError;
 
   return (
-    <FieldGroup width={width}>
+    <FieldGroup span={width}>
       {label && (
         <Label htmlFor={controlName} required={isRequired}>
-          {label}
+          <span>{label}</span>
+          {showValid && <FieldStatus aria-hidden="true">✓</FieldStatus>}
         </Label>
       )}
 
@@ -80,6 +85,7 @@ export function TextField({ value, values, onChange, config, onError }: TextFiel
         hasError={hasError}
         required={isRequired}
         aria-required={isRequired}
+        autoComplete={autoComplete}
       />
 
       {localError ? (

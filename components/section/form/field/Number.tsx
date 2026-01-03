@@ -1,9 +1,9 @@
 import { validateFieldValueFromConfig } from "@/lib/form/fieldValidation";
 import { NumberFormField } from "@/lib/validation/section/formDictionarySchema";
 import { useCallback, useEffect, useState, type ChangeEvent } from "react";
-import { ErrorMessage, FieldGroup, Input, Label } from "../ui";
+import { ErrorMessage, FieldGroup, FieldStatus, Input, Label } from "../ui";
 import type { FormFieldComponentProps } from "./shared";
-import { isFieldRequired } from "./utils";
+import { hasFieldValue, isFieldRequired, resolveAutoComplete } from "./utils";
 
 export type NumberFieldProps = FormFieldComponentProps & {
   config: NumberFormField;
@@ -20,9 +20,13 @@ export function NumberField({
   const [localError, setLocalError] = useState<string | null>(null);
   const controlName = name ?? id;
   const isRequired = isFieldRequired(config);
+  const autoComplete = resolveAutoComplete(config);
 
   // Keep value as string in the form state, validation layer handles numeric checks
   const currentValue = value ?? "";
+  const showValid =
+    hasFieldValue(currentValue) &&
+    !validateFieldValueFromConfig(config, currentValue, values);
   useEffect(() => {
     if (value === undefined || value === null) {
       const raw = defaultValue ?? "";
@@ -56,10 +60,11 @@ export function NumberField({
   const hasError = !!localError;
 
   return (
-    <FieldGroup width={width}>
+    <FieldGroup span={width}>
       {label && (
         <Label htmlFor={controlName} required={isRequired}>
-          {label}
+          <span>{label}</span>
+          {showValid && <FieldStatus aria-hidden="true">✓</FieldStatus>}
         </Label>
       )}
 
@@ -78,6 +83,7 @@ export function NumberField({
         hasError={hasError}
         required={isRequired}
         aria-required={isRequired}
+        autoComplete={autoComplete}
       />
 
       {localError ? (

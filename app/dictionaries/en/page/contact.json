@@ -69,6 +69,7 @@
           "label": "Subject",
           "type": "select",
           "placeholder": "Choose a subject",
+          "defaultValue": "freelance",
           "width": "full",
           "options": [
             { "value": "recruitment", "label": "Job Opportunity" },

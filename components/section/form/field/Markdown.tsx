@@ -1,10 +1,10 @@
 import { validateFieldValueFromConfig } from "@/lib/form/fieldValidation";
 import { MarkdownFormField } from "@/lib/validation/section/formDictionarySchema";
 import { useCallback, useEffect, useState } from "react";
-import { ErrorMessage, FieldGroup, Label, MarkdownEditor } from "../ui";
+import { ErrorMessage, FieldGroup, FieldStatus, Label, MarkdownEditor } from "../ui";
 
 import type { FormFieldComponentProps } from "./shared";
-import { isFieldRequired } from "./utils";
+import { hasFieldValue, isFieldRequired, resolveAutoComplete } from "./utils";
 
 export type MarkdownFieldProps = FormFieldComponentProps & {
   config: MarkdownFormField;
@@ -21,8 +21,12 @@ export function MarkdownField({
   const [localError, setLocalError] = useState<string | null>(null);
   const controlName = name ?? id;
   const isRequired = isFieldRequired(config);
+  const autoComplete = resolveAutoComplete(config);
   const currentValue =
     typeof value === "string" ? value : value == null ? "" : String(value);
+  const showValid =
+    hasFieldValue(currentValue) &&
+    !validateFieldValueFromConfig(config, currentValue, values);
   const runValidation = useCallback(
     (raw: string) => {
       const errorMessage = validateFieldValueFromConfig(config, raw, values);
@@ -60,10 +64,11 @@ export function MarkdownField({
   const hasError = !!localError;
 
   return (
-    <FieldGroup>
+    <FieldGroup span={width}>
       {label && (
         <Label htmlFor={controlName} required={isRequired}>
-          {label}
+          <span>{label}</span>
+          {showValid && <FieldStatus aria-hidden="true">✓</FieldStatus>}
         </Label>
       )}
 
@@ -82,6 +87,7 @@ export function MarkdownField({
         width={width}
         rows={rows ?? 10}
         required={isRequired}
+        autoComplete={autoComplete}
       />
 
       {localError ? (

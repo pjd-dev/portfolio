@@ -23,6 +23,8 @@ export const FormCard = styled("form", {
   border: "1px solid rgba(var(--foreground-rgb),0.22)",
   overflow: "hidden",
   transition: "transform 180ms ease, box-shadow 180ms ease, background 180ms ease",
+  containerType: "inline-size",
+  containerName: "form-card",
 
   "&::before": {
     content: '""',

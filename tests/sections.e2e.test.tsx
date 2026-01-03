@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { Hero } from "@/components/section/Hero";
 import { Legal } from "@/components/section/Legal";
@@ -90,6 +90,10 @@ describe("Section components", () => {
   beforeAll(() => {
     consoleError.mockClear();
     consoleWarn.mockClear();
+  });
+
+  beforeEach(() => {
+    window.localStorage.clear();
   });
 
   afterAll(() => {

@@ -3,6 +3,7 @@ export * from "./CheckboxToggle.styles";
 export * from "./Description.styles";
 export * from "./ErrorMessage.styles";
 export * from "./FieldGroup.styles";
+export * from "./FieldStatus.styles";
 export * from "./Inner.styles";
 export * from "./Input.styles";
 export * from "./Label.styles";

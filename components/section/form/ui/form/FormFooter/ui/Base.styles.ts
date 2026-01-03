@@ -10,11 +10,12 @@ export const Base = styled("div", {
   padding: "0.7rem 0.85rem",
   display: "flex",
   alignItems: "center",
-  justifyContent: "flex-end",
+  justifyContent: "space-between",
   gap: "0.75rem",
   border: "1px solid rgba(var(--foreground-rgb),0.18)",
   boxShadow:
     "0 12px 24px rgba(var(--foreground-rgb),0.35), 0 0 0 1px rgba(var(--foreground-rgb),0.12) inset",
+  flexWrap: "wrap",
 
   "@bp1": {
     flexDirection: "column",

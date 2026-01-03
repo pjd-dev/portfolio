@@ -4,7 +4,7 @@ import { ScrollHint } from "./ScrollHint";
 import { Status } from "./Status";
 import { Submit } from "./Submit";
 import { Top } from "./Top";
-import { Base, BaseHint, Root } from "./ui";
+import { Actions, Base, BaseHint, Root } from "./ui";
 
 export const FormFooter = {
   Root,
@@ -13,5 +13,6 @@ export const FormFooter = {
   Status,
   Base,
   BaseHint,
+  Actions,
   Submit,
 };

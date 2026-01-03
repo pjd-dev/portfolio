@@ -1,9 +1,9 @@
 import { validateFieldValueFromConfig } from "@/lib/form/fieldValidation";
 import { TextAreaFormField } from "@/lib/validation/section/formDictionarySchema";
 import { useCallback, useEffect, useState, type ChangeEvent } from "react";
-import { ErrorMessage, FieldGroup, Label, TextArea } from "../ui";
+import { ErrorMessage, FieldGroup, FieldStatus, Label, TextArea } from "../ui";
 import type { FormFieldComponentProps } from "./shared";
-import { isFieldRequired } from "./utils";
+import { hasFieldValue, isFieldRequired, resolveAutoComplete } from "./utils";
 
 export type TextAreaFieldProps = FormFieldComponentProps & {
   config: TextAreaFormField;
@@ -20,8 +20,12 @@ export function TextAreaField({
   const [localError, setLocalError] = useState<string | null>(null);
   const controlName = name ?? id;
   const isRequired = isFieldRequired(config);
+  const autoComplete = resolveAutoComplete(config);
   const currentValue =
     typeof value === "string" ? value : value == null ? "" : String(value);
+  const showValid =
+    hasFieldValue(currentValue) &&
+    !validateFieldValueFromConfig(config, currentValue, values);
   useEffect(() => {
     if (value === undefined || value === null) {
       const raw =
@@ -59,10 +63,11 @@ export function TextAreaField({
   const hasError = !!localError;
 
   return (
-    <FieldGroup width={width}>
+    <FieldGroup span={width}>
       {label && (
         <Label htmlFor={controlName} required={isRequired}>
-          {label}
+          <span>{label}</span>
+          {showValid && <FieldStatus aria-hidden="true">✓</FieldStatus>}
         </Label>
       )}
 
@@ -81,6 +86,7 @@ export function TextAreaField({
         rows={rows ?? 4}
         required={isRequired}
         aria-required={isRequired}
+        autoComplete={autoComplete}
       />
 
       {localError ? (

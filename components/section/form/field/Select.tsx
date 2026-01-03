@@ -1,9 +1,9 @@
 import { validateFieldValueFromConfig } from "@/lib/form/fieldValidation";
 import { SelectFormField } from "@/lib/validation/section/formDictionarySchema";
 import { useCallback, useEffect, useState, type ChangeEvent } from "react";
-import { ErrorMessage, FieldGroup, Label, Select, SelectRoot } from "../ui";
+import { ErrorMessage, FieldGroup, FieldStatus, Label, Select, SelectRoot } from "../ui";
 import type { FormFieldComponentProps } from "./shared";
-import { isFieldRequired } from "./utils";
+import { hasFieldValue, isFieldRequired } from "./utils";
 
 export type SelectFieldProps = FormFieldComponentProps & {
   config: SelectFormField;
@@ -30,6 +30,9 @@ export function SelectField({
   const controlName = name ?? id;
   const isRequired = isFieldRequired(config);
   const currentValue = value == null ? "" : String(value);
+  const showValid =
+    hasFieldValue(currentValue) &&
+    !validateFieldValueFromConfig(config, currentValue, values);
 
   const runValidation = useCallback(
     (raw: string) => {
@@ -65,10 +68,11 @@ export function SelectField({
   const hasError = !!localError;
 
   return (
-    <FieldGroup width={width}>
+    <FieldGroup span={width}>
       {label && (
         <Label htmlFor={controlName} required={isRequired}>
-          {label}
+          <span>{label}</span>
+          {showValid && <FieldStatus aria-hidden="true">✓</FieldStatus>}
         </Label>
       )}
 
@@ -85,6 +89,7 @@ export function SelectField({
           hasError={hasError}
           required={isRequired}
           aria-required={isRequired}
+          autoComplete="off"
         >
           <option value="">{placeholder ?? ""}</option>
           {options?.map((option) => (
