@@ -69,6 +69,7 @@ describe("Contact form smoke submission", () => {
         email: "test.user@example.com",
         subject: "recruitment",
         message: "Hello, this is a smoke test message.",
+        privacy: true,
       },
     };
 

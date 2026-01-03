@@ -8,9 +8,9 @@ export const Thumb = styled("div", {
   borderRadius: "999px",
   glass: true,
   background:
-    "linear-gradient(180deg, rgba(var(--foreground-rgb),0.35), rgba(var(--foreground-rgb),0.7))",
-  border: "1px solid rgba(var(--foreground-rgb),0.4)",
+    "linear-gradient(180deg, rgba(var(--background-rgb),0.65), rgba(var(--background-rgb),0.95))",
+  border: "1px solid rgba(var(--background-rgb),0.85)",
   boxShadow:
-    "0 10px 18px rgba(0,0,0,0.45), 0 0 0 1px rgba(var(--background-rgb),0.12) inset",
+    "0 10px 18px rgba(0,0,0,0.45), 0 0 0 1px rgba(var(--background-rgb),0.45) inset",
   transformOrigin: "top",
 });

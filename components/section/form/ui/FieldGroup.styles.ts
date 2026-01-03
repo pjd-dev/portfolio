@@ -4,6 +4,7 @@ import { styled } from "@/stitches.config";
 export const FieldGroup = styled("div", {
   marginBottom: "1.5rem",
   width: "100%",
+  minWidth: 0,
   display: "flex",
   flexDirection: "column",
   gap: "0.35rem",
@@ -14,10 +15,12 @@ export const FieldGroup = styled("div", {
         gridColumn: "1 / -1",
       },
       "1/2": {
-        "@md": { width: "50%" },
+        gridColumn: "1 / -1",
+        "@md": { gridColumn: "span 6" },
       },
       "1/3": {
-        "@md": { width: "33.333%" },
+        gridColumn: "1 / -1",
+        "@md": { gridColumn: "span 4" },
       },
     },
   },

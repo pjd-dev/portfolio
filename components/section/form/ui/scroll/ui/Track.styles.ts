@@ -9,11 +9,11 @@ export const Track = styled("div", {
   width: "10px",
   borderRadius: "999px",
   background:
-    "linear-gradient(180deg, rgba(var(--foreground-rgb),0.18), rgba(var(--foreground-rgb),0.04))",
+    "linear-gradient(180deg, rgba(var(--background-rgb),0.35), rgba(var(--background-rgb),0.12))",
   glass: true,
-  border: "1px solid rgba(var(--foreground-rgb),0.24)",
+  border: "1px solid rgba(var(--background-rgb),0.45)",
   boxShadow:
-    "0 0 0 1px rgba(var(--background-rgb),0.06) inset, 0 8px 16px rgba(0,0,0,0.35)",
+    "0 0 0 1px rgba(var(--background-rgb),0.25) inset, 0 8px 16px rgba(0,0,0,0.35)",
   overflow: "hidden",
   "&::after": {
     content: '""',
@@ -21,7 +21,7 @@ export const Track = styled("div", {
     inset: "1px",
     borderRadius: "inherit",
     background:
-      "linear-gradient(180deg, rgba(var(--background-rgb),0.08), rgba(var(--background-rgb),0))",
+      "linear-gradient(180deg, rgba(var(--background-rgb),0.25), rgba(var(--background-rgb),0))",
     pointerEvents: "none",
   },
 });

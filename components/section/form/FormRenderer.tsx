@@ -50,14 +50,16 @@ export function FormRenderer({ config }: FormRendererProps) {
     }));
   }, []);
 
-  const isFormValid = useMemo(
+  const isSubmittable = useMemo(
     () =>
       (fields ?? []).every((field) => {
         if (!shouldShowFieldByConfig(field, values)) return true;
-        const msg = errors[field.id] ?? null;
+        const key = field.name ?? field.id;
+        const rawValue = values[key];
+        const msg = validateFieldValueFromConfig(field, rawValue, values);
         return !msg;
       }),
-    [fields, values, errors],
+    [fields, values],
   );
 
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (event) => {
@@ -150,6 +152,9 @@ export function FormRenderer({ config }: FormRendererProps) {
     return labels[status];
   })();
 
+  const showSubmit = isSubmittable || status === "submitting";
+  const showRequiredHint = Boolean(requiredHint) && !isSubmittable;
+
   return (
     <FormCard noValidate onSubmit={handleSubmit}>
       <Scroll.Container>
@@ -194,12 +199,17 @@ export function FormRenderer({ config }: FormRendererProps) {
             </FormFooter.Top>
 
             <FormFooter.Base>
-              {requiredHint && <FormFooter.BaseHint>{requiredHint}</FormFooter.BaseHint>}
+              {showRequiredHint && (
+                <FormFooter.BaseHint>{requiredHint}</FormFooter.BaseHint>
+              )}
 
               <FormFooter.Submit
                 submitting={status === "submitting"}
-                disabled={!isFormValid || status === "submitting"}
+                disabled={!isSubmittable || status === "submitting"}
                 loadingLabel={loadingLabel}
+                data-visible={showSubmit}
+                aria-hidden={!showSubmit}
+                tabIndex={showSubmit ? 0 : -1}
               >
                 {submitLabel}
               </FormFooter.Submit>

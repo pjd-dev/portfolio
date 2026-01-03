@@ -4,10 +4,10 @@ export const ToggleWrapper = styled("div", {
   display: "inline-flex",
   alignItems: "center",
   // Base design tokens for the switch
-  "--toggle-accent": "var(--success-rgb)",
-  "--toggle-track-off": "rgba(var(--background-rgb), 0.08)",
+  "--toggle-accent": "var(--foreground-rgb)",
+  "--toggle-track-off": "rgba(var(--foreground-rgb), 0.35)",
   "--toggle-track-on": "rgba(var(--toggle-accent), 0.9)",
-  "--toggle-label-off": "#a1a1aa",
+  "--toggle-label-off": "rgba(var(--background-rgb), 0.6)",
 });
 
 export const ToggleInput = styled("input", {
@@ -17,6 +17,8 @@ export const ToggleInput = styled("input", {
   // checked state tweaks the label + pseudo-elements
   "&:checked + label": {
     background: "var(--toggle-track-on)",
+    boxShadow:
+      "0 1px 2px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(var(--background-rgb), 0.2) inset",
   },
 
   "&:checked + label::after": {
@@ -47,7 +49,8 @@ export const ToggleLabel = styled("label", {
   borderRadius: "999px",
   padding: "1px",
   background: "var(--toggle-track-off)",
-  boxShadow: "0 1px 2px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(0, 0, 0, 0.6) inset",
+  boxShadow:
+    "0 1px 2px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(var(--background-rgb), 0.12) inset",
   backdropFilter: "blur(10px)",
   WebkitBackdropFilter: "blur(10px)",
   transition: "background 0.25s ease, box-shadow 0.25s ease",

@@ -154,7 +154,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Handle other errors
-    console.error("Form API error:", error);
+    console.log("Form API error:", error);
     return NextResponse.json(
       {
         ok: false,

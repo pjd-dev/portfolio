@@ -57,7 +57,7 @@ export const getDictionary = async ({
     }
     return pageDictionarySchema.parse(rawDict);
   } catch (err) {
-    console.error("getDictionary error", { locale, target, type, err });
+    console.log("getDictionary error", { locale, target, type, err });
     throw new Error(
       `Failed to load ${type} dictionary for language: ${locale}, page: ${target}`,
     );

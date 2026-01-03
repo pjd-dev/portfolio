@@ -58,7 +58,7 @@ export function CheckboxField({
       {messages?.description && (
         <p className="text-muted-background text-xs">{messages.description}</p>
       )}
-      <div className="bg-background/20 inline-flex w-full max-w-xl items-center gap-3 self-center rounded-full border border-white/10 px-4 py-2 backdrop-blur-md">
+      <div className="inline-flex w-full max-w-xl items-center gap-3 self-center rounded-full border border-[rgba(var(--background-rgb),0.12)] bg-[rgba(var(--foreground-rgb),0.35)] px-4 py-2 backdrop-blur-md">
         <ToggleWrapper>
           <ToggleInput
             id={id}
@@ -73,7 +73,10 @@ export function CheckboxField({
           <ToggleLabel htmlFor={id} />
         </ToggleWrapper>
         {label && (
-          <span className="flex-1 text-left text-xs leading-snug text-[--background]">
+          <span
+            className="flex-1 text-left text-xs leading-snug"
+            style={{ color: "var(--background)" }}
+          >
             {label}
             {isRequired && (
               <span style={{ color: "var(--error)" }} aria-hidden="true">

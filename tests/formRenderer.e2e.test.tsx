@@ -202,12 +202,18 @@ describe("FormRenderer end-to-end", () => {
     expect(
       screen.getByText("Fields marked with * are required."),
     ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Send now" })).toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole("button", { name: "Send now" }));
-    expect(screen.getByText("Please fix the errors.")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Send now" })).not.toBeInTheDocument();
 
     fireEvent.blur(screen.getByLabelText("Name"));
     expect(screen.getByText("Name required")).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText("Name"), {
+      target: { value: "Jane Doe" },
+    });
+
+    expect(
+      screen.queryByText("Fields marked with * are required."),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Send now" })).toBeInTheDocument();
   });
 });

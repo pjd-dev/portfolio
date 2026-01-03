@@ -54,7 +54,7 @@ export async function sendAirtableRecord(
   const table = input.table ?? AIRTABLE_TABLE;
 
   if (!AIRTABLE_API_KEY || !baseId || !table) {
-    console.error("Missing Airtable configuration");
+    console.log("Missing Airtable configuration");
     return {
       success: false,
       error: "Airtable not configured",
@@ -82,7 +82,7 @@ export async function sendAirtableRecord(
 
     if (!response.ok) {
       const body = await response.text().catch(() => "");
-      console.error("Airtable request failed", {
+      console.log("Airtable request failed", {
         status: response.status,
         body,
       });
@@ -94,7 +94,7 @@ export async function sendAirtableRecord(
 
     return { success: true };
   } catch (error) {
-    console.error("Airtable request error:", error);
+    console.log("Airtable request error:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown Airtable error",

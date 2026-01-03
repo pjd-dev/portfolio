@@ -34,7 +34,7 @@ export async function verifySmtpConnection(): Promise<boolean> {
     await transporter.verify();
     return true;
   } catch (error) {
-    console.error("SMTP verification failed:", error);
+    console.log("SMTP verification failed:", error);
     return false;
   }
 }
@@ -47,7 +47,7 @@ export async function sendEmail(
   try {
     // Env guard
     if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) {
-      console.error("Missing SMTP configuration");
+      console.log("Missing SMTP configuration");
       return {
         success: false,
         error: "Email service not configured",
@@ -66,7 +66,7 @@ export async function sendEmail(
 
     return { success: true };
   } catch (error) {
-    console.error("Failed to send email:", error);
+    console.log("Failed to send email:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
