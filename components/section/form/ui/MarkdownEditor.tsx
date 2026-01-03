@@ -9,6 +9,7 @@ type MarkdownEditorProps = {
   rows?: number;
   width?: "full" | "1/2" | "1/3";
   hasError?: boolean;
+  required?: boolean;
   onChange: (value: string) => void;
   onBlur?: () => void;
 };
@@ -20,6 +21,7 @@ export function MarkdownEditor({
   placeholder,
   rows,
   hasError,
+  required,
   onChange,
   onBlur,
 }: MarkdownEditorProps) {
@@ -154,6 +156,8 @@ export function MarkdownEditor({
             hasError={hasError}
             rows={rows ?? 10}
             onKeyDown={handleKeyDown}
+            required={required}
+            aria-required={required}
           />
         </div>
         <div className="border-border bg-muted/40 flex-1 rounded-md border p-2 text-xs md:text-sm">

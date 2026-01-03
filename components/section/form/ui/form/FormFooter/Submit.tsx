@@ -5,10 +5,16 @@ import { SubmitButton } from "../SubmitButton.styles";
 
 type SubmitProps = {
   submitting?: boolean;
+  loadingLabel?: string;
 } & ButtonHTMLAttributes<HTMLButtonElement>;
 
-export const Submit: FC<SubmitProps> = ({ submitting, children, ...rest }) => (
+export const Submit: FC<SubmitProps> = ({
+  submitting,
+  loadingLabel = "Sending...",
+  children,
+  ...rest
+}) => (
   <SubmitButton type="submit" {...rest}>
-    {submitting ? "Envoi..." : children}
+    {submitting ? loadingLabel : children}
   </SubmitButton>
 );

@@ -3,6 +3,7 @@ import { NumberFormField } from "@/lib/validation/section/formDictionarySchema";
 import { useCallback, useEffect, useState, type ChangeEvent } from "react";
 import { ErrorMessage, FieldGroup, Input, Label } from "../ui";
 import type { FormFieldComponentProps } from "./shared";
+import { isFieldRequired } from "./utils";
 
 export type NumberFieldProps = FormFieldComponentProps & {
   config: NumberFormField;
@@ -18,6 +19,7 @@ export function NumberField({
   const { id, name, label, placeholder, width, messages, defaultValue } = config;
   const [localError, setLocalError] = useState<string | null>(null);
   const controlName = name ?? id;
+  const isRequired = isFieldRequired(config);
 
   // Keep value as string in the form state, validation layer handles numeric checks
   const currentValue = value ?? "";
@@ -55,7 +57,11 @@ export function NumberField({
 
   return (
     <FieldGroup width={width}>
-      {label && <Label htmlFor={controlName}>{label}</Label>}
+      {label && (
+        <Label htmlFor={controlName} required={isRequired}>
+          {label}
+        </Label>
+      )}
 
       {messages?.description && (
         <p className="text-muted-foreground text-xs">{messages.description}</p>
@@ -70,6 +76,8 @@ export function NumberField({
         onBlur={handleBlur}
         placeholder={placeholder ?? ""}
         hasError={hasError}
+        required={isRequired}
+        aria-required={isRequired}
       />
 
       {localError ? (

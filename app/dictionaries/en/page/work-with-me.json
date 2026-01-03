@@ -8,6 +8,10 @@
       "kind": "form",
       "title": "Work with me",
       "description": "Tell me about your project, timeline, and goals. Share what you need and I'll get back quickly with next steps.",
+      "plxImg": {
+        "src": "/poses/jump.webp",
+        "alt": "Jean Paulette portrait"
+      },
       "meta": {
         "api": {
           "endpoint": "/api/form",

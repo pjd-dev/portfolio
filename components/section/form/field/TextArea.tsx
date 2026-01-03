@@ -3,6 +3,7 @@ import { TextAreaFormField } from "@/lib/validation/section/formDictionarySchema
 import { useCallback, useEffect, useState, type ChangeEvent } from "react";
 import { ErrorMessage, FieldGroup, Label, TextArea } from "../ui";
 import type { FormFieldComponentProps } from "./shared";
+import { isFieldRequired } from "./utils";
 
 export type TextAreaFieldProps = FormFieldComponentProps & {
   config: TextAreaFormField;
@@ -18,6 +19,7 @@ export function TextAreaField({
   const { id, name, label, placeholder, width, messages, rows, defaultValue } = config;
   const [localError, setLocalError] = useState<string | null>(null);
   const controlName = name ?? id;
+  const isRequired = isFieldRequired(config);
   const currentValue =
     typeof value === "string" ? value : value == null ? "" : String(value);
   useEffect(() => {
@@ -58,7 +60,11 @@ export function TextAreaField({
 
   return (
     <FieldGroup width={width}>
-      {label && <Label htmlFor={controlName}>{label}</Label>}
+      {label && (
+        <Label htmlFor={controlName} required={isRequired}>
+          {label}
+        </Label>
+      )}
 
       {messages?.description && (
         <p className="text-muted-foreground text-xs">{messages.description}</p>
@@ -73,6 +79,8 @@ export function TextAreaField({
         placeholder={placeholder ?? ""}
         hasError={hasError}
         rows={rows ?? 4}
+        required={isRequired}
+        aria-required={isRequired}
       />
 
       {localError ? (

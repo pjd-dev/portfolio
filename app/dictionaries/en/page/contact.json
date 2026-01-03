@@ -68,6 +68,7 @@
           "name": "subject",
           "label": "Subject",
           "type": "select",
+          "placeholder": "Choose a subject",
           "width": "full",
           "options": [
             { "value": "recruitment", "label": "Job Opportunity" },
@@ -105,6 +106,7 @@
           "name": "budget",
           "label": "Budget",
           "type": "select",
+          "placeholder": "Select a range",
           "width": "1/3",
           "options": [
             { "value": "<1k", "label": "< $1,000" },
@@ -178,9 +180,20 @@
               "message": "Message must be at least 10 characters"
             }
           ]
+        },
+        {
+          "id": "privacy",
+          "name": "privacy",
+          "label": "By submitting this form, you agree that your data is used to respond and may be delivered by email or stored in Airtable depending on the form settings.",
+          "type": "checkbox",
+          "errors": [
+            {
+              "rule": { "type": "required" },
+              "message": "This field is required"
+            }
+          ]
         }
       ],
-      "privacy": "By submitting this form, you agree that your data is used to respond and may be delivered by email or stored in Airtable depending on the form settings.",
       "submit": "Send Message",
       "ctas": []
     }

@@ -3,6 +3,7 @@ import { CheckboxFormField } from "@/lib/validation/section/formDictionarySchema
 import { useCallback, useEffect, useState, type ChangeEvent } from "react";
 import { ErrorMessage, FieldGroup, ToggleInput, ToggleLabel, ToggleWrapper } from "../ui";
 import type { FormFieldComponentProps } from "./shared";
+import { isFieldRequired } from "./utils";
 export type CheckboxFieldProps = FormFieldComponentProps & {
   config: CheckboxFormField;
 };
@@ -17,6 +18,7 @@ export function CheckboxField({
   const { id, name, label, width, messages, defaultValue } = config;
   const [localError, setLocalError] = useState<string | null>(null);
   const controlName = name ?? id;
+  const isRequired = isFieldRequired(config);
 
   const checked = value === "true" || value === "on" || value === "1" || value === true;
 
@@ -65,12 +67,20 @@ export function CheckboxField({
             checked={checked}
             onChange={handleChange}
             onBlur={handleBlur}
+            required={isRequired}
+            aria-required={isRequired}
           />
           <ToggleLabel htmlFor={id} />
         </ToggleWrapper>
         {label && (
           <span className="flex-1 text-left text-xs leading-snug text-[--background]">
             {label}
+            {isRequired && (
+              <span style={{ color: "var(--error)" }} aria-hidden="true">
+                {" "}
+                *
+              </span>
+            )}
           </span>
         )}
       </div>

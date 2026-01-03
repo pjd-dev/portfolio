@@ -7,9 +7,11 @@ export const FormHeader = styled("div", {
   padding: "1rem 1.25rem",
   glass: true,
   borderRadius: "1.2rem",
-  border: "1px solid rgba(var(--foreground-rgb),0.12)",
-  backgroundColor: "rgba(var(--background-rgb),0.4)",
-  boxShadow: "0 18px 40px rgba(var(--foreground-rgb),0.45)",
+  border: "1px solid rgba(var(--foreground-rgb),0.18)",
+  backgroundImage:
+    "linear-gradient(180deg, rgba(var(--foreground-rgb),0.45) 0%, rgba(var(--foreground-rgb),0.18) 100%)",
+  boxShadow: "0 16px 32px rgba(var(--foreground-rgb),0.35)",
+  backdropFilter: "blur(18px)",
   transition: "all 150ms ease",
   variants: {
     condensed: {

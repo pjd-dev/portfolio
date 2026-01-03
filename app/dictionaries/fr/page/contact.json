@@ -69,6 +69,7 @@
           "name": "subject",
           "label": "Sujet",
           "type": "select",
+          "placeholder": "Choisissez un sujet",
           "width": "full",
           "options": [
             { "value": "recruitment", "label": "Opportunité d'emploi" },
@@ -106,6 +107,7 @@
           "name": "budget",
           "label": "Budget",
           "type": "select",
+          "placeholder": "Sélectionnez une tranche",
           "width": "1/3",
           "options": [
             { "value": "<1k", "label": "< 1 000 €" },

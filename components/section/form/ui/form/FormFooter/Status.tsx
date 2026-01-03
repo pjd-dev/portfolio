@@ -8,16 +8,29 @@ import { StatusBarRoot, StatusLabel, StatusText } from "./ui";
 type StatusProps = {
   visible: boolean;
   tone?: FormState;
+  label?: string;
   children: ReactNode;
 };
 
-export const Status: FC<StatusProps> = ({ visible, tone = "idle", children }) => (
+const resolveDefaultLabel = (tone: FormState) =>
+  tone === "error"
+    ? "Error"
+    : tone === "success"
+      ? "Success"
+      : tone === "validation"
+        ? "Validation"
+        : "Info";
+
+export const Status: FC<StatusProps> = ({
+  visible,
+  tone = "idle",
+  label,
+  children,
+}) => (
   <StatusBarRoot visible={visible} tone={tone}>
     {visible && (
       <>
-        <StatusLabel>
-          {tone === "error" ? "Erreur" : tone === "success" ? "Succès" : "Info"}
-        </StatusLabel>
+        <StatusLabel>{label ?? resolveDefaultLabel(tone)}</StatusLabel>
         <StatusText>{children}</StatusText>
       </>
     )}

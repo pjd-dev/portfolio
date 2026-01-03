@@ -21,6 +21,8 @@ export function FormRenderer({ config }: FormRendererProps) {
   const scrollHint = messages?.scrollHint ?? null;
   const requiredHint = messages?.requiredHint ?? null;
   const submitLabel = config.submit ?? messages?.submit ?? "Submit";
+  const loadingLabel =
+    messages?.loading ?? (lang === "fr" ? "Envoi..." : "Sending...");
 
   const handleFieldChange = useCallback(
     (field: FormSectionField) => (next: FormValues[keyof FormValues] | undefined) => {
@@ -128,6 +130,26 @@ export function FormRenderer({ config }: FormRendererProps) {
             ? (messages?.error ?? "Something went wrong. Please try again.")
             : null;
 
+  const statusLabel = (() => {
+    const labels =
+      lang === "fr"
+        ? {
+            error: "Erreur",
+            success: "Succès",
+            validation: "Validation",
+            submitting: "Info",
+            idle: "Info",
+          }
+        : {
+            error: "Error",
+            success: "Success",
+            validation: "Validation",
+            submitting: "Info",
+            idle: "Info",
+          };
+    return labels[status];
+  })();
+
   return (
     <FormCard noValidate onSubmit={handleSubmit}>
       <Scroll.Container>
@@ -165,6 +187,7 @@ export function FormRenderer({ config }: FormRendererProps) {
               <FormFooter.Status
                 visible={status !== "idle" && !!statusMessage}
                 tone={status}
+                label={statusLabel}
               >
                 {statusMessage}
               </FormFooter.Status>
@@ -176,6 +199,7 @@ export function FormRenderer({ config }: FormRendererProps) {
               <FormFooter.Submit
                 submitting={status === "submitting"}
                 disabled={!isFormValid || status === "submitting"}
+                loadingLabel={loadingLabel}
               >
                 {submitLabel}
               </FormFooter.Submit>

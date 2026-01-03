@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { ErrorMessage, FieldGroup, Label, MarkdownEditor } from "../ui";
 
 import type { FormFieldComponentProps } from "./shared";
+import { isFieldRequired } from "./utils";
 
 export type MarkdownFieldProps = FormFieldComponentProps & {
   config: MarkdownFormField;
@@ -19,6 +20,7 @@ export function MarkdownField({
   const { id, name, label, placeholder, width, messages, rows, defaultValue } = config;
   const [localError, setLocalError] = useState<string | null>(null);
   const controlName = name ?? id;
+  const isRequired = isFieldRequired(config);
   const currentValue =
     typeof value === "string" ? value : value == null ? "" : String(value);
   const runValidation = useCallback(
@@ -59,7 +61,11 @@ export function MarkdownField({
 
   return (
     <FieldGroup>
-      {label && <Label htmlFor={controlName}>{label}</Label>}
+      {label && (
+        <Label htmlFor={controlName} required={isRequired}>
+          {label}
+        </Label>
+      )}
 
       {messages?.description && (
         <p className="text-muted-foreground text-xs">{messages.description}</p>
@@ -75,6 +81,7 @@ export function MarkdownField({
         hasError={hasError}
         width={width}
         rows={rows ?? 10}
+        required={isRequired}
       />
 
       {localError ? (

@@ -120,7 +120,6 @@ describe("Section components", () => {
     render(<Form {...formSection} />);
 
     expect(screen.getByLabelText("Name")).toBeInTheDocument();
-    expect(screen.getByAltText("Placeholder")).toBeInTheDocument();
   });
 
   it("renders sections via SectionRenderer", () => {

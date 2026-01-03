@@ -189,6 +189,12 @@ export const formSectionSchema = baseSectionSchema.extend({
   messages: sectionMessagesSchema.optional(),
   title: z.string().optional(),
   description: z.string().optional(),
+  plxImg: z
+    .object({
+      alt: z.string().optional(),
+      src: z.string(),
+    })
+    .optional(),
   fields: z.array(fieldSchema),
   submit: z.string().optional(),
 });

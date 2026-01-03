@@ -8,6 +8,10 @@
       "kind": "form",
       "title": "Travaillons ensemble",
       "description": "Parlez-moi de votre projet, du timing et des objectifs. Dites-moi ce dont vous avez besoin et je reviens vers vous rapidement.",
+      "plxImg": {
+        "src": "/poses/jump.webp",
+        "alt": "Portrait de Jean Paulette"
+      },
       "meta": {
         "api": {
           "endpoint": "/api/form",

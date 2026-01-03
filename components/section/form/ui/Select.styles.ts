@@ -5,6 +5,7 @@ export const SelectRoot = styled("div", {
   display: "inline-flex",
   alignItems: "center",
   width: "100%",
+  color: "rgba(var(--background-rgb), 0.85)",
 
   "&::after": {
     content: "",
@@ -16,10 +17,14 @@ export const SelectRoot = styled("div", {
     height: "1rem",
     pointerEvents: "none",
     backgroundImage:
-      "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E\")",
+      "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E\")",
     backgroundRepeat: "no-repeat",
     backgroundSize: "1rem 1rem",
     opacity: 0.9,
+  },
+
+  "&:focus-within": {
+    color: "rgba(var(--background-rgb), 1)",
   },
 });
 
@@ -30,20 +35,12 @@ export const Select = styled("select", {
   fontFamily: "inherit",
   fontSize: "0.9rem",
   lineHeight: 1.4,
-  padding: "1rem 2.4rem 1rem 0.9rem",
-  borderRadius: "999px",
-
-  // keep glass, but override its darkest properties
-  glass: true,
-  tintGlass: "var(--foreground-rgb)",
-
-  // FIX → lighten background explicitly
-  backgroundColor: "rgba(var(--foreground-rgb), 0.12)",
-
-  // FIX → lighten inner shadow so it doesn’t crush contrast
-  boxShadow: "0 0 0 1px rgba(var(--foreground-rgb), 0.10), 0 6px 18px rgba(0,0,0,0.25)",
-
-  border: "1px solid rgba(var(--foreground-rgb), 0.16)",
+  padding: "0.95rem 2.4rem 0.95rem 0.9rem",
+  borderRadius: "12px",
+  backgroundColor: "rgba(var(--foreground-rgb), 0.08)",
+  border: "1px solid rgba(var(--background-rgb), 0.2)",
+  boxShadow:
+    "0 0 0 1px rgba(var(--foreground-rgb), 0.08) inset, 0 8px 20px rgba(0,0,0,0.25)",
   color: "rgba(var(--background-rgb), 0.85)",
   cursor: "pointer",
   transition:
@@ -55,21 +52,22 @@ export const Select = styled("select", {
 
   "&:focus-visible": {
     outline: "none",
-    borderColor: "rgba(var(--accent-rgb), 0.9)",
-    backgroundColor: "rgba(var(--foreground-rgb), 0.18)", // lighter focus
+    borderColor: "rgba(var(--background-rgb), 0.9)",
+    backgroundColor: "rgba(var(--foreground-rgb), 0.14)",
     color: "rgba(var(--background-rgb), 1)",
     boxShadow:
-      "0 0 0 1px rgba(var(--foreground-rgb), 0.6), 0 10px 28px rgba(var(--foreground-rgb),0.45)",
+      "0 0 0 2px rgba(var(--background-rgb), 0.22), 0 0 0 4px rgba(var(--foreground-rgb), 0.35)",
   },
 
   "&:hover": {
-    backgroundColor: "rgba(var(--foreground-rgb), 0.16)",
-    borderColor: "rgba(var(--background-rgb), 0.28)",
+    backgroundColor: "rgba(var(--foreground-rgb), 0.12)",
+    borderColor: "rgba(var(--background-rgb), 0.35)",
   },
 
   "&:disabled": {
-    opacity: 0.5,
+    opacity: 0.55,
     cursor: "not-allowed",
+    boxShadow: "0 0 0 1px rgba(var(--foreground-rgb), 0.06) inset",
   },
 
   "& option": {

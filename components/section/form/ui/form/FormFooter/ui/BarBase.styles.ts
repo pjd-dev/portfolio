@@ -5,7 +5,7 @@ export const BarBase = styled("div", {
   overflow: "hidden",
   borderRadius: "999px",
   border: "1px solid transparent",
-  backgroundColor: "rgba(var(--background-rgb),0.5)",
+  backgroundColor: "rgba(var(--foreground-rgb),0.35)",
   paddingInline: "0.85rem",
   fontSize: "0.7rem",
   lineHeight: 1.3,
@@ -21,7 +21,7 @@ export const BarBase = styled("div", {
         maxHeight: "2rem",
         paddingBlock: "0.35rem",
         opacity: 1,
-        borderColor: "rgba(var(--background-rgb),0.06)",
+        borderColor: "rgba(var(--foreground-rgb),0.12)",
       },
       false: {
         maxHeight: 0,

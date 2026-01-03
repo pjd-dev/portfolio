@@ -3,6 +3,7 @@ import { SelectFormField } from "@/lib/validation/section/formDictionarySchema";
 import { useCallback, useEffect, useState, type ChangeEvent } from "react";
 import { ErrorMessage, FieldGroup, Label, Select, SelectRoot } from "../ui";
 import type { FormFieldComponentProps } from "./shared";
+import { isFieldRequired } from "./utils";
 
 export type SelectFieldProps = FormFieldComponentProps & {
   config: SelectFormField;
@@ -27,6 +28,7 @@ export function SelectField({
   } = config;
   const [localError, setLocalError] = useState<string | null>(null);
   const controlName = name ?? id;
+  const isRequired = isFieldRequired(config);
   const currentValue = value == null ? "" : String(value);
 
   const runValidation = useCallback(
@@ -39,17 +41,13 @@ export function SelectField({
   );
 
   useEffect(() => {
-    // On first mount, if there is no value yet, initialize from defaultValue or first option.
-    if (
-      (value === undefined || value === null) &&
-      (defaultValue !== undefined || options.length > 0)
-    ) {
-      const rawOption = defaultValue ?? options[0]?.value ?? "";
-      const raw = String(rawOption);
+    // On first mount, if there is no value yet, initialize from explicit defaultValue.
+    if ((value === undefined || value === null) && defaultValue !== undefined) {
+      const raw = String(defaultValue);
       onChange?.(raw);
       // runValidation(raw as string);
     }
-  }, [defaultValue, value, options, onChange]);
+  }, [defaultValue, value, onChange]);
 
   const handleBlur = useCallback(() => {
     runValidation(currentValue);
@@ -68,7 +66,11 @@ export function SelectField({
 
   return (
     <FieldGroup width={width}>
-      {label && <Label htmlFor={controlName}>{label}</Label>}
+      {label && (
+        <Label htmlFor={controlName} required={isRequired}>
+          {label}
+        </Label>
+      )}
 
       {messages?.description && (
         <p className="text-muted-foreground text-xs">{messages.description}</p>
@@ -81,6 +83,8 @@ export function SelectField({
           onChange={handleChange}
           onBlur={handleBlur}
           hasError={hasError}
+          required={isRequired}
+          aria-required={isRequired}
         >
           <option value="">{placeholder ?? ""}</option>
           {options?.map((option) => (
