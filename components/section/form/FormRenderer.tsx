@@ -47,14 +47,13 @@ export function FormRenderer({ config }: FormRendererProps) {
     () => (fields ?? []).filter((field) => shouldShowFieldByConfig(field, values)),
     [fields, values],
   );
-  const enableScroll = (fields?.length ?? 0) > 4;
 
   const stepCount = useMemo(() => {
-    const total = fields?.length ?? 0;
+    const total = visibleFields.length;
     if (total >= 9) return 3;
     if (total >= 5) return 2;
     return 1;
-  }, [fields?.length]);
+  }, [visibleFields.length]);
 
   const steps = useMemo(() => {
     if (stepCount <= 1) return [visibleFields];
@@ -68,6 +67,7 @@ export function FormRenderer({ config }: FormRendererProps) {
   const currentStepFields = steps[currentStep] ?? visibleFields;
   const isLastStep = currentStep >= steps.length - 1;
   const showSteps = steps.length > 1;
+  const enableScroll = !showSteps && visibleFields.length > 4;
 
   useEffect(() => {
     if (currentStep > steps.length - 1) {
@@ -188,11 +188,33 @@ export function FormRenderer({ config }: FormRendererProps) {
     [values],
   );
 
+  const focusFirstError = useCallback(
+    (targetFields: FormSectionField[]) => {
+      if (typeof document === "undefined") return;
+      const firstInvalid = targetFields.find((field) => {
+        if (!shouldShowFieldByConfig(field, values)) return false;
+        const key = field.name ?? field.id;
+        return !!validateFieldValueFromConfig(field, values[key], values);
+      });
+      if (!firstInvalid) return;
+      window.requestAnimationFrame(() => {
+        const target = document.getElementById(firstInvalid.id);
+        if (!target) return;
+        target.scrollIntoView({ behavior: "smooth", block: "center" });
+        if (typeof (target as HTMLElement).focus === "function") {
+          (target as HTMLElement).focus();
+        }
+      });
+    },
+    [values],
+  );
+
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault();
 
     if (!validateFields(fields ?? [])) {
       setStatus("validation");
+      focusFirstError(fields ?? []);
       return;
     }
 
@@ -252,10 +274,18 @@ export function FormRenderer({ config }: FormRendererProps) {
   const handleStepNext = useCallback(() => {
     if (!validateFields(currentStepFields)) {
       setStatus("validation");
+      focusFirstError(currentStepFields);
       return;
     }
     handleStepChange(Math.min(currentStep + 1, steps.length - 1));
-  }, [currentStep, currentStepFields, handleStepChange, steps.length, validateFields]);
+  }, [
+    currentStep,
+    currentStepFields,
+    focusFirstError,
+    handleStepChange,
+    steps.length,
+    validateFields,
+  ]);
 
   const handleStepBack = useCallback(() => {
     handleStepChange(Math.max(currentStep - 1, 0));

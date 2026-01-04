@@ -41,7 +41,7 @@ export function Hero({ title, headline, headlineCta, plxImg, ctas }: HeroProps) 
           )}
         </WhatCell>
         {ctas && (
-          <CtaCell>
+          <CtaCell align={ctas.length === 1 ? "center" : "end"}>
             <CtaGroup>
               {ctas.map((cta) => (
                 <AppLink key={cta.label} cta={{ ...cta, variant: "solid" }} />

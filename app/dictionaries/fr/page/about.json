@@ -1,0 +1,57 @@
+{
+  "title": "Darrybook - À propos | Jean Paulette",
+  "subtitle": "Un aperçu de mon approche et de ma façon de travailler.",
+  "meta": { "version": 1, "locale": "fr" },
+  "sections": [
+    {
+      "id": "about_hero_fr",
+      "kind": "hero",
+      "title": "Jean Darry Paulette",
+      "headline": "Développeur full-stack concentré sur un produit clair et une exécution fiable.",
+      "headlineCta": {
+        "type": "internal",
+        "label": "Télécharger le CV",
+        "href": "/cv/Jean_Darry_Paulette_FullStack_Dev_Fr_2025.pdf",
+        "alt": "Télécharger le CV"
+      },
+      "plxImg": {
+        "src": "/poses/jump.webp",
+        "alt": "Portrait de Jean Darry Paulette"
+      },
+      "ctas": [
+        {
+          "type": "internal",
+          "label": "Travaillons ensemble",
+          "href": "/fr/work-with-me",
+          "alt": "Travaillons ensemble"
+        },
+        {
+          "type": "internal",
+          "label": "Me contacter",
+          "href": "/fr/contact",
+          "alt": "Me contacter"
+        }
+      ]
+    },
+    {
+      "id": "about_story_fr",
+      "kind": "text",
+      "title": "À propos",
+      "content": "\n\nJe suis Jean Darry Paulette, développeur full-stack qui transforme les idées en expériences web rapides et fiables. Je privilégie la clarté, la cohérence et des systèmes qui évoluent sans lourdeur.\n\n## Mes priorités\n- Une approche produit qui garde l'interface claire et intentionnelle.\n- TypeScript, React et Next.js pour un front-end moderne et stable.\n- Des bases back-end fiables, documentées et faciles à maintenir.\n- Performance, accessibilité et cohérence visuelle dès le départ.\n\n## Ma méthode\n- Aligner objectifs, périmètre et contraintes.\n- Construire par itérations avec des points de validation.\n- Livrer une transmission propre et une communication transparente.\n\nSi vous avez un projet en tête, je serais ravi d'en parler.\n\n",
+      "ctas": [
+        {
+          "type": "internal",
+          "label": "Lancer un projet",
+          "href": "/fr/work-with-me",
+          "alt": "Lancer un projet"
+        },
+        {
+          "type": "internal",
+          "label": "Me contacter",
+          "href": "/fr/contact",
+          "alt": "Me contacter"
+        }
+      ]
+    }
+  ]
+}

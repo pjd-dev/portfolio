@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSectionById } from "@/lib/dictionary";
 import { sendAirtableRecord } from "@/lib/integrations/airtable";
 import { createFormSchema } from "@/lib/validation/generateSchemaFromDict";
-import type { FormSection } from "@/lib/validation/section";
+import type { FormSection, HeroFormSection } from "@/lib/validation/section";
 import { ZodError } from "zod";
 
 import { sendJsonValuesEmail } from "@/lib/mail/sender";
@@ -60,28 +60,45 @@ export async function POST(request: NextRequest) {
       fieldCount: Object.keys(values ?? {}).length,
     });
 
-    const FormSectionDict = (await getSectionById({
+    const section = (await getSectionById({
       locale: lang,
       target: pageKey,
       sectionId,
-    })) as FormSection | null;
+    })) as FormSection | HeroFormSection | null;
 
-    if (!FormSectionDict) {
+    if (!section) {
       return NextResponse.json(
         { ok: false, error: "Form section not found" },
         { status: 404 },
       );
     }
 
-    const formSchema = createFormSchema(FormSectionDict);
+    const formConfig =
+      section.kind === "form"
+        ? section
+        : section.kind === "heroForm"
+          ? {
+              ...section.form,
+              id: section.form.id ?? section.id ?? sectionId,
+              kind: "form" as const,
+            }
+          : null;
+
+    if (!formConfig) {
+      return NextResponse.json(
+        { ok: false, error: "Form section not found" },
+        { status: 404 },
+      );
+    }
+
+    const formSchema = createFormSchema(formConfig);
 
     const validatedData = formSchema.parse(values);
 
     const emailSubject = `New form submission: ${pageLabel}`;
     const emailPreheader = `New submission from : ${sectionId || "Unknown Section"} at ${new Date().toLocaleString()}`;
 
-    const deliveryMode = (FormSectionDict.meta?.delivery ??
-      "mail") as DeliveryMode;
+    const deliveryMode = (formConfig.meta?.delivery ?? "mail") as DeliveryMode;
     const handlers = resolveDeliveryHandlers(deliveryMode);
     const results: DeliveryResult[] = [];
 
@@ -96,8 +113,8 @@ export async function POST(request: NextRequest) {
 
     if (handlers.includes("airtable")) {
       const airtableResult = await sendAirtableRecord({
-        baseId: FormSectionDict.meta?.airtable?.baseId,
-        table: FormSectionDict.meta?.airtable?.table,
+        baseId: formConfig.meta?.airtable?.baseId,
+        table: formConfig.meta?.airtable?.table,
         fields: {
           ...validatedData,
           sectionId,

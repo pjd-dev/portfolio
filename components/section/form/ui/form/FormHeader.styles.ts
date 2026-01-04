@@ -12,7 +12,8 @@ export const FormHeader = styled("div", {
     "linear-gradient(180deg, rgba(var(--foreground-rgb),0.6) 0%, rgba(var(--foreground-rgb),0.28) 100%)",
   boxShadow: "0 16px 32px rgba(var(--foreground-rgb),0.35)",
   backdropFilter: "blur(18px)",
-  transition: "all 150ms ease",
+  transition: "padding 150ms ease, box-shadow 150ms ease, border-color 150ms ease",
+  overflow: "hidden",
   variants: {
     condensed: {
       true: {

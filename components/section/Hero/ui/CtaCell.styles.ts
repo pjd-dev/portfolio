@@ -8,11 +8,29 @@ export const CtaCell = styled("div", {
   overflow: "hidden",
   padding: "2rem 1rem",
   display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  "@md": {
-    padding: "0.5rem 1rem",
-    justifyContent: "end",
-    alignItems: "end",
+  variants: {
+    align: {
+      center: {
+        justifyContent: "center",
+        alignItems: "center",
+        "@md": {
+          padding: "0.5rem 1rem",
+          justifyContent: "center",
+          alignItems: "center",
+        },
+      },
+      end: {
+        justifyContent: "center",
+        alignItems: "center",
+        "@md": {
+          padding: "0.5rem 1rem",
+          justifyContent: "end",
+          alignItems: "end",
+        },
+      },
+    },
+  },
+  defaultVariants: {
+    align: "end",
   },
 });

@@ -2,7 +2,7 @@
 import { styled } from "@/stitches.config";
 
 export const FieldGroup = styled("div", {
-  marginBottom: "1.5rem",
+  marginBottom: 0,
   width: "100%",
   minWidth: 0,
   scrollMarginTop: "6rem",

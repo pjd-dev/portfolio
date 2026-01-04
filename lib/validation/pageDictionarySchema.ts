@@ -2,6 +2,7 @@
 import {
   formSectionSchema,
   heroSectionSchema,
+  heroFormSectionSchema,
   legalSectionSchema,
   textSectionSchema,
 } from "@/lib/validation/section";
@@ -11,6 +12,7 @@ import { z } from "zod";
 
 export const sectionSchema = z.union([
   heroSectionSchema,
+  heroFormSectionSchema,
   formSectionSchema,
   textSectionSchema,
   legalSectionSchema,

@@ -1,7 +1,7 @@
 import { POST } from "@/app/api/form/route";
 import contactDict from "@/app/dictionaries/en/page/contact.json";
 import workWithMeDict from "@/app/dictionaries/en/page/work-with-me.json";
-import type { FormSection } from "@/lib/validation/section";
+import type { FormSection, HeroFormSection } from "@/lib/validation/section";
 import { NextRequest } from "next/server";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -24,14 +24,17 @@ const { sendAirtableRecord } = await import("@/lib/integrations/airtable");
 const contactFormSection = contactDict.sections.find(
   (section) => section.kind === "form" && section.id === "contact_form_en",
 ) as FormSection | undefined;
-const workWithMeFormSection = workWithMeDict.sections.find(
-  (section) => section.kind === "form" && section.id === "work_with_me_form",
-) as FormSection | undefined;
+const workWithMeSection = workWithMeDict.sections.find(
+  (section) => section.kind === "heroForm" && section.id === "work_with_me_form",
+) as HeroFormSection | undefined;
+const workWithMeFormSection = workWithMeSection
+  ? ({ ...workWithMeSection.form, id: workWithMeSection.id, kind: "form" } as FormSection)
+  : undefined;
 
 if (!contactFormSection) {
   throw new Error("Contact form section not found in dictionary");
 }
-if (!workWithMeFormSection) {
+if (!workWithMeFormSection || !workWithMeSection) {
   throw new Error("Work-with-me form section not found in dictionary");
 }
 
@@ -128,14 +131,17 @@ describe("Work-with-me form airtable smoke submission", () => {
   });
 
   it("routes submissions to Airtable when delivery is airtable", async () => {
-    const airtableSection: FormSection = {
-      ...workWithMeFormSection,
-      meta: {
-        ...workWithMeFormSection.meta,
-        delivery: "airtable",
-        airtable: {
-          baseId: "base_test",
-          table: "WorkWithMe",
+    const airtableSection: HeroFormSection = {
+      ...workWithMeSection,
+      form: {
+        ...workWithMeSection.form,
+        meta: {
+          ...workWithMeSection.form.meta,
+          delivery: "airtable",
+          airtable: {
+            baseId: "base_test",
+            table: "WorkWithMe",
+          },
         },
       },
     };
@@ -143,7 +149,7 @@ describe("Work-with-me form airtable smoke submission", () => {
     vi.mocked(getSectionById).mockResolvedValue(airtableSection);
 
     const validData = {
-      sectionId: workWithMeFormSection.id,
+      sectionId: workWithMeSection.id,
       lang: "en",
       page: "work-with-me",
       values: {
@@ -171,7 +177,7 @@ describe("Work-with-me form airtable smoke submission", () => {
         baseId: "base_test",
         table: "WorkWithMe",
         fields: expect.objectContaining({
-          sectionId: workWithMeFormSection.id,
+          sectionId: workWithMeSection.id,
           page: "work-with-me",
           lang: "en",
         }),

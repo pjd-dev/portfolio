@@ -1,0 +1,57 @@
+{
+  "title": "Darrybook - About | Jean Paulette",
+  "subtitle": "A quick look at how I work and what I care about.",
+  "meta": { "version": 1, "locale": "en" },
+  "sections": [
+    {
+      "id": "about_hero_en",
+      "kind": "hero",
+      "title": "Jean Darry Paulette",
+      "headline": "Full-stack developer focused on thoughtful product design and reliable engineering.",
+      "headlineCta": {
+        "type": "internal",
+        "label": "Download CV",
+        "href": "/cv/Jean_Darry_Paulette_FullStack_Dev_En_2025.pdf",
+        "alt": "Download CV"
+      },
+      "plxImg": {
+        "src": "/poses/jump.webp",
+        "alt": "Jean Darry Paulette portrait"
+      },
+      "ctas": [
+        {
+          "type": "internal",
+          "label": "Work with me",
+          "href": "/en/work-with-me",
+          "alt": "Work with me"
+        },
+        {
+          "type": "internal",
+          "label": "Contact",
+          "href": "/en/contact",
+          "alt": "Contact"
+        }
+      ]
+    },
+    {
+      "id": "about_story_en",
+      "kind": "text",
+      "title": "About",
+      "content": "\n\nI'm Jean Darry Paulette, a full-stack developer who turns ideas into clean, fast, and dependable web experiences. I care about craft, clarity, and building systems that scale without feeling heavy.\n\n## What I focus on\n- Product thinking that keeps the interface clear and intentional.\n- TypeScript, React, and Next.js for stable, modern front-end work.\n- Back-end foundations that are reliable, documented, and easy to maintain.\n- Performance, accessibility, and design consistency from day one.\n\n## How I work\n- Align on goals, scope, and the real constraints.\n- Build iteratively with checkpoints and demos.\n- Deliver clean handoff material and transparent communication.\n\nIf you have a project in mind, I'd love to hear about it.\n\n",
+      "ctas": [
+        {
+          "type": "internal",
+          "label": "Start a project",
+          "href": "/en/work-with-me",
+          "alt": "Start a project"
+        },
+        {
+          "type": "internal",
+          "label": "Contact me",
+          "href": "/en/contact",
+          "alt": "Contact me"
+        }
+      ]
+    }
+  ]
+}

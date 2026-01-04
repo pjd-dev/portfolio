@@ -2,6 +2,8 @@ export * from "./formDictionarySchema";
 export type * from "./formDictionarySchema";
 export * from "./heroDictionarySchema";
 export type * from "./heroDictionarySchema";
+export * from "./heroFormDictionarySchema";
+export type * from "./heroFormDictionarySchema";
 export * from "./textDictionarySchema";
 export type * from "./textDictionarySchema";
 export * from "./legalDictionarySchema";
