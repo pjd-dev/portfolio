@@ -6,5 +6,5 @@ export const Container = styled("div", {
   minHeight: 0,
   display: "grid",
   gridTemplateColumns: "1fr auto",
-  overflow: "auto",
+  overflow: "hidden",
 });

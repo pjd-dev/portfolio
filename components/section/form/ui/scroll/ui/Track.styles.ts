@@ -5,15 +5,15 @@ export const Track = styled("div", {
   // center vertically: 25% gap top + bottom
   top: "33.333%",
   bottom: "33.333%", // 1/3 of the card height
-  right: "0.2rem",
-  width: "10px",
+  right: "0.35rem",
+  width: "8px",
   borderRadius: "999px",
   background:
-    "linear-gradient(180deg, rgba(var(--background-rgb),0.35), rgba(var(--background-rgb),0.12))",
+    "linear-gradient(180deg, rgba(var(--foreground-rgb),0.35), rgba(var(--foreground-rgb),0.12))",
   glass: true,
-  border: "1px solid rgba(var(--background-rgb),0.45)",
+  border: "1px solid rgba(var(--background-rgb),0.2)",
   boxShadow:
-    "0 0 0 1px rgba(var(--background-rgb),0.25) inset, 0 8px 16px rgba(0,0,0,0.35)",
+    "0 0 0 1px rgba(var(--foreground-rgb),0.2) inset, 0 10px 18px rgba(0,0,0,0.35)",
   overflow: "hidden",
   "&::after": {
     content: '""',
@@ -21,7 +21,7 @@ export const Track = styled("div", {
     inset: "1px",
     borderRadius: "inherit",
     background:
-      "linear-gradient(180deg, rgba(var(--background-rgb),0.25), rgba(var(--background-rgb),0))",
+      "linear-gradient(180deg, rgba(var(--background-rgb),0.25), rgba(var(--background-rgb),0.05))",
     pointerEvents: "none",
   },
 });

@@ -67,7 +67,6 @@ describe("Contact form smoke submission", () => {
       values: {
         name: "Test User",
         email: "test.user@example.com",
-        subject: "recruitment",
         message: "Hello, this is a smoke test message.",
         privacy: true,
       },
@@ -95,7 +94,6 @@ describe("Contact form smoke submission", () => {
       values: {
         name: "Test User",
         email: "not-an-email",
-        subject: "recruitment",
         message: "short",
       },
     };

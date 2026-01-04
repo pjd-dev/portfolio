@@ -18,12 +18,15 @@ export const FieldGroup = styled("div", {
       "1/2": {
         gridColumn: "1 / -1",
         "@container form-card (min-width: 520px)": {
+          gridColumn: "span 2 / span 2",
+        },
+        "@container form-card (min-width: 720px)": {
           gridColumn: "span 3 / span 3",
         },
       },
       "1/3": {
         gridColumn: "1 / -1",
-        "@container form-card (min-width: 640px)": {
+        "@container form-card (min-width: 720px)": {
           gridColumn: "span 2 / span 2",
         },
       },

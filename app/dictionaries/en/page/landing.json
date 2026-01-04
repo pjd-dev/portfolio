@@ -30,9 +30,9 @@
           "alt": "Bouton work with me"
         },
         {
-          "type": "external",
+          "type": "internal",
           "label": "Contact Me",
-          "href": "mailto:contact@darrybook.fr",
+          "href": "/en/contact",
           "alt": "Bouton Contact Me"
         }
       ]

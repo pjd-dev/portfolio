@@ -4,7 +4,6 @@ import { styled } from "@/stitches.config";
 export const FormCard = styled("form", {
   position: "relative",
   width: "100%",
-  maxHeight: "80svh",
 
   display: "flex",
   flexDirection: "column",
@@ -61,6 +60,21 @@ export const FormCard = styled("form", {
     padding: 0,
     borderRadius: "1.5rem",
     maxHeight: "none",
+  },
+
+  variants: {
+    scrollable: {
+      true: {
+        maxHeight: "80svh",
+      },
+      false: {
+        maxHeight: "none",
+      },
+    },
+  },
+
+  defaultVariants: {
+    scrollable: true,
   },
 
   "@media (prefers-reduced-motion: reduce)": {

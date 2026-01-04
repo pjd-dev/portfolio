@@ -40,16 +40,18 @@ export function useScroll(ref: RefObject<HTMLDivElement | null>) {
     const MIN_RATIO = 1 / 3;
     const thumbRatio = Math.max(visibleRatio, MIN_RATIO); // 0 < thumbRatio ≤ 1
 
+    const startThreshold = Math.max(24, Math.round(clientHeight * 0.08));
+    const endThreshold = Math.max(24, Math.round(clientHeight * 0.1));
+
     // base scroll progress in [0, 1]
     let scrollProgress = scrollTop / scrollable;
 
     // if we're within 1px of the bottom, snap to 1
-    const EPS = 1; // px tolerance
     const distanceToBottom = scrollable - scrollTop;
-    if (distanceToBottom <= EPS) {
+    if (distanceToBottom <= endThreshold) {
       scrollProgress = 1;
     }
-    setReachedEnd(distanceToBottom <= EPS);
+    setReachedEnd(distanceToBottom <= endThreshold);
 
     // clamp just in case
     scrollProgress = Math.min(Math.max(scrollProgress, 0), 1);
@@ -58,7 +60,7 @@ export function useScroll(ref: RefObject<HTMLDivElement | null>) {
     const maxOffset = 1 - thumbRatio;
     const offsetRatio = scrollProgress * maxOffset;
 
-    setHaveScroll(scrollTop > 8);
+    setHaveScroll(scrollTop > startThreshold);
     setShowThumb(true);
     setShowBar(true);
     setSizePct(thumbRatio);

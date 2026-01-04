@@ -47,6 +47,7 @@ export function FormRenderer({ config }: FormRendererProps) {
     () => (fields ?? []).filter((field) => shouldShowFieldByConfig(field, values)),
     [fields, values],
   );
+  const enableScroll = (fields?.length ?? 0) > 4;
 
   const stepCount = useMemo(() => {
     const total = fields?.length ?? 0;
@@ -352,9 +353,9 @@ export function FormRenderer({ config }: FormRendererProps) {
   const stepNavDisabled = status === "submitting" || status === "success";
 
   return (
-    <FormCard noValidate onSubmit={handleSubmit}>
+    <FormCard noValidate onSubmit={handleSubmit} scrollable={enableScroll}>
       <Scroll.Container>
-        <Scroll.Viewport ref={scrollRef}>
+        <Scroll.Viewport ref={scrollRef} scrollable={enableScroll}>
           <FormHeader condensed={haveScroll}>
             <Title>{title}</Title>
             <Description>{description}</Description>
@@ -412,7 +413,7 @@ export function FormRenderer({ config }: FormRendererProps) {
 
           <FormFooter.Root>
             <FormFooter.Top>
-              {scrollHint && (
+              {scrollHint && enableScroll && (
                 <FormFooter.ScrollHint visible={canScroll && !reachedEnd}>
                   {scrollHint}
                 </FormFooter.ScrollHint>
@@ -468,7 +469,11 @@ export function FormRenderer({ config }: FormRendererProps) {
             </FormFooter.Base>
           </FormFooter.Root>
         </Scroll.Viewport>
-        <Scroll.Bar visible={showBar} sizePct={sizePct} offsetPct={offsetPct} />
+        <Scroll.Bar
+          visible={enableScroll && showBar}
+          sizePct={sizePct}
+          offsetPct={offsetPct}
+        />
       </Scroll.Container>
     </FormCard>
   );

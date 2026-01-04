@@ -8,8 +8,11 @@ export const FormBody = styled("div", {
   rowGap: "1.25rem",
   columnGap: "0.9rem",
   "@container form-card (min-width: 520px)": {
-    gridTemplateColumns: "repeat(6, minmax(0, 1fr))",
+    gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
     padding: "2.25rem 0.75rem 1.6rem",
     columnGap: "1rem",
+  },
+  "@container form-card (min-width: 720px)": {
+    gridTemplateColumns: "repeat(6, minmax(0, 1fr))",
   },
 });

@@ -30,9 +30,9 @@
           "alt": "Bouton Travaillons ensemble"
         },
         {
-          "type": "external",
+          "type": "internal",
           "label": "Contactez-moi",
-          "href": "mailto:contact@darrybook.fr",
+          "href": "/fr/contact",
           "alt": "Bouton Contactez-moi"
         }
       ]
