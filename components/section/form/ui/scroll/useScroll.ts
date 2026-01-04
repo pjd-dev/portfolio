@@ -42,6 +42,8 @@ export function useScroll(ref: RefObject<HTMLDivElement | null>) {
 
     const startThreshold = Math.max(24, Math.round(clientHeight * 0.08));
     const endThreshold = Math.max(24, Math.round(clientHeight * 0.1));
+    const endReleaseThreshold =
+      endThreshold + Math.max(12, Math.round(clientHeight * 0.04));
 
     // base scroll progress in [0, 1]
     let scrollProgress = scrollTop / scrollable;
@@ -51,7 +53,13 @@ export function useScroll(ref: RefObject<HTMLDivElement | null>) {
     if (distanceToBottom <= endThreshold) {
       scrollProgress = 1;
     }
-    setReachedEnd(distanceToBottom <= endThreshold);
+    if (reachedEnd) {
+      if (distanceToBottom > endReleaseThreshold) {
+        setReachedEnd(false);
+      }
+    } else if (distanceToBottom <= endThreshold) {
+      setReachedEnd(true);
+    }
 
     // clamp just in case
     scrollProgress = Math.min(Math.max(scrollProgress, 0), 1);
@@ -65,7 +73,7 @@ export function useScroll(ref: RefObject<HTMLDivElement | null>) {
     setShowBar(true);
     setSizePct(thumbRatio);
     setOffsetPct(offsetRatio);
-  }, [ref, canScroll]);
+  }, [ref, canScroll, reachedEnd]);
 
   useEffect(() => {
     const el = ref.current;

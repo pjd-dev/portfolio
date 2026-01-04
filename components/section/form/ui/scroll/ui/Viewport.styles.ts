@@ -13,6 +13,7 @@ export const Viewport = styled("div", {
       true: {
         height: "100%",
         overflowY: "auto",
+        overscrollBehavior: "contain",
       },
       false: {
         height: "auto",
