@@ -28,6 +28,7 @@ export async function handler(
 
       return {
         content: [{ type: 'text', text: `Wrote note (from base64): ${rel}` }],
+        structuredContent: { path: rel, mode: 'base64' },
       };
     } catch (err: any) {
       return {
@@ -37,6 +38,11 @@ export async function handler(
             text: `Error: invalid base64 payload for note '${rel}' - ${err.message}`,
           },
         ],
+        structuredContent: {
+          path: rel,
+          mode: 'base64',
+          git: { error: err.message },
+        },
         isError: true,
       };
     }
@@ -49,10 +55,14 @@ export async function handler(
   });
 
   try {
-    await deps.gitCommitAndPush(rel, `Create/update note: ${rel}`, {
-      author: 'MCP Bot',
-      email: 'mcp@vault.local',
-    });
+    const gitResult = await deps.gitCommitAndPush(
+      rel,
+      `Create/update note: ${rel}`,
+      {
+        author: 'MCP Bot',
+        email: 'mcp@vault.local',
+      }
+    );
 
     return {
       content: [
@@ -61,6 +71,7 @@ export async function handler(
           text: `Wrote note: ${rel} (committed and pushed to git)`,
         },
       ],
+      structuredContent: { path: rel, mode: 'frontmatter', git: gitResult },
     };
   } catch (error: any) {
     return {
@@ -70,6 +81,12 @@ export async function handler(
           text: `Wrote note: ${rel} (local write successful, but git commit failed: ${error.message})`,
         },
       ],
+      structuredContent: {
+        path: rel,
+        mode: 'frontmatter',
+        git: { error: error.message },
+        warning: 'git commit failed',
+      },
     };
   }
 }

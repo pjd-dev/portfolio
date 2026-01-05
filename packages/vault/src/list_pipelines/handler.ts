@@ -27,6 +27,7 @@ export async function handler(
           text: 'No active pipelines. Run a simulation first with obsidian_run_pipeline_simulation.',
         },
       ],
+      structuredContent: { pipelines: [] },
     };
   }
 

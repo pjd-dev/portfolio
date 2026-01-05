@@ -5,18 +5,17 @@ export const inputSchema = z.object({
 });
 
 export const outputSchema = z.object({
-  content: z.array(
-    z.object({
-      type: z.literal('text'),
-      text: z.string(),
-    })
-  ),
-  structuredContent: z.object({
-    path: z.string(),
-    frontmatter: z.record(z.string(), z.any()),
-    content: z.string(),
-  }),
+  path: z.string(),
+  frontmatter: z.record(z.string(), z.unknown()),
+  content: z.string(),
 });
 
+type ToolContent = { type: 'text'; text: string };
+
 export type ReadNoteInput = z.infer<typeof inputSchema>;
-export type ReadNoteOutput = z.infer<typeof outputSchema>;
+export type ReadNoteStructuredContent = z.infer<typeof outputSchema>;
+export type ReadNoteOutput = {
+  content: ToolContent[];
+  structuredContent?: ReadNoteStructuredContent;
+  isError?: boolean;
+};

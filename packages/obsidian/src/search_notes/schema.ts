@@ -6,16 +6,15 @@ export const inputSchema = z.object({
 });
 
 export const outputSchema = z.object({
-  content: z.array(
-    z.object({
-      type: z.literal('text'),
-      text: z.string(),
-    })
-  ),
-  structuredContent: z.object({
-    matches: z.array(z.string()),
-  }),
+  matches: z.array(z.string()),
 });
 
+type ToolContent = { type: 'text'; text: string };
+
 export type SearchNotesInput = z.infer<typeof inputSchema>;
-export type SearchNotesOutput = z.infer<typeof outputSchema>;
+export type SearchNotesStructuredContent = z.infer<typeof outputSchema>;
+export type SearchNotesOutput = {
+  content: ToolContent[];
+  structuredContent?: SearchNotesStructuredContent;
+  isError?: boolean;
+};

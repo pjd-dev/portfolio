@@ -15,15 +15,25 @@ export const inputSchema = z.object({
     .optional(),
 });
 
-export const outputSchema = z.object({
-  content: z.array(
-    z.object({
-      type: z.literal('text'),
-      text: z.string(),
-    })
-  ),
-  isError: z.boolean().optional(),
+const gitResultSchema = z.object({
+  commit: z.string().optional(),
+  push: z.string().optional(),
+  error: z.string().optional(),
 });
 
+export const outputSchema = z.object({
+  path: z.string(),
+  mode: z.enum(['base64', 'frontmatter']).optional(),
+  git: gitResultSchema.optional(),
+  warning: z.string().optional(),
+});
+
+type ToolContent = { type: 'text'; text: string };
+
 export type WriteNoteInput = z.infer<typeof inputSchema>;
-export type WriteNoteOutput = z.infer<typeof outputSchema>;
+export type WriteNoteStructuredContent = z.infer<typeof outputSchema>;
+export type WriteNoteOutput = {
+  content: ToolContent[];
+  structuredContent?: WriteNoteStructuredContent;
+  isError?: boolean;
+};
