@@ -13,3 +13,6 @@
 [submodule "apps/vaulty"]
 	path = apps/vaulty
 	url = git@github.com:pjd-dev/vault-vaulty.git
+[submodule "apps/viewer"]
+	path = apps/viewer
+	url = git@github.com:pjd-dev/vault-viewer.git
