@@ -20,3 +20,4 @@ export {
 
 export * from './goals.js';
 export * from './human-state.js';
+export * from './time-sensitivity.js';

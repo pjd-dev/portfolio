@@ -53,6 +53,11 @@ export type GoalScoreBreakdown = {
   tagBoostFactor: number;
   contextPenaltyFactor: number;
   finalScore: number;
+  timeFactor?: number;
+  timeFlags?: string[];
+  timeDueInDays?: number;
+  timeScheduledInDays?: number;
+  timeTarget?: 'dueDate' | 'nextRun';
 };
 
 const DEFAULT_WEIGHT = 0.5;
