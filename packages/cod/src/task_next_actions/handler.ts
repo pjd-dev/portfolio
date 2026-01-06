@@ -71,6 +71,10 @@ type HumanStateContext = {
   recommendedMode: RecommendedMode;
   durationCapMin: number;
   ageHours?: number;
+  avatar?: unknown;
+  avatarStatus?: string;
+  avatarWarnings?: string[];
+  avatarPath?: string;
   snapshot: {
     source: string;
     energy: number;
@@ -338,6 +342,10 @@ export async function handler(
           durationCapMin: humanState.durationCapMin,
           ageHours: humanState.ageHours,
           worldSignalsUsed,
+          avatar: humanState.avatar,
+          avatarStatus: humanState.avatarStatus,
+          avatarWarnings: humanState.avatarWarnings,
+          avatarPath: humanState.avatarPath,
           snapshot: humanState.snapshot,
         },
       },

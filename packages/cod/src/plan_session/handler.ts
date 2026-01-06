@@ -74,6 +74,10 @@ type PlanSessionResult = {
     recommendedMode: RecommendedMode;
     durationCapMin: number;
     ageHours?: number;
+    avatar?: unknown;
+    avatarStatus?: string;
+    avatarWarnings?: string[];
+    avatarPath?: string;
     snapshot: {
       source: string;
       energy: number;

@@ -59,6 +59,10 @@ const humanStateSchema = z.object({
   durationCapMin: z.number(),
   ageHours: z.number().optional(),
   worldSignalsUsed: z.array(z.string()).optional(),
+  avatar: z.unknown().optional(),
+  avatarStatus: z.string().optional(),
+  avatarWarnings: z.array(z.string()).optional(),
+  avatarPath: z.string().optional(),
   snapshot: z.object({
     source: z.string(),
     energy: z.number(),
