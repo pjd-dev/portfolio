@@ -25,7 +25,7 @@ load_env_files() {
   fi
 
   # Load app-level .env files
-  for app in mcp vaulty; do
+  for app in mcp vaulty viewer; do
     local app_env="$PROJECT_ROOT/apps/$app/.env"
     if [[ -f "$app_env" ]]; then
       log_debug "Loading $app environment: $app_env"
@@ -47,7 +47,9 @@ load_env_files
 POD_NAME="${POD_NAME:-vaulty-pod}"
 MCP_CONTAINER="${MCP_CONTAINER_NAME:-${CONTAINER_NAME:-mcp-server-dev}}"
 VAULT_CONTAINER="${VAULT_CONTAINER_NAME:-vaulty}"
+VIEWER_CONTAINER="${VIEWER_CONTAINER_NAME:-viewer}"
 MCP_PORT="${MCP_PORT:-4000}"
+VIEWER_PORT="${VIEWER_PORT:-8080}"
 
 # Volume configuration
 VOLUME_SOURCE="${LOCAL_VAULT_PATH:-${VAULT_DATA_VOLUME:-vault}}"
@@ -108,11 +110,28 @@ build_vault_image() {
   log_success "Vault image built"
 }
 
+build_viewer_image() {
+  local dockerfile="$PROJECT_ROOT/apps/viewer/Dockerfile"
+
+  if [[ ! -f "$dockerfile" ]]; then
+    log_warn "Viewer Dockerfile not found: $dockerfile (skipping)"
+    return
+  fi
+
+  log_info "Building Viewer image..."
+  $RUNTIME build --format=docker -t vault-viewer:latest -f "$dockerfile" "$PROJECT_ROOT/apps/viewer" || die "Viewer build failed"
+  log_success "Viewer image built"
+}
+
 create_pod() {
-  log_info "Creating pod '$POD_NAME' with port $MCP_PORT..."
+  log_info "Creating pod '$POD_NAME' with ports MCP:$MCP_PORT Viewer:$VIEWER_PORT..."
   
   # Create pod with port binding (ignore if exists)
-  $RUNTIME pod create --name "$POD_NAME" -p "$MCP_PORT:4000" 2>/dev/null || true
+  local port_flags=("-p" "$MCP_PORT:4000")
+  if [[ -n "$VIEWER_PORT" ]]; then
+    port_flags+=("-p" "$VIEWER_PORT:8000")
+  fi
+  $RUNTIME pod create --name "$POD_NAME" "${port_flags[@]}" 2>/dev/null || true
   
   log_success "Pod ready: $POD_NAME"
 }
@@ -173,6 +192,39 @@ start_vault_service() {
   log_success "Vault service started: $VAULT_CONTAINER"
 }
 
+start_viewer_service() {
+  log_info "Starting Viewer service..."
+
+  if [[ ! -d "$PROJECT_ROOT/apps/viewer" ]]; then
+    log_warn "Viewer app not found at apps/viewer (skipping)"
+    return
+  fi
+
+  # Prepare environment and volume flags
+  local env_flags=()
+  for env_file in "$PROJECT_ROOT/.env" "$PROJECT_ROOT/apps/viewer/.env"; do
+    if [[ -f "$env_file" ]]; then
+      env_flags+=(--env-file "$env_file")
+    fi
+  done
+
+  local user_flags=()
+  if [[ -n "$CONTAINER_USER" ]]; then
+    user_flags=(--user "$CONTAINER_USER")
+  fi
+
+  # Run Viewer container
+  $RUNTIME run -d --rm \
+    --name "$VIEWER_CONTAINER" \
+    --pod "$POD_NAME" \
+    --volume "$VOLUME_SOURCE:/vault:Z" \
+    "${env_flags[@]}" \
+    "${user_flags[@]}" \
+    vault-viewer:latest || die "Failed to start Viewer container"
+
+  log_success "Viewer service started: $VIEWER_CONTAINER"
+}
+
 # ============================================================================
 # Main Execution
 # ============================================================================
@@ -182,6 +234,7 @@ print_header "Starting Vault Platform Services"
 print_section "Building container images"
 build_mcp_image
 build_vault_image
+build_viewer_image
 
 print_section "Creating pod infrastructure"
 create_pod
@@ -194,6 +247,10 @@ sleep 3
 
 print_section "Starting MCP service"
 start_mcp_service
+
+# Viewer can start after MCP with shared volume.
+print_section "Starting Viewer service"
+start_viewer_service
 
 # Verify services
 sleep 2
@@ -208,6 +265,12 @@ if $RUNTIME ps --filter "name=$VAULT_CONTAINER" --format "{{.Names}}" | grep -q 
   log_success "Vault service verified running"
 else
   log_warn "Vault service verification failed"
+fi
+
+if $RUNTIME ps --filter "name=$VIEWER_CONTAINER" --format "{{.Names}}" | grep -q "$VIEWER_CONTAINER"; then
+  log_success "Viewer service verified running"
+else
+  log_warn "Viewer service verification failed"
 fi
 
 log_success "All services started successfully"

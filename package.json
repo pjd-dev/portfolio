@@ -37,7 +37,8 @@
     "test:watch": "vitest --watch",
     "test:ci": "vitest run --runInBand --coverage",
     "test:all": "pnpm -w -r --if-present run test",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "RUN_VIEWER_E2E=1 vitest run __tests__/viewer-e2e.test.ts"
   },
   "prepare": "husky install",
   "engines": {

@@ -16,6 +16,10 @@ case "$service" in
     log_info "Showing MCP logs..."
     $RUNTIME logs -f mcp
     ;;
+  viewer)
+    log_info "Showing Viewer logs..."
+    $RUNTIME logs -f viewer
+    ;;
   vaulty|vault)
     log_info "Showing Vaulty/Vault logs..."
     $RUNTIME logs -f vaulty
@@ -23,13 +27,13 @@ case "$service" in
   all)
     log_info "Showing all service logs..."
     echo ""
-    log_warn "Showing MCP logs (Ctrl+C to exit, or specify service: mcp, vaulty)"
+    log_warn "Showing MCP logs (Ctrl+C to exit, or specify service: mcp, vaulty, viewer)"
     echo ""
     $RUNTIME logs -f mcp
     ;;
   *)
     log_error "Unknown service: $service"
-    log_info "Available services: mcp, vaulty, all"
+    log_info "Available services: mcp, vaulty, viewer, all"
     exit 1
     ;;
 esac

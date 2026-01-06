@@ -22,6 +22,7 @@ pnpm-debug.log*
 dist/
 */build/
 apps/*/build/
+apps/viewer/public/
 coverage/
 .nyc_output/
 .cache/

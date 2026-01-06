@@ -15,6 +15,7 @@ source "$SCRIPT_DIR/common.sh"
 POD_NAME="${POD_NAME:-vaulty-pod}"
 MCP_CONTAINER="${MCP_CONTAINER_NAME:-${CONTAINER_NAME:-mcp-server-dev}}"
 VAULT_CONTAINER="${VAULT_CONTAINER_NAME:-vaulty}"
+VIEWER_CONTAINER="${VIEWER_CONTAINER_NAME:-viewer}"
 
 # ============================================================================
 # Stop Functions
@@ -53,6 +54,7 @@ print_header "Stopping Vault Platform Services"
 print_section "Stopping services"
 stop_container "$MCP_CONTAINER"
 stop_container "$VAULT_CONTAINER"
+stop_container "$VIEWER_CONTAINER"
 
 print_section "Cleaning up pod infrastructure"
 remove_pod "$POD_NAME"

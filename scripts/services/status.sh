@@ -15,7 +15,7 @@ print_section "Checking services"
 runtime=$($RUNTIME --version &>/dev/null && echo "podman" || echo "docker")
 
 # Check each service
-services=("mcp" "vaulty" "vault")
+services=("mcp" "vaulty" "vault" "viewer")
 any_running=0
 
 for service in "${services[@]}"; do
