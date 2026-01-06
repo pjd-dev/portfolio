@@ -79,7 +79,16 @@ describe('CODValidator.validateTask', () => {
     });
 
     it('should PASS with valid statuses', () => {
-      for (const status of ['todo', 'in-progress', 'completed', 'blocked']) {
+      for (const status of [
+        'backlog',
+        'todo',
+        'in-progress',
+        'in_progress',
+        'completed',
+        'done',
+        'blocked',
+        'dropped',
+      ]) {
         const result = CODValidator.validateTask({
           id: 'task-001',
           title: 'Test',

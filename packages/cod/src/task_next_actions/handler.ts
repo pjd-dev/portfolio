@@ -29,7 +29,13 @@ type GoalLoadResult = {
   index: GoalIndex;
 };
 
-type TaskStatus = 'todo' | 'in_progress' | 'done' | 'blocked' | 'dropped';
+type TaskStatus =
+  | 'backlog'
+  | 'todo'
+  | 'in_progress'
+  | 'done'
+  | 'blocked'
+  | 'dropped';
 
 type ValidationTaskStatus = TaskStatus | 'in-progress' | 'completed';
 

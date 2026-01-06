@@ -37,7 +37,8 @@ Compatibility fields (`status`, `reason`, `warnings`) are included for MCP adapt
 ## Task Validation Rules
 
 1. **Required fields**: `id`, `title`, `status` must exist. **FAIL** if missing.
-2. **Status enum**: must be `todo`, `in-progress`, `completed`, or `blocked`. **FAIL** if invalid.
+2. **Status enum**: must be `backlog`, `todo`, `in-progress` (or `in_progress`),
+   `completed` (or `done`), `blocked`, or `dropped`. **FAIL** if invalid.
 3. **Priority bounds**: `priority` must be 0-10 (inclusive). **FAIL** if out of bounds.
 4. **Goal reference**: if `goal` is set and `goalsMap` is provided, the goal must exist. **FAIL** if missing.
 5. **No self-dependencies**: `dependsOn` must not include its own `id`. **FAIL** if violated.

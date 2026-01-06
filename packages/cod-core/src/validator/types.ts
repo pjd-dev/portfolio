@@ -41,6 +41,7 @@ export interface TaskState {
   id: string;
   title: string;
   status:
+    | 'backlog'
     | 'todo'
     | 'in-progress'
     | 'in_progress'

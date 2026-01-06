@@ -141,6 +141,24 @@ export class CODValidator {
     options: ValidatorOptions = {}
   ): ValidationResult {
     const issues: ValidationIssue[] = [];
+    const validStatuses = [
+      'backlog',
+      'todo',
+      'in-progress',
+      'in_progress',
+      'completed',
+      'done',
+      'blocked',
+      'dropped',
+    ];
+    const displayStatuses = [
+      'backlog',
+      'todo',
+      'in-progress',
+      'completed',
+      'blocked',
+      'dropped',
+    ];
 
     // RULE 1: Required fields
     if (!task.id) {
@@ -169,23 +187,19 @@ export class CODValidator {
         severity: 'error',
         message: 'Task requires field: status',
         field: 'status',
-        suggestion:
-          'Set status to one of: todo, in-progress, completed, blocked',
+        suggestion: `Set status to one of: ${displayStatuses.join(', ')}`,
       });
     }
 
     // RULE 2: Status must be valid enum
-    if (
-      task.status &&
-      !['todo', 'in-progress', 'completed', 'blocked'].includes(task.status)
-    ) {
+    if (task.status && !validStatuses.includes(task.status)) {
       issues.push({
         code: 'INVALID_ENUM_VALUE',
         severity: 'error',
         message: `Task status invalid: ${task.status}`,
         field: 'status',
         value: task.status,
-        suggestion: 'Use one of: todo, in-progress, completed, blocked',
+        suggestion: `Use one of: ${displayStatuses.join(', ')}`,
       });
     }
 

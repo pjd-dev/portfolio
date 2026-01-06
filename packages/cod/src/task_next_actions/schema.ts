@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 const TaskStatusEnum = z.enum([
+  'backlog',
   'todo',
   'in_progress',
   'done',

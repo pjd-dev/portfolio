@@ -18,6 +18,7 @@ type FocusCapacity = 'low' | 'med' | 'high';
 type RecommendedMode = 'conservative' | 'normal' | 'focused';
 
 type ValidationTaskStatus =
+  | 'backlog'
   | 'todo'
   | 'in-progress'
   | 'in_progress'
