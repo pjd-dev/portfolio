@@ -39,6 +39,38 @@ export {
   type TaskExecutionRecord,
   type TaskExecutionStats,
 } from './prediction-history.js';
+export {
+  recordHumanState,
+  analyzeTrend,
+  analyzeCorrelation,
+  findOptimalState,
+  type HumanStateSnapshot,
+  type HumanStateTrend,
+  type HumanStateCorrelation,
+} from './human-state-series.js';
+export {
+  projectGoalCompletion,
+  analyzeMilestoneProgress,
+  type GoalProjection,
+} from './goal-projections.js';
+export {
+  analyzeTaskTypePattern,
+  detectWorkHabitPatterns,
+  type TaskTypePattern,
+  type WorkHabitPattern,
+} from './pattern-detection.js';
+export {
+  recordContextSwitch,
+  analyzeContextCosts,
+  estimateSwitchCost,
+  type ContextSwitchEvent,
+  type ContextCostMetrics,
+} from './context-costs.js';
+export {
+  predictTask,
+  type PredictionInput,
+  type TaskPrediction,
+} from './predictions.js';
 export * from './goals.js';
 export * from './human-state.js';
 export * from './time-sensitivity.js';
