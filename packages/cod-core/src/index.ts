@@ -25,6 +25,14 @@ export {
   type HardStopConfig,
   type HardStopCheckResult,
 } from './hard-stop.js';
+export {
+  checkSessionReviewNeeded,
+  formatSessionReviewPrompt,
+  type SessionReviewConfig,
+  type SessionReviewState,
+  type SessionReviewCheckResult,
+  type SessionReviewInput,
+} from './session-review.js';
 export * from './goals.js';
 export * from './human-state.js';
 export * from './time-sensitivity.js';
