@@ -37,7 +37,7 @@ describe('plan_session handler', () => {
         energy: 0.6,
         focusCapacity: 'med',
         stress: 0.2,
-        sleepDebt: 0.1,
+        sleepHours: 7,
         timeAvailableMin: 120,
         contextTolerance: 'med',
       },

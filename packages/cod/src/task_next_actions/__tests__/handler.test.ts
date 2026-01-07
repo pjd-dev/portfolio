@@ -23,7 +23,7 @@ describe('task_next_actions handler', () => {
           energy: 0.5,
           focusCapacity: 'low',
           stress: 0,
-          sleepDebt: 0,
+          sleepHours: 8,
           timeAvailableMin: 30,
           contextTolerance: 'med',
         },

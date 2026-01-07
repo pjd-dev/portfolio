@@ -10,7 +10,7 @@ const baseSnapshot = {
   energy: 0.6,
   focusCapacity: 'med' as const,
   stress: 0.3,
-  sleepDebt: 0.2,
+  sleepHours: 7,
   timeAvailableMin: 120,
   contextTolerance: 'med' as const,
 };

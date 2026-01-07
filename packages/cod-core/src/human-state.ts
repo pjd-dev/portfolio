@@ -16,7 +16,7 @@ export type HumanStateSnapshot = {
   energy: number;
   focusCapacity: FocusCapacity;
   stress: number;
-  sleepDebt: number;
+  sleepHours: number;
   timeAvailableMin: number;
   contextTolerance?: ContextTolerance;
   healthBand?: WorldBand;
@@ -38,8 +38,10 @@ export const DEFAULT_CONTEXT_TOLERANCE: ContextTolerance = 'med';
 
 const DEFAULT_UNKNOWN_ENERGY = 0.4;
 const DEFAULT_UNKNOWN_STRESS = 0.5;
-const DEFAULT_UNKNOWN_SLEEP_DEBT = 0.5;
+const DEFAULT_UNKNOWN_SLEEP_HOURS = 6;
 const DEFAULT_UNKNOWN_TIME_AVAILABLE_MIN = 25;
+const DEFAULT_SLEEP_TARGET_HOURS = 8;
+const DEFAULT_SLEEP_MAX_DEFICIT_HOURS = 4;
 
 const ALLOWED_SOURCES = new Set<HumanStateSource>([
   'morning-check',
@@ -57,6 +59,17 @@ const ALLOWED_WORLD_BAND = new Set<WorldBand>(['green', 'amber', 'red']);
 
 const clamp = (value: number, min: number, max: number): number =>
   Math.max(min, Math.min(max, value));
+
+const computeSleepDebt = (
+  sleepHours: number,
+  targetHours: number = DEFAULT_SLEEP_TARGET_HOURS
+): number => {
+  const target = targetHours > 0 ? targetHours : DEFAULT_SLEEP_TARGET_HOURS;
+  const deficit = Math.max(0, target - sleepHours);
+  const maxDeficit =
+    DEFAULT_SLEEP_MAX_DEFICIT_HOURS > 0 ? DEFAULT_SLEEP_MAX_DEFICIT_HOURS : 4;
+  return clamp(deficit / maxDeficit, 0, 1);
+};
 
 const toDate = (value?: Date | string | number): Date => {
   if (!value) return new Date();
@@ -79,7 +92,7 @@ const makeUnknownSnapshot = (now: Date): HumanStateSnapshot => ({
   energy: DEFAULT_UNKNOWN_ENERGY,
   focusCapacity: 'low',
   stress: DEFAULT_UNKNOWN_STRESS,
-  sleepDebt: DEFAULT_UNKNOWN_SLEEP_DEBT,
+  sleepHours: DEFAULT_UNKNOWN_SLEEP_HOURS,
   timeAvailableMin: DEFAULT_UNKNOWN_TIME_AVAILABLE_MIN,
   contextTolerance: DEFAULT_CONTEXT_TOLERANCE,
 });
@@ -138,11 +151,8 @@ const computeRecommendedMode = (
   status: HumanStateEvaluation['status']
 ): RecommendedMode => {
   if (status !== 'ok') return 'conservative';
-  if (
-    snapshot.energy < 0.4 ||
-    snapshot.stress > 0.7 ||
-    snapshot.sleepDebt > 0.6
-  ) {
+  const sleepDebt = computeSleepDebt(snapshot.sleepHours);
+  if (snapshot.energy < 0.4 || snapshot.stress > 0.7 || sleepDebt > 0.6) {
     return 'conservative';
   }
   if (
@@ -160,6 +170,7 @@ const computeDurationCap = (
   status: HumanStateEvaluation['status']
 ): number => {
   const timeAvailableMin = clamp(snapshot.timeAvailableMin, 0, 1440);
+  const sleepDebt = computeSleepDebt(snapshot.sleepHours);
 
   if (status !== 'ok') {
     return Math.min(DEFAULT_UNKNOWN_TIME_AVAILABLE_MIN, timeAvailableMin);
@@ -175,7 +186,7 @@ const computeDurationCap = (
   if (snapshot.stress > 0.7) {
     cap = Math.min(cap, 25, timeAvailableMin);
   }
-  if (snapshot.sleepDebt > 0.6) {
+  if (sleepDebt > 0.6) {
     cap = Math.min(cap, 45, timeAvailableMin);
   }
 
@@ -253,16 +264,35 @@ export const evaluateHumanStateSnapshot = (
     rangeErrors.push(`stress=${stressValue}`);
   }
 
-  const sleepDebtValue = input.sleepDebt;
-  if (sleepDebtValue === undefined || sleepDebtValue === null) {
-    missingFields.push('sleepDebt');
+  const sleepHoursValue = (input as { sleepHours?: unknown }).sleepHours;
+  const sleepDebtFallback = (input as { sleepDebt?: unknown }).sleepDebt;
+  let resolvedSleepHours: number | undefined;
+
+  if (sleepHoursValue === undefined || sleepHoursValue === null) {
+    if (
+      typeof sleepDebtFallback === 'number' &&
+      !Number.isNaN(sleepDebtFallback)
+    ) {
+      if (sleepDebtFallback < 0 || sleepDebtFallback > 1) {
+        rangeErrors.push(`sleepDebt=${sleepDebtFallback}`);
+      } else {
+        resolvedSleepHours =
+          DEFAULT_SLEEP_TARGET_HOURS -
+          DEFAULT_SLEEP_MAX_DEFICIT_HOURS * sleepDebtFallback;
+        warnings.push('HS5 sleepHours derived from sleepDebt');
+      }
+    } else {
+      missingFields.push('sleepHours');
+    }
   } else if (
-    typeof sleepDebtValue !== 'number' ||
-    Number.isNaN(sleepDebtValue)
+    typeof sleepHoursValue !== 'number' ||
+    Number.isNaN(sleepHoursValue)
   ) {
-    invalidFields.push('sleepDebt');
-  } else if (sleepDebtValue < 0 || sleepDebtValue > 1) {
-    rangeErrors.push(`sleepDebt=${sleepDebtValue}`);
+    invalidFields.push('sleepHours');
+  } else if (sleepHoursValue < 0 || sleepHoursValue > 24) {
+    rangeErrors.push(`sleepHours=${sleepHoursValue}`);
+  } else {
+    resolvedSleepHours = sleepHoursValue;
   }
 
   const timeAvailableValue = input.timeAvailableMin;
@@ -366,7 +396,7 @@ export const evaluateHumanStateSnapshot = (
     energy: clamp(energyValue as number, 0, 1),
     focusCapacity: focusCapacityValue as FocusCapacity,
     stress: clamp(stressValue as number, 0, 1),
-    sleepDebt: clamp(sleepDebtValue as number, 0, 1),
+    sleepHours: clamp(resolvedSleepHours ?? DEFAULT_UNKNOWN_SLEEP_HOURS, 0, 24),
     timeAvailableMin: clamp(Math.round(timeAvailableValue as number), 0, 1440),
     contextTolerance:
       (contextToleranceValue as ContextTolerance | undefined) ??

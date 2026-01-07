@@ -78,6 +78,8 @@ COMMANDS:
     sync-vault      Sync vault to local filesystem
     verify-vault    Verify vault integrity
     tunnel          Start Cloudflared tunnel
+    refresh-world   Update world state (cycles/signals)
+    apply-checkin   Apply a daily check-in to avatar/world
     smoke           Run smoke tests (quick health check)
     watchdog        Run watchdog (monitor + auto-restart)
     
@@ -212,9 +214,17 @@ main() {
           log_info "Tunnel management..."
           bash "$SCRIPT_DIR/utilities/tunnel.sh" "${@:3}"
           ;;
+        refresh-world)
+          log_info "Refreshing world state..."
+          bash "$SCRIPT_DIR/utilities/refresh-world.sh" "${@:3}"
+          ;;
+        apply-checkin)
+          log_info "Applying check-in..."
+          bash "$SCRIPT_DIR/utilities/apply-checkin.sh" "${@:3}"
+          ;;
         *)
           log_error "Unknown utilities command: ${2:-help}"
-          echo "Utilities commands: sync, verify, tunnel"
+          echo "Utilities commands: sync, verify, tunnel, refresh-world, apply-checkin"
           exit 1
           ;;
       esac

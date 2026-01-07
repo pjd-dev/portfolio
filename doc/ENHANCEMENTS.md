@@ -294,19 +294,26 @@ pnpm test
 
 ## New MCP Tools Summary
 
-| Tool                               | Description                                     |
-| ---------------------------------- | ----------------------------------------------- |
-| `obsidian_structured_patch`        | Multi-operation atomic patching with validation |
-| `obsidian_cache_stats`             | View and manage cache statistics                |
-| `obsidian_conversational_template` | Create notes from interactive templates         |
-| `obsidian_refactor_note`           | AI-driven structure improvements                |
-| `obsidian_metadata_model`          | Version tracking and lifecycle management       |
-| `obsidian_find_by_frontmatter`     | Enhanced with indexing and pagination           |
-| `obsidian_graph_export`            | Export knowledge graph as JSON                  |
-| `obsidian_find_related`            | Find related notes by links and tags            |
-| `obsidian_graph_search`            | Full-text search with graph filtering           |
-| `obsidian_graph_stats`             | Graph statistics and analysis                   |
-| `obsidian_graph_rebuild`           | Rebuild knowledge graph cache                   |
+| Tool                                    | Description                                     |
+| --------------------------------------- | ----------------------------------------------- |
+| `obsidian_structured_patch`             | Multi-operation atomic patching with validation |
+| `obsidian_cache_stats`                  | View and manage cache statistics                |
+| `obsidian_conversational_template`      | Create notes from interactive templates         |
+| `obsidian_refactor_note`                | AI-driven structure improvements                |
+| `obsidian_metadata_model`               | Version tracking and lifecycle management       |
+| `obsidian_find_by_frontmatter`          | Enhanced with indexing and pagination           |
+| `obsidian_graph_export`                 | Export knowledge graph as JSON                  |
+| `obsidian_find_related`                 | Find related notes by links and tags            |
+| `obsidian_graph_search`                 | Full-text search with graph filtering           |
+| `obsidian_graph_stats`                  | Graph statistics and analysis                   |
+| `obsidian_graph_rebuild`                | Rebuild knowledge graph cache                   |
+| `obsidian_get_world_state`              | Read the world state note                       |
+| `obsidian_update_world_state`           | Update the world state note frontmatter         |
+| `obsidian_get_avatar_state`             | Read the avatar state note                      |
+| `obsidian_update_avatar_state`          | Update the avatar state note frontmatter        |
+| `obsidian_simulate_avatar_rewards`      | Simulate avatar reward deltas (no writes)       |
+| `obsidian_simulate_world_constraints`   | Simulate task eligibility vs world constraints  |
+| `obsidian_simulate_interest_projection` | Project interest strengths (no writes)          |
 
 ## Architecture Improvements
 

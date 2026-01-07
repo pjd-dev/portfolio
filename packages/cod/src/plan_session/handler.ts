@@ -78,12 +78,16 @@ type PlanSessionResult = {
     avatarStatus?: string;
     avatarWarnings?: string[];
     avatarPath?: string;
+    world?: unknown;
+    worldStatus?: string;
+    worldWarnings?: string[];
+    worldPath?: string;
     snapshot: {
       source: string;
       energy: number;
       focusCapacity: FocusCapacity;
       stress: number;
-      sleepDebt: number;
+      sleepHours: number;
       timeAvailableMin: number;
       contextTolerance?: ContextTolerance;
       healthBand?: string;
@@ -308,9 +312,15 @@ export async function handler(
       text += `- **Energy:** ${humanState.snapshot.energy}\n`;
       text += `- **Focus capacity:** ${humanState.snapshot.focusCapacity}\n`;
       text += `- **Stress:** ${humanState.snapshot.stress}\n`;
-      text += `- **Sleep debt:** ${humanState.snapshot.sleepDebt}\n`;
+      text += `- **Sleep hours:** ${humanState.snapshot.sleepHours}\n`;
       text += `- **Time available (min):** ${humanState.snapshot.timeAvailableMin}\n`;
       text += `- **Context tolerance:** ${humanState.snapshot.contextTolerance}\n`;
+      if (humanState.worldStatus) {
+        text += `- **World status:** ${humanState.worldStatus}\n`;
+      }
+      if (humanState.worldPath) {
+        text += `- **World note:** ${humanState.worldPath}\n`;
+      }
       if (worldSignalsUsed.length > 0) {
         text += `- **World signals used:** ${worldSignalsUsed.join(', ')}\n`;
       }
