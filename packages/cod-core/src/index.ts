@@ -71,6 +71,14 @@ export {
   type PredictionInput,
   type TaskPrediction,
 } from './predictions.js';
+
+// Export ML modules
+export * from './ml-utils.js';
+export * from './duration-predictor.js';
+export * from './markov-chains.js';
+export * from './state-forecaster.js';
+export * from './session-classifier.js';
+
 export * from './goals.js';
 export * from './human-state.js';
 export * from './time-sensitivity.js';

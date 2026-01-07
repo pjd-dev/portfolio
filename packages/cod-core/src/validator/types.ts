@@ -23,7 +23,8 @@ export type FailReasonCode =
   | 'BLOCKED_BY_BLOCKER'
   | 'INVALID_STATUS_TRANSITION'
   | 'INVALID_GOAL_REFERENCE'
-  | 'HIGH_RISK_CONFIGURATION';
+  | 'HIGH_RISK_CONFIGURATION'
+  | 'HARD_STOP_ACTIVE';
 
 /** Single validation issue with diagnostics */
 export interface ValidationIssue {

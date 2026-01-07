@@ -310,10 +310,10 @@ export class CODValidator {
         field: 'timestamp',
         suggestion: hardStopBlocker.blocking
           ? 'Work is blocked until ' +
-            hardStopResult.window.end +
+            (hardStopResult.window?.end || 'morning') +
             '  - use override if needed'
           : 'Late-night work detected - consider waiting until ' +
-            hardStopResult.window.end,
+            (hardStopResult.window?.end || 'morning'),
       });
     }
 
