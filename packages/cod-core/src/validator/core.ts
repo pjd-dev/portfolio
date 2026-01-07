@@ -19,6 +19,7 @@ import {
   ValidatorOptions,
   FailReasonCode,
 } from './types.js';
+import { checkHardStop, toValidationBlocker } from '../hard-stop.js';
 
 /**
  * COD Validator
@@ -297,6 +298,24 @@ export class CODValidator {
     options: ValidatorOptions = {}
   ): ValidationResult {
     const issues: ValidationIssue[] = [];
+
+    // RULE 0: HARD_STOP guardrail (time-based protection)
+    const hardStopResult = checkHardStop();
+    const hardStopBlocker = toValidationBlocker(hardStopResult);
+    if (hardStopBlocker) {
+      issues.push({
+        code: 'HARD_STOP_ACTIVE',
+        severity: hardStopBlocker.blocking ? 'error' : 'warning',
+        message: hardStopBlocker.reason,
+        field: 'timestamp',
+        suggestion: hardStopBlocker.blocking
+          ? 'Work is blocked until ' +
+            hardStopResult.window.end +
+            '  - use override if needed'
+          : 'Late-night work detected - consider waiting until ' +
+            hardStopResult.window.end,
+      });
+    }
 
     // RULE 1: Duration must be positive
     if (!session.duration || session.duration <= 0) {

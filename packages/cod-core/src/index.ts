@@ -17,7 +17,14 @@ export {
   computeTaskEffortScore,
   computeTaskCostMin,
 } from './runtime.js';
-
+export {
+  checkHardStop,
+  toValidationBlocker,
+  isHardStopActive,
+  timeUntilHardStopEnd,
+  type HardStopConfig,
+  type HardStopCheckResult,
+} from './hard-stop.js';
 export * from './goals.js';
 export * from './human-state.js';
 export * from './time-sensitivity.js';
