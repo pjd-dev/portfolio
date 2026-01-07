@@ -67,6 +67,7 @@ temp/
 .vscode/
 !.vscode/extensions.json
 !.vscode/settings.json
+**/.vscode/
 .idea/
 *.sublime-workspace
 *.sublime-project
