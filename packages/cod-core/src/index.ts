@@ -33,6 +33,12 @@ export {
   type SessionReviewCheckResult,
   type SessionReviewInput,
 } from './session-review.js';
+export {
+  recordTaskExecution,
+  computeTaskStats,
+  type TaskExecutionRecord,
+  type TaskExecutionStats,
+} from './prediction-history.js';
 export * from './goals.js';
 export * from './human-state.js';
 export * from './time-sensitivity.js';
