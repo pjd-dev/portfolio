@@ -35,8 +35,10 @@ export {
 } from './session-review.js';
 export {
   recordTaskExecution,
+  recordSessionOutcome,
   computeTaskStats,
   type TaskExecutionRecord,
+  type SessionExecutionRecord,
   type TaskExecutionStats,
 } from './prediction-history.js';
 export {

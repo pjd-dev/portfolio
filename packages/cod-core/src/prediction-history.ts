@@ -208,6 +208,121 @@ export function recordTaskExecution(
 }
 
 /**
+ * Session execution record for ML training
+ */
+export interface SessionExecutionRecord {
+  /** Session ID */
+  sessionId: string;
+
+  /** When was session recorded (ISO) */
+  recordedAt: string;
+
+  /** Session start time */
+  startedAt: string;
+
+  /** Session end time */
+  endedAt: string;
+
+  /** Actual duration (minutes) */
+  actualDuration: number;
+
+  /** Did session complete as planned? */
+  completed: boolean;
+
+  /** Completion status */
+  status: 'completed' | 'aborted';
+
+  // Planning phase
+  /** Planned task count */
+  plannedTasks: number;
+
+  /** Planned effort total */
+  plannedEffort: number;
+
+  /** Planned reward total */
+  plannedReward: number;
+
+  // Outcome
+  /** Tasks completed */
+  completedTasks: number;
+
+  /** Actual effort total */
+  actualEffort: number;
+
+  /** Actual reward total */
+  actualReward: number;
+
+  /** Completion rate (0-1) */
+  completionRate: number;
+
+  /** Human state at session start */
+  startHumanState?: {
+    energy: number;
+    stress: number;
+    focus: number;
+  };
+
+  /** Human state at session end */
+  endHumanState?: {
+    energy: number;
+    stress: number;
+    focus: number;
+  };
+}
+
+/**
+ * Record session execution data after session ends
+ */
+export function recordSessionOutcome(
+  sessionId: string,
+  data: {
+    startedAt: string;
+    endedAt: string;
+    status: 'completed' | 'aborted';
+    planned: {
+      tasks: number;
+      effort: number;
+      reward: number;
+    };
+    actual: {
+      tasks: number;
+      effort: number;
+      reward: number;
+    };
+    humanState?: {
+      start?: { energy: number; stress: number; focus: number };
+      end?: { energy: number; stress: number; focus: number };
+    };
+  }
+): SessionExecutionRecord {
+  const started = new Date(data.startedAt);
+  const ended = new Date(data.endedAt);
+  const actualDuration = Math.ceil(
+    (ended.getTime() - started.getTime()) / 60000
+  );
+
+  return {
+    sessionId,
+    recordedAt: new Date().toISOString(),
+    startedAt: data.startedAt,
+    endedAt: data.endedAt,
+    actualDuration,
+    completed: data.status === 'completed',
+    status: data.status,
+    plannedTasks: data.planned.tasks,
+    plannedEffort: data.planned.effort,
+    plannedReward: data.planned.reward,
+    completedTasks: data.actual.tasks,
+    actualEffort: data.actual.effort,
+    actualReward: data.actual.reward,
+    completionRate:
+      data.planned.tasks > 0 ? data.actual.tasks / data.planned.tasks : 0,
+    startHumanState: data.humanState?.start,
+    endHumanState: data.humanState?.end,
+  };
+}
+
+/**
  * Compute statistics from execution history
  *
  * Input: Array of execution records for same task
