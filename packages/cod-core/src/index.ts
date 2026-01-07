@@ -68,9 +68,17 @@ export {
 } from './context-costs.js';
 export {
   predictTask,
+  predictTaskML,
+  mlToTaskPrediction,
+  initializePredictionEngine,
+  updatePredictionEngine,
+  getPredictionEngineDiagnostics,
   type PredictionInput,
   type TaskPrediction,
+  type MLPrediction,
+  type PredictionEngineState,
 } from './predictions.js';
+export * from './prediction-engine.js';
 
 // Export ML modules
 export * from './ml-utils.js';

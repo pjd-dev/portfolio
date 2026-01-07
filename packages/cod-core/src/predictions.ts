@@ -9,6 +9,12 @@
  * - Risk detection (what could go wrong?)
  *
  * Used by: Session planning, task ranking, recommendations
+ *
+ * Now with ML integration via prediction-engine.ts:
+ * - Duration predictor with linear regression
+ * - State forecaster with Kalman filtering
+ * - Markov chains for state transitions
+ * - Session classifier with logistic regression
  */
 
 import type { TaskExecutionRecord } from './prediction-history.js';
@@ -16,6 +22,12 @@ import type { HumanStateSnapshot } from './human-state-series.js';
 import type { GoalProjection } from './goal-projections.js';
 import type { TaskTypePattern } from './pattern-detection.js';
 import type { ContextCostMetrics } from './context-costs.js';
+import {
+  generateMLPrediction,
+  initializePredictionEngine,
+  type PredictionEngineState,
+  type MLPrediction,
+} from './prediction-engine.js';
 
 export interface PredictionInput {
   /** Task being predicted */
@@ -315,3 +327,160 @@ export function predictTask(input: PredictionInput): TaskPrediction {
     overallConfidence,
   };
 }
+// ============================================================================
+// ML-Enhanced Prediction API
+// ============================================================================
+
+export interface MLPredictionInput extends PredictionInput {
+  /** Human state history for ML models and Kalman filtering */
+  humanStateHistory?: HumanStateSnapshot[];
+  /** Session history for classifier */
+  sessionHistory?: Array<{
+    duration: number;
+    tasksCompleted: number;
+    tasksPlanned: number;
+    avgEnergy: number;
+    avgFocus: number;
+    avgStress: number;
+    timeOfDay: number;
+    dayOfWeek: number;
+    completed: boolean;
+  }>;
+  /** Session context */
+  sessionDurationSoFar?: number;
+  sessionTasksCompleted?: number;
+}
+
+/**
+ * Convert simple session history to SessionFeatures/Outcome format
+ */
+function convertSessionHistory(
+  sessions: NonNullable<MLPredictionInput['sessionHistory']>
+): Array<{
+  features: import('./session-classifier.js').SessionFeatures;
+  outcome: import('./session-classifier.js').SessionOutcome;
+}> {
+  return sessions.map((s) => ({
+    features: {
+      startEnergy: s.avgEnergy,
+      startStress: s.avgStress,
+      startFocus: s.avgFocus,
+      plannedDuration: s.duration,
+      taskCount: s.tasksPlanned,
+      totalEffort: s.duration / 60,
+      avgTaskComplexity: 3,
+      highPriorityCount: 1,
+      hourOfDay: s.timeOfDay,
+      dayOfWeek: s.dayOfWeek,
+      consecutiveSessions: 1,
+      recentCompletionRate: s.tasksCompleted / Math.max(1, s.tasksPlanned),
+    },
+    outcome: {
+      completed: s.completed,
+      completionRate: s.tasksCompleted / Math.max(1, s.tasksPlanned),
+      qualityScore: 7,
+      endedEarly: !s.completed,
+      extendedBeyondPlan: false,
+    },
+  }));
+}
+
+/**
+ * Generate ML-enhanced prediction for a task
+ *
+ * This uses trained ML models when sufficient data is available:
+ * - Duration predictor (linear regression on historical completions)
+ * - State forecaster (Kalman filtering on human state series)
+ * - Markov chains (state transition probabilities)
+ * - Session classifier (logistic regression for success prediction)
+ *
+ * Falls back to heuristics when data is insufficient.
+ */
+export function predictTaskML(
+  input: MLPredictionInput,
+  engineState?: PredictionEngineState
+): MLPrediction {
+  const {
+    taskHistory = [],
+    humanStateHistory = [],
+    sessionHistory = [],
+  } = input;
+
+  // Convert session history to proper format
+  const formattedSessionHistory = convertSessionHistory(sessionHistory);
+
+  // Initialize engine if not provided
+  const state =
+    engineState ||
+    initializePredictionEngine(
+      taskHistory,
+      humanStateHistory,
+      formattedSessionHistory
+    );
+
+  // Generate ML prediction
+  return generateMLPrediction(
+    {
+      taskId: input.taskId,
+      taskType: input.taskType,
+      plannedDuration: input.plannedDuration,
+      plannedEffort: input.plannedEffort,
+      goalId: input.goalId,
+      goalProjection: input.goalProjection,
+      currentHumanState: input.currentHumanState,
+      taskHistory,
+      taskTypePattern: input.taskTypePattern,
+      sessionPosition: input.sessionPosition,
+      sessionDurationSoFar: input.sessionDurationSoFar || input.sessionDuration,
+      sessionTasksCompleted: input.sessionTasksCompleted,
+      contextCosts: input.contextCosts,
+      currentTime: input.currentTime,
+    },
+    state
+  );
+}
+
+/**
+ * Convert ML prediction to standard TaskPrediction format
+ * (for backward compatibility)
+ */
+export function mlToTaskPrediction(ml: MLPrediction): TaskPrediction {
+  return {
+    taskId: ml.taskId,
+    predictedDuration: ml.duration.predicted,
+    durationConfidence: ml.duration.confidence,
+    durationFactors: {
+      historical: ml.duration.breakdown.baseDuration,
+      humanState: ml.duration.breakdown.humanStateAdjustment,
+      contextSwitch: ml.duration.breakdown.contextSwitchCost,
+    },
+    predictedQuality: ml.quality.predicted,
+    qualityConfidence: ml.quality.confidence,
+    qualityFactors: {
+      humanEnergy: ml.quality.factors.energy,
+      stress: ml.quality.factors.stress,
+      focus: ml.quality.factors.focus,
+    },
+    completionProbability: ml.completion.probability,
+    completionRisk: ml.completion.risk,
+    optimalTime:
+      ml.timing?.recommendation?.bestHourOfDay !== undefined
+        ? `${new Date().toISOString().split('T')[0]}T${String(ml.timing.recommendation.bestHourOfDay).padStart(2, '0')}:00:00`
+        : undefined,
+    risks: ml.risks.map((r) => ({
+      riskType: r.type,
+      probability: r.probability,
+      impact: r.impact,
+    })),
+    recommendation: ml.recommendation,
+    overallConfidence: ml.overallConfidence,
+  };
+}
+
+// Re-export ML types for convenience
+export type { MLPrediction, PredictionEngineState };
+export {
+  initializePredictionEngine,
+  updatePredictionEngine,
+  getPredictionEngineDiagnostics,
+} from './prediction-engine.js';
