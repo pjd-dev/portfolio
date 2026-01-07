@@ -18,6 +18,12 @@ export const inputSchema = z.object({
     .array(TaskStatusEnum)
     .optional()
     .describe("Status filter (default: ['todo', 'in_progress'])"),
+  overrideHardStop: z
+    .boolean()
+    .optional()
+    .describe(
+      'Override HARD_STOP guardrail (not recommended during late-night hours)'
+    ),
 });
 
 const taskNodeSchema = z.object({

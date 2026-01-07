@@ -1,4 +1,5 @@
 import type { TaskNextActionsInput, TaskNextActionsOutput } from './schema.js';
+import { checkHardStop, type HardStopCheckResult } from '@vault/cod';
 
 type TaskNode = {
   id: string;
@@ -150,6 +151,46 @@ export async function handler(
   deps: TaskNextActionsDeps
 ): Promise<TaskNextActionsOutput> {
   try {
+    // HARD_STOP guardrail: prevent work during late-night window
+    const hardStopResult = checkHardStop();
+    if (hardStopResult.blocked && !input.overrideHardStop) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `# 🛑 HARD_STOP Active\n\n${hardStopResult.reason}\n\n**Recommendation:** Sleep now. Capture any critical thoughts in a quick note, then rest.\n\nIf you must continue, pass \`overrideHardStop: true\` (not recommended).`,
+          },
+        ],
+        structuredContent: {
+          unblocked: [],
+          blocked: [],
+          failed: [],
+          total: 0,
+          hardStop: hardStopResult,
+          goalContext: {
+            source: 'blocked',
+            count: 0,
+            warnings: ['HARD_STOP active'],
+          },
+          humanState: {
+            status: 'blocked',
+            warnings: [hardStopResult.reason || 'Late-night work blocked'],
+            recommendedMode: 'conservative',
+            durationCapMin: 0,
+            snapshot: {
+              source: 'hard-stop',
+              energy: 0,
+              focusCapacity: 'low',
+              stress: 10,
+              sleepHours: 0,
+              timeAvailableMin: 0,
+            },
+          },
+        },
+        isError: false,
+      };
+    }
+
     const goalLoad = await deps.goalService.loadGoals();
     const humanState = await deps.humanStateService.loadPlanningContext();
     const contextTolerance = humanState.snapshot.contextTolerance ?? 'med';

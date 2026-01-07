@@ -1,4 +1,5 @@
 import type { PlanSessionInput, PlanSessionOutput } from './schema.js';
+import { checkHardStop, type HardStopCheckResult } from '@vault/cod';
 
 type ValidationIssue = {
   code: string;
@@ -127,6 +128,33 @@ export async function handler(
   deps: PlanSessionDeps
 ): Promise<PlanSessionOutput> {
   try {
+    // HARD_STOP guardrail: prevent session planning during late-night window
+    const hardStopResult = checkHardStop();
+    if (hardStopResult.blocked && !input.overrideHardStop) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `# 🛑 HARD_STOP Active\n\n${hardStopResult.reason}\n\n**Recommendation:** Sleep now. Don't plan new work sessions during late-night hours.\n\nIf you must continue, pass \`overrideHardStop: true\` (not recommended).`,
+          },
+        ],
+        structuredContent: {
+          hardStop: hardStopResult,
+          session: null,
+          validation: {
+            state: 'BLOCKED',
+            issues: [
+              {
+                code: 'HARD_STOP',
+                message: hardStopResult.reason || 'Late-night work blocked',
+              },
+            ],
+          },
+        },
+        isError: false,
+      };
+    }
+
     const sessionValidation = deps.codValidator.validateSession(
       {
         id: 'temp-session',

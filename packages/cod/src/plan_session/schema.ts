@@ -16,6 +16,12 @@ export const inputSchema = z.object({
     .number()
     .optional()
     .describe('Maximum number of tasks to include'),
+  overrideHardStop: z
+    .boolean()
+    .optional()
+    .describe(
+      'Override HARD_STOP guardrail (not recommended during late-night hours)'
+    ),
 });
 
 const sessionTaskSchema = z.object({
