@@ -136,11 +136,11 @@ export function normalizeDelegationMode(
 
   // Check explicit delegation_mode
   if (config.delegationMode) {
-    const mode = config.delegationMode.toLowerCase() as DelegationMode;
+    const mode = config.delegationMode.toLowerCase();
     if (
       ['human-only', 'agent', 'agent+review', 'agent-limited'].includes(mode)
     ) {
-      return mode;
+      return mode as DelegationMode;
     }
     // Handle common variations
     if (mode === 'agent-review' || mode === 'agent_with_review') {

@@ -98,6 +98,9 @@ export * from './authority.js';
 // Export decision loop state machine
 export * from './decision-loop.js';
 
+// Export productivity patterns
+export * from './productivity-patterns.js';
+
 export * from './goals.js';
 export * from './human-state.js';
 export * from './time-sensitivity.js';
