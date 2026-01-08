@@ -5,7 +5,12 @@
     "outDir": "./dist",
     "declaration": true,
     "declarationMap": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "baseUrl": "..",
+    "paths": {
+      "@vault/cod": ["../cod-core/src"],
+      "@vault/cod/*": ["../cod-core/src/*"]
+    }
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]

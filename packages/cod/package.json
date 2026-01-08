@@ -12,6 +12,7 @@
     "dist"
   ],
   "dependencies": {
+    "@vault/cod": "workspace:*",
     "@vault/mcp-core": "workspace:*",
     "zod": "^4.2.1"
   },

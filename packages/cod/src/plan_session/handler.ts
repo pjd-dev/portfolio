@@ -52,7 +52,7 @@ type SessionTask = {
 };
 
 type PlanSessionResult = {
-  session: {
+  session?: {
     id: string;
     status: string;
     params: {
@@ -146,7 +146,7 @@ export async function handler(
         ],
         structuredContent: {
           hardStop: hardStopResult,
-          session: null,
+          session: undefined,
           validation: {
             state: 'BLOCKED',
             issues: [
@@ -307,6 +307,18 @@ export async function handler(
     }
 
     const session = result.session;
+    if (!session) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: '# ❌ Session planning failed\n\nNo session data returned.',
+          },
+        ],
+        structuredContent: result,
+        isError: true,
+      };
+    }
 
     let text = `# Work Session Planned\n\n`;
     text += `**Session ID:** \`${session.id}\`\n`;

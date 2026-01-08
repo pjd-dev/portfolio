@@ -48,7 +48,9 @@ POD_NAME="${POD_NAME:-vaulty-pod}"
 MCP_CONTAINER="${MCP_CONTAINER_NAME:-${CONTAINER_NAME:-mcp-server-dev}}"
 VAULT_CONTAINER="${VAULT_CONTAINER_NAME:-vaulty}"
 VIEWER_CONTAINER="${VIEWER_CONTAINER_NAME:-viewer}"
+API_CONTAINER="${API_CONTAINER_NAME:-api-server}"
 MCP_PORT="${MCP_PORT:-4000}"
+API_PORT="${API_PORT:-4200}"
 VIEWER_PORT="${VIEWER_PORT:-8080}"
 
 # Volume configuration
@@ -123,11 +125,24 @@ build_viewer_image() {
   log_success "Viewer image built"
 }
 
+build_api_image() {
+  local dockerfile="$PROJECT_ROOT/apps/api/Dockerfile"
+
+  if [[ ! -f "$dockerfile" ]]; then
+    log_warn "API Dockerfile not found: $dockerfile (skipping)"
+    return
+  fi
+
+  log_info "Building API image..."
+  $RUNTIME build --format=docker -t vault-api:latest -f "$dockerfile" "$PROJECT_ROOT" || die "API build failed"
+  log_success "API image built"
+}
+
 create_pod() {
-  log_info "Creating pod '$POD_NAME' with ports MCP:$MCP_PORT Viewer:$VIEWER_PORT..."
+  log_info "Creating pod '$POD_NAME' with ports MCP:$MCP_PORT API:$API_PORT Viewer:$VIEWER_PORT..."
   
   # Create pod with port binding (ignore if exists)
-  local port_flags=("-p" "$MCP_PORT:4000")
+  local port_flags=("-p" "$MCP_PORT:4000" "-p" "$API_PORT:4200")
   if [[ -n "$VIEWER_PORT" ]]; then
     port_flags+=("-p" "$VIEWER_PORT:8000")
   fi
@@ -225,6 +240,39 @@ start_viewer_service() {
   log_success "Viewer service started: $VIEWER_CONTAINER"
 }
 
+start_api_service() {
+  log_info "Starting API service..."
+
+  if [[ ! -d "$PROJECT_ROOT/apps/api" ]]; then
+    log_warn "API app not found at apps/api (skipping)"
+    return
+  fi
+
+  # Prepare environment and volume flags
+  local env_flags=()
+  for env_file in "$PROJECT_ROOT/.env" "$PROJECT_ROOT/apps/api/.env"; do
+    if [[ -f "$env_file" ]]; then
+      env_flags+=(--env-file "$env_file")
+    fi
+  done
+
+  local user_flags=()
+  if [[ -n "$CONTAINER_USER" ]]; then
+    user_flags=(--user "$CONTAINER_USER")
+  fi
+
+  # Run API container
+  $RUNTIME run -d --rm \
+    --name "$API_CONTAINER" \
+    --pod "$POD_NAME" \
+    --volume "$VOLUME_SOURCE:/vault:Z" \
+    "${env_flags[@]}" \
+    "${user_flags[@]}" \
+    vault-api:latest || die "Failed to start API container"
+
+  log_success "API service started: $API_CONTAINER"
+}
+
 # ============================================================================
 # Main Execution
 # ============================================================================
@@ -234,6 +282,7 @@ print_header "Starting Vault Platform Services"
 print_section "Building container images"
 build_mcp_image
 build_vault_image
+build_api_image
 build_viewer_image
 
 print_section "Creating pod infrastructure"
@@ -248,6 +297,9 @@ sleep 3
 print_section "Starting MCP service"
 start_mcp_service
 
+print_section "Starting API service"
+start_api_service
+
 # Viewer can start after MCP with shared volume.
 print_section "Starting Viewer service"
 start_viewer_service
@@ -259,6 +311,12 @@ if $RUNTIME ps --filter "name=$MCP_CONTAINER" --format "{{.Names}}" | grep -q "$
   log_success "MCP service verified running"
 else
   log_warn "MCP service verification failed"
+fi
+
+if $RUNTIME ps --filter "name=$API_CONTAINER" --format "{{.Names}}" | grep -q "$API_CONTAINER"; then
+  log_success "API service verified running"
+else
+  log_warn "API service verification failed"
 fi
 
 if $RUNTIME ps --filter "name=$VAULT_CONTAINER" --format "{{.Names}}" | grep -q "$VAULT_CONTAINER"; then

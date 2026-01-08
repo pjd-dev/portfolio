@@ -19,6 +19,8 @@
       "@vault/common": ["packages/vault-common/src"],
       "@vault/common/*": ["packages/vault-common/src/*"],
       "@vault/mcp-core": ["packages/mcp-core/src"],
+      "@vault/cod": ["packages/cod-core/src"],
+      "@vault/cod/*": ["packages/cod-core/src/*"],
       "@vault/obsidian-tools": ["packages/obsidian/src"],
       "@vault/cod-tools": ["packages/cod/src"],
       "@vault/vault-tools": ["packages/vault/src"],

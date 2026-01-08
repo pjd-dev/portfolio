@@ -178,7 +178,6 @@ export async function handler(
           blocked: [],
           failed: [],
           total: 0,
-          hardStop: hardStopResult,
           goalContext: {
             source: 'blocked',
             count: 0,
@@ -189,6 +188,7 @@ export async function handler(
             warnings: [hardStopResult.reason || 'Late-night work blocked'],
             recommendedMode: 'conservative',
             durationCapMin: 0,
+            worldSignalsUsed: [],
             snapshot: {
               source: 'hard-stop',
               energy: 0,
