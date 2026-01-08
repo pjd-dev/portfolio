@@ -93,6 +93,7 @@ Endpoints:
   GET  /api/v1/tasks/next-actions - Get COD-aware next actions
   GET  /api/v1/sessions           - List sessions
   GET  /api/v1/graph/search       - Search knowledge graph
+  GET  /api/v1/cod/status         - Get COD status (for viewer dashboard)
   GET  /api/v1/cod/avatar         - Get avatar state
   GET  /api/v1/cod/hard-stop      - Get HARD_STOP status
 `);

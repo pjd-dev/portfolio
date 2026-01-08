@@ -6,8 +6,8 @@ export const config = {
   host: process.env.HOST || '0.0.0.0',
   nodeEnv: process.env.NODE_ENV || 'development',
 
-  // CORS
-  corsOrigin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+  // CORS - Allow multiple origins for viewer, proxy, and development
+  corsOrigin: process.env.CORS_ORIGIN || true, // true = allow all origins in dev
 
   // Vault
   vaultRoot: process.env.VAULT_ROOT || '',

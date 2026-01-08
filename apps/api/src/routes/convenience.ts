@@ -182,6 +182,47 @@ export async function graphRoutes(fastify: FastifyInstance): Promise<void> {
  * COD routes - Cognitive Operating Discipline endpoints
  */
 export async function codRoutes(fastify: FastifyInstance): Promise<void> {
+  // Combined status for viewer dashboard
+  fastify.get('/cod/status', async () => {
+    try {
+      // Get planning prerequisites (includes human state evaluation)
+      const prereqResult = await executeTool(
+        'obsidian_planning_prerequisites',
+        {}
+      );
+      const prereq = prereqResult?.structuredContent || prereqResult || {};
+
+      // Extract human state info
+      const humanState = {
+        energy: prereq.humanState?.energy ?? 0,
+        focusCapacity: prereq.humanState?.focusCapacity ?? 'unknown',
+        stress: prereq.humanState?.stress ?? 0,
+        sleepDebt: prereq.humanState?.sleepDebt ?? 0,
+        timeAvailableMin: prereq.humanState?.timeAvailableMin ?? 0,
+        source: prereq.humanState?.source ?? 'none',
+        timestamp: prereq.humanState?.ts ?? null,
+      };
+
+      // Session info (if active)
+      const session = prereq.activeSession || null;
+
+      return {
+        humanState,
+        session,
+        canProceed: prereq.canProceed ?? false,
+        warnings: prereq.warnings || [],
+      };
+    } catch (err) {
+      return {
+        humanState: null,
+        session: null,
+        canProceed: false,
+        warnings: [],
+        error: String(err),
+      };
+    }
+  });
+
   // Get avatar state
   fastify.get('/cod/avatar', async () => {
     return executeTool('obsidian_get_avatar_state', {});

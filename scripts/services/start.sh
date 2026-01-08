@@ -239,15 +239,20 @@ start_viewer_service() {
     fi
   done
 
+  # Set API URL for the viewer to connect to (within pod network)
+  # The viewer frontend uses this to make API calls at runtime
+  local api_url="${TASKER_API_URL:-http://localhost:$API_PORT}"
+
   # Run Viewer container (nginx runs as root, drops privileges itself)
   $RUNTIME run -d \
     --name "$VIEWER_CONTAINER" \
     --pod "$POD_NAME" \
     --volume "$VOLUME_SOURCE:/vault:Z" \
+    -e "TASKER_API_URL=$api_url" \
     "${env_flags[@]}" \
     vault-viewer:latest || die "Failed to start Viewer container"
 
-  log_success "Viewer service started: $VIEWER_CONTAINER"
+  log_success "Viewer service started: $VIEWER_CONTAINER (API: $api_url)"
 }
 
 start_api_service() {
