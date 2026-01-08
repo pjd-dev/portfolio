@@ -1,31 +1,113 @@
 import type { McpToolDef } from '@vault/mcp-core';
 
+const MCP_URL = process.env.MCP_URL || 'http://mcp-server-dev:4000';
+
 /**
- * Dynamically load MCP tools from the mcp app
- *
- * This loader imports the pre-configured tools from apps/mcp
- * which already have all dependencies wired up.
- *
- * Note: This requires the mcp app to be built first.
+ * Create a proxy tool that calls the MCP server via JSON-RPC
+ */
+function createProxyTool(
+  name: string,
+  title: string,
+  description: string,
+  inputSchema?: unknown
+): McpToolDef {
+  return {
+    name,
+    llmInput: { title, description, inputSchema },
+    cb: async (input: Record<string, unknown>) => {
+      const response = await fetch(`${MCP_URL}/mcp`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json, text/event-stream',
+        },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: Date.now(),
+          method: 'tools/call',
+          params: { name, arguments: input },
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`MCP call failed: ${response.status}`);
+      }
+
+      const result = (await response.json()) as {
+        result?: { content?: unknown[]; structuredContent?: unknown };
+        error?: { message: string };
+      };
+      if (result.error) {
+        throw new Error(result.error.message);
+      }
+
+      return {
+        content: result.result?.content || [],
+        structuredContent: result.result?.structuredContent,
+      };
+    },
+  };
+}
+
+/**
+ * Load tools by discovering them from the MCP server
+ * This creates proxy tools that forward calls to MCP via JSON-RPC
  */
 export async function loadMcpTools(): Promise<McpToolDef[]> {
   try {
-    // Import the tools from the mcp app's built output
-    // The mcp app exports all tools with dependencies already wired
-    const mcpToolsModule = await import(
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore - Path only exists after MCP build
-      '../../mcp/dist/mcp/obsidian/tools/index.js'
+    console.log(`Connecting to MCP server at ${MCP_URL}...`);
+
+    // List tools from MCP server
+    const response = await fetch(`${MCP_URL}/mcp`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json, text/event-stream',
+      },
+      body: JSON.stringify({
+        jsonrpc: '2.0',
+        id: Date.now(),
+        method: 'tools/list',
+        params: {},
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to list MCP tools: ${response.status}`);
+    }
+
+    const result = (await response.json()) as {
+      result?: {
+        tools?: Array<{
+          name: string;
+          description?: string;
+          inputSchema?: unknown;
+        }>;
+      };
+      error?: { message: string };
+    };
+    if (result.error) {
+      throw new Error(result.error.message);
+    }
+
+    const toolDefs = result.result?.tools || [];
+    console.log(`✓ Discovered ${toolDefs.length} tools from MCP server`);
+
+    // Create proxy tools for each discovered tool
+    return toolDefs.map((t) =>
+      createProxyTool(
+        t.name,
+        t.name
+          .replace(/^obsidian_/, '')
+          .replace(/_/g, ' ')
+          .replace(/\b\w/g, (c) => c.toUpperCase()),
+        t.description || '',
+        t.inputSchema
+      )
     );
-    const tools = mcpToolsModule.default as McpToolDef[];
-
-    console.log(`Loaded ${tools.length} tools from MCP app`);
-    return tools;
   } catch (error) {
-    console.error('Failed to load MCP tools:', error);
-
-    // Return a minimal set of tools for development/testing
-    console.warn('Falling back to stub tools');
+    console.error('Failed to connect to MCP server:', error);
+    console.warn('Falling back to stub tools - MCP server may not be running');
     return getStubTools();
   }
 }
