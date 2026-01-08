@@ -1,5 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { executeTool } from './tools.js';
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
 
 /**
  * Notes routes - convenience endpoints for note operations
@@ -182,10 +184,50 @@ export async function graphRoutes(fastify: FastifyInstance): Promise<void> {
  * COD routes - Cognitive Operating Discipline endpoints
  */
 export async function codRoutes(fastify: FastifyInstance): Promise<void> {
+  const vaultPath =
+    process.env.VAULT_PATH || process.env.VAULT_ROOT || '/vault';
+
   // Combined status for viewer dashboard
   fastify.get('/cod/status', async () => {
     try {
-      // Get planning prerequisites (includes human state evaluation)
+      // Try to read human state from the COD state file
+      let humanState = {
+        energy: 0,
+        focusCapacity: 'unknown' as string,
+        stress: 0,
+        sleepDebt: 0,
+        timeAvailableMin: 0,
+        source: 'none' as string,
+        timestamp: null as string | null,
+      };
+
+      try {
+        // Read the human state JSON file directly from the vault
+        const humanStatePath = join(vaultPath, '_state/cod/human-state.json');
+        const content = await readFile(humanStatePath, 'utf-8');
+        const parsed = JSON.parse(content) as {
+          energy?: number;
+          focusCapacity?: string;
+          stress?: number;
+          sleepHours?: number;
+          timeAvailableMin?: number;
+          source?: string;
+          ts?: string;
+        };
+        humanState = {
+          energy: Math.round((parsed.energy || 0) * 100),
+          focusCapacity: parsed.focusCapacity || 'unknown',
+          stress: Math.round((parsed.stress || 0) * 100),
+          sleepDebt: parsed.sleepHours ? Math.max(0, 8 - parsed.sleepHours) : 0,
+          timeAvailableMin: parsed.timeAvailableMin || 0,
+          source: parsed.source || 'none',
+          timestamp: parsed.ts || null,
+        };
+      } catch {
+        // Human state file not found or invalid - use defaults
+      }
+
+      // Get planning prerequisites for session info
       const prereqResult = (await executeTool(
         'obsidian_planning_prerequisites',
         {}
@@ -194,27 +236,13 @@ export async function codRoutes(fastify: FastifyInstance): Promise<void> {
         prereqResult ||
         {}) as Record<string, unknown>;
 
-      // Extract human state info
-      const humanStateRaw = prereq.humanState as
-        | Record<string, unknown>
-        | undefined;
-      const humanState = {
-        energy: humanStateRaw?.energy ?? 0,
-        focusCapacity: humanStateRaw?.focusCapacity ?? 'unknown',
-        stress: humanStateRaw?.stress ?? 0,
-        sleepDebt: humanStateRaw?.sleepDebt ?? 0,
-        timeAvailableMin: humanStateRaw?.timeAvailableMin ?? 0,
-        source: humanStateRaw?.source ?? 'none',
-        timestamp: humanStateRaw?.ts ?? null,
-      };
-
       // Session info (if active)
       const session = prereq.activeSession || null;
 
       return {
         humanState,
         session,
-        canProceed: prereq.canProceed ?? false,
+        canProceed: prereq.canProceed ?? true,
         warnings: prereq.warnings || [],
       };
     } catch (err) {
@@ -256,5 +284,101 @@ export async function codRoutes(fastify: FastifyInstance): Promise<void> {
   // Get peak hours
   fastify.get('/cod/productivity/peak-hours', async () => {
     return executeTool('obsidian_get_peak_hours', {});
+  });
+
+  // ============================================================================
+  // COD Write Endpoints
+  // ============================================================================
+
+  // Update human state
+  fastify.post<{
+    Body: {
+      energy: number;
+      focusCapacity: 'low' | 'med' | 'high';
+      stress: number;
+      sleepHours: number;
+      timeAvailableMin: number;
+      source?: 'morning-check' | 'moment-check' | 'manual';
+    };
+  }>('/cod/human-state', async (request) => {
+    const {
+      energy,
+      focusCapacity,
+      stress,
+      sleepHours,
+      timeAvailableMin,
+      source = 'manual',
+    } = request.body;
+
+    return executeTool('obsidian_write_human_state', {
+      energy,
+      focusCapacity,
+      stress,
+      sleepHours,
+      timeAvailableMin,
+      source,
+    });
+  });
+
+  // Start a new session
+  fastify.post<{
+    Body: {
+      taskIds?: string[];
+      budgetMin?: number;
+    };
+  }>('/cod/session/start', async (request) => {
+    const { taskIds = [], budgetMin = 60 } = request.body;
+    return executeTool('obsidian_start_session', {
+      taskIds,
+      budgetMin,
+    });
+  });
+
+  // End current session
+  fastify.post<{
+    Body: {
+      sessionId: string;
+      status?: 'completed' | 'aborted';
+    };
+  }>('/cod/session/end', async (request) => {
+    const { sessionId, status = 'completed' } = request.body;
+    return executeTool('obsidian_end_session', {
+      sessionId,
+      status,
+    });
+  });
+
+  // Transition decision loop state
+  fastify.post<{
+    Body: {
+      transition: string;
+      reason?: string;
+    };
+  }>('/cod/decision-loop/transition', async (request) => {
+    const { transition, reason } = request.body;
+    return executeTool('obsidian_decision_loop_transition', {
+      transition,
+      reason,
+    });
+  });
+
+  // Update avatar state
+  fastify.patch<{
+    Body: {
+      patch: Record<string, unknown>;
+    };
+  }>('/cod/avatar', async (request) => {
+    const { patch } = request.body;
+    return executeTool('obsidian_update_avatar_state', { patch });
+  });
+
+  // Update world state
+  fastify.patch<{
+    Body: {
+      patch: Record<string, unknown>;
+    };
+  }>('/cod/world', async (request) => {
+    const { patch } = request.body;
+    return executeTool('obsidian_update_world_state', { patch });
   });
 }
