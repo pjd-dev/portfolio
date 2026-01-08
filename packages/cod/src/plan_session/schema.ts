@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+const CallerAuthorityEnum = z.enum(['human', 'agent', 'system']);
+
 export const inputSchema = z.object({
   durationMinutes: z
     .number()
@@ -22,6 +24,9 @@ export const inputSchema = z.object({
     .describe(
       'Override HARD_STOP guardrail (not recommended during late-night hours)'
     ),
+  callerAuthority: CallerAuthorityEnum.optional().describe(
+    'Authority level of the caller (human, agent, system). Affects which tasks are included based on delegation rules.'
+  ),
 });
 
 const sessionTaskSchema = z.object({

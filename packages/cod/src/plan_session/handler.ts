@@ -1,5 +1,11 @@
 import type { PlanSessionInput, PlanSessionOutput } from './schema.js';
-import { checkHardStop, type HardStopCheckResult } from '@vault/cod';
+import {
+  checkHardStop,
+  canIncludeInAgentSession,
+  extractAuthorityConfig,
+  type HardStopCheckResult,
+  type CallerAuthority,
+} from '@vault/cod';
 
 type ValidationIssue = {
   code: string;

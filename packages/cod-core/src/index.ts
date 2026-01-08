@@ -89,6 +89,15 @@ export * from './markov-chains.js';
 export * from './state-forecaster.js';
 export * from './session-classifier.js';
 
+// Export unified vitals (Avatar + Human-State unification)
+export * from './unified-vitals.js';
+
+// Export authority enforcement
+export * from './authority.js';
+
+// Export decision loop state machine
+export * from './decision-loop.js';
+
 export * from './goals.js';
 export * from './human-state.js';
 export * from './time-sensitivity.js';

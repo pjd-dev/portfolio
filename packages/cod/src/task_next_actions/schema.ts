@@ -9,6 +9,8 @@ const TaskStatusEnum = z.enum([
   'dropped',
 ]);
 
+const CallerAuthorityEnum = z.enum(['human', 'agent', 'system']);
+
 export const inputSchema = z.object({
   projectId: z.string().optional().describe('Filter by project ID'),
   max: z.number().optional().describe('Maximum number of results'),
@@ -24,6 +26,9 @@ export const inputSchema = z.object({
     .describe(
       'Override HARD_STOP guardrail (not recommended during late-night hours)'
     ),
+  callerAuthority: CallerAuthorityEnum.optional().describe(
+    'Authority level of the caller (human, agent, system). Affects which tasks are returned based on delegation rules.'
+  ),
 });
 
 const taskNodeSchema = z.object({

@@ -1,5 +1,11 @@
 import type { TaskNextActionsInput, TaskNextActionsOutput } from './schema.js';
-import { checkHardStop, type HardStopCheckResult } from '@vault/cod';
+import {
+  checkHardStop,
+  canIncludeInAgentSession,
+  extractAuthorityConfig,
+  type HardStopCheckResult,
+  type CallerAuthority,
+} from '@vault/cod';
 
 type TaskNode = {
   id: string;
@@ -14,6 +20,12 @@ type TaskNode = {
   path: string;
   dependencies?: string[];
   blockers?: string[];
+  // Authority fields
+  delegation_mode?: string;
+  delegatable?: boolean;
+  human_only?: boolean;
+  ai_token_budget?: number;
+  ai_time_budget_min?: number;
 };
 
 type RankedTask = {
@@ -250,11 +262,37 @@ export async function handler(
       });
     }
 
-    const unblocked = tasks.filter(
+    // Authority enforcement: filter out human-only tasks for non-human callers
+    const callerAuthority: CallerAuthority = input.callerAuthority ?? 'human';
+    const authorityExcluded: RankedTask[] = [];
+
+    const authorityFilteredTasks = tasks.filter((ranked) => {
+      if (callerAuthority === 'human') {
+        return true; // Humans see all tasks
+      }
+
+      const authorityConfig = extractAuthorityConfig({
+        delegation_mode: ranked.task.delegation_mode,
+        delegatable: ranked.task.delegatable,
+        human_only: ranked.task.human_only,
+        ai_token_budget: ranked.task.ai_token_budget,
+        ai_time_budget_min: ranked.task.ai_time_budget_min,
+        tags: ranked.task.tags ?? [],
+      });
+
+      const inclusion = canIncludeInAgentSession(authorityConfig);
+      if (!inclusion.includable) {
+        authorityExcluded.push(ranked);
+        return false;
+      }
+      return true;
+    });
+
+    const unblocked = authorityFilteredTasks.filter(
       (t) => !t.blocked && validationMap.get(t.task.id)?.valid
     );
-    const blocked = tasks.filter((t) => t.blocked);
-    const failed = tasks.filter((t) => {
+    const blocked = authorityFilteredTasks.filter((t) => t.blocked);
+    const failed = authorityFilteredTasks.filter((t) => {
       const validation = validationMap.get(t.task.id);
       return validation && !validation.valid;
     });
@@ -273,7 +311,11 @@ export async function handler(
     text += `- **Unblocked tasks:** ${unblocked.length}\n`;
     text += `- **Blocked tasks:** ${blocked.length}\n`;
     text += `- **Failed validation:** ${failed.length}\n`;
-    text += `- **Total:** ${tasks.length}\n\n`;
+    if (authorityExcluded.length > 0) {
+      text += `- **Human-only (excluded):** ${authorityExcluded.length}\n`;
+    }
+    text += `- **Total:** ${tasks.length}\n`;
+    text += `- **Caller authority:** ${callerAuthority}\n\n`;
 
     if (goalContext.count > 0 || goalContext.warnings.length > 0) {
       text += `## Goals Context\n\n`;
