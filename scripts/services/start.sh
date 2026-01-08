@@ -49,9 +49,11 @@ MCP_CONTAINER="${MCP_CONTAINER_NAME:-${CONTAINER_NAME:-mcp-server-dev}}"
 VAULT_CONTAINER="${VAULT_CONTAINER_NAME:-vaulty}"
 VIEWER_CONTAINER="${VIEWER_CONTAINER_NAME:-viewer}"
 API_CONTAINER="${API_CONTAINER_NAME:-api-server}"
+PROXY_CONTAINER="${PROXY_CONTAINER_NAME:-proxy}"
 MCP_PORT="${MCP_PORT:-4000}"
-API_PORT="${API_PORT:-4200}"
-VIEWER_PORT="${VIEWER_PORT:-8080}"
+API_PORT="${API_PORT:-4300}"
+VIEWER_PORT="${VIEWER_PORT:-4400}"
+PROXY_PORT="${PROXY_PORT:-8080}"
 
 # Volume configuration
 VOLUME_SOURCE="${LOCAL_VAULT_PATH:-${VAULT_DATA_VOLUME:-vault}}"
@@ -138,13 +140,27 @@ build_api_image() {
   log_success "API image built"
 }
 
+build_proxy_image() {
+  local dockerfile="$PROJECT_ROOT/apps/proxy/Dockerfile"
+
+  if [[ ! -f "$dockerfile" ]]; then
+    log_warn "Proxy Dockerfile not found: $dockerfile (skipping)"
+    return
+  fi
+
+  log_info "Building Proxy image..."
+  $RUNTIME build --format=docker -t vault-proxy:latest "$PROJECT_ROOT/apps/proxy" || die "Proxy build failed"
+  log_success "Proxy image built"
+}
+
 create_pod() {
-  log_info "Creating pod '$POD_NAME' with ports MCP:$MCP_PORT API:$API_PORT Viewer:$VIEWER_PORT..."
+  log_info "Creating pod '$POD_NAME' with ports Proxy:$PROXY_PORT MCP:$MCP_PORT API:$API_PORT Viewer:$VIEWER_PORT..."
   
   # Create pod with port binding (ignore if exists)
-  local port_flags=("-p" "$MCP_PORT:4000" "-p" "$API_PORT:4200")
+  # Proxy on port 8080 is the main entry point; direct ports for debugging
+  local port_flags=("-p" "$PROXY_PORT:8080" "-p" "$MCP_PORT:4000" "-p" "$API_PORT:4300")
   if [[ -n "$VIEWER_PORT" ]]; then
-    port_flags+=("-p" "$VIEWER_PORT:8000")
+    port_flags+=("-p" "$VIEWER_PORT:4400")
   fi
   $RUNTIME pod create --name "$POD_NAME" "${port_flags[@]}" 2>/dev/null || true
   
@@ -168,7 +184,7 @@ start_mcp_service() {
   fi
   
   # Run MCP container
-  $RUNTIME run -d --rm \
+  $RUNTIME run -d \
     --name "$MCP_CONTAINER" \
     --pod "$POD_NAME" \
     --volume "$VOLUME_SOURCE:/vault:Z" \
@@ -196,7 +212,7 @@ start_vault_service() {
   fi
   
   # Run Vault container
-  $RUNTIME run -d --rm \
+  $RUNTIME run -d \
     --name "$VAULT_CONTAINER" \
     --pod "$POD_NAME" \
     --volume "$VOLUME_SOURCE:/vault:Z" \
@@ -229,7 +245,7 @@ start_viewer_service() {
   fi
 
   # Run Viewer container
-  $RUNTIME run -d --rm \
+  $RUNTIME run -d \
     --name "$VIEWER_CONTAINER" \
     --pod "$POD_NAME" \
     --volume "$VOLUME_SOURCE:/vault:Z" \
@@ -262,7 +278,7 @@ start_api_service() {
   fi
 
   # Run API container
-  $RUNTIME run -d --rm \
+  $RUNTIME run -d \
     --name "$API_CONTAINER" \
     --pod "$POD_NAME" \
     --volume "$VOLUME_SOURCE:/vault:Z" \
@@ -271,6 +287,23 @@ start_api_service() {
     vault-api:latest || die "Failed to start API container"
 
   log_success "API service started: $API_CONTAINER"
+}
+
+start_proxy_service() {
+  log_info "Starting Proxy service..."
+
+  if [[ ! -d "$PROJECT_ROOT/apps/proxy" ]]; then
+    log_warn "Proxy app not found at apps/proxy (skipping)"
+    return
+  fi
+
+  # Run Proxy container
+  $RUNTIME run -d \
+    --name "$PROXY_CONTAINER" \
+    --pod "$POD_NAME" \
+    vault-proxy:latest || die "Failed to start Proxy container"
+
+  log_success "Proxy service started: $PROXY_CONTAINER"
 }
 
 # ============================================================================
@@ -284,6 +317,7 @@ build_mcp_image
 build_vault_image
 build_api_image
 build_viewer_image
+build_proxy_image
 
 print_section "Creating pod infrastructure"
 create_pod
@@ -303,6 +337,10 @@ start_api_service
 # Viewer can start after MCP with shared volume.
 print_section "Starting Viewer service"
 start_viewer_service
+
+# Proxy starts last after all backend services are up
+print_section "Starting Proxy service"
+start_proxy_service
 
 # Verify services
 sleep 2
@@ -331,4 +369,11 @@ else
   log_warn "Viewer service verification failed"
 fi
 
+if $RUNTIME ps --filter "name=$PROXY_CONTAINER" --format "{{.Names}}" | grep -q "$PROXY_CONTAINER"; then
+  log_success "Proxy service verified running"
+else
+  log_warn "Proxy service verification failed"
+fi
+
 log_success "All services started successfully"
+log_info "Access the platform at http://localhost:$PROXY_PORT"

@@ -23,21 +23,9 @@ async function main() {
     process.exit(1);
   }
 
-  // Create Fastify instance
+  // Create Fastify instance with simple JSON logging in production
   const fastify = Fastify({
-    logger: {
-      level: config.logLevel,
-      transport:
-        config.nodeEnv === 'development'
-          ? {
-              target: 'pino-pretty',
-              options: {
-                translateTime: 'HH:MM:ss Z',
-                ignore: 'pid,hostname',
-              },
-            }
-          : undefined,
-    },
+    logger: { level: config.logLevel },
   });
 
   // Register plugins

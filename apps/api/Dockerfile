@@ -23,9 +23,10 @@ RUN pnpm --filter ./apps/mcp run build
 # Build the api package
 RUN pnpm --filter ./apps/api run build
 
-ENV PORT=4200
+ENV PORT=4300
 ENV HOST=0.0.0.0
 ENV VAULT_PATH=/vault
+ENV VAULT_ROOT=/vault
 ENV NODE_ENV=production
 ENV AUTH_ENABLED=false
 
@@ -36,6 +37,6 @@ VOLUME /vault
 RUN echo '[safe]' > /etc/gitconfig && echo '  directory = /vault' >> /etc/gitconfig
 
 WORKDIR /app/apps/api
-EXPOSE 4200
+EXPOSE 4300
 
 CMD ["pnpm", "start"]
