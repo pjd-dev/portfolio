@@ -231,7 +231,7 @@ start_viewer_service() {
     return
   fi
 
-  # Prepare environment and volume flags
+  # Prepare environment flags (no user flag - nginx handles privileges internally)
   local env_flags=()
   for env_file in "$PROJECT_ROOT/.env" "$PROJECT_ROOT/apps/viewer/.env"; do
     if [[ -f "$env_file" ]]; then
@@ -239,18 +239,12 @@ start_viewer_service() {
     fi
   done
 
-  local user_flags=()
-  if [[ -n "$CONTAINER_USER" ]]; then
-    user_flags=(--user "$CONTAINER_USER")
-  fi
-
-  # Run Viewer container
+  # Run Viewer container (nginx runs as root, drops privileges itself)
   $RUNTIME run -d \
     --name "$VIEWER_CONTAINER" \
     --pod "$POD_NAME" \
     --volume "$VOLUME_SOURCE:/vault:Z" \
     "${env_flags[@]}" \
-    "${user_flags[@]}" \
     vault-viewer:latest || die "Failed to start Viewer container"
 
   log_success "Viewer service started: $VIEWER_CONTAINER"
