@@ -1,1 +1,1 @@
-export * from '../../cod-core/src/index.js';
+export * from '@vault/cod';

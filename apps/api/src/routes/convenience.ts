@@ -186,21 +186,26 @@ export async function codRoutes(fastify: FastifyInstance): Promise<void> {
   fastify.get('/cod/status', async () => {
     try {
       // Get planning prerequisites (includes human state evaluation)
-      const prereqResult = await executeTool(
+      const prereqResult = (await executeTool(
         'obsidian_planning_prerequisites',
         {}
-      );
-      const prereq = prereqResult?.structuredContent || prereqResult || {};
+      )) as Record<string, unknown>;
+      const prereq = (prereqResult?.structuredContent ||
+        prereqResult ||
+        {}) as Record<string, unknown>;
 
       // Extract human state info
+      const humanStateRaw = prereq.humanState as
+        | Record<string, unknown>
+        | undefined;
       const humanState = {
-        energy: prereq.humanState?.energy ?? 0,
-        focusCapacity: prereq.humanState?.focusCapacity ?? 'unknown',
-        stress: prereq.humanState?.stress ?? 0,
-        sleepDebt: prereq.humanState?.sleepDebt ?? 0,
-        timeAvailableMin: prereq.humanState?.timeAvailableMin ?? 0,
-        source: prereq.humanState?.source ?? 'none',
-        timestamp: prereq.humanState?.ts ?? null,
+        energy: humanStateRaw?.energy ?? 0,
+        focusCapacity: humanStateRaw?.focusCapacity ?? 'unknown',
+        stress: humanStateRaw?.stress ?? 0,
+        sleepDebt: humanStateRaw?.sleepDebt ?? 0,
+        timeAvailableMin: humanStateRaw?.timeAvailableMin ?? 0,
+        source: humanStateRaw?.source ?? 'none',
+        timestamp: humanStateRaw?.ts ?? null,
       };
 
       // Session info (if active)
