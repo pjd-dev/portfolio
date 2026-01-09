@@ -1,4 +1,6 @@
 import Fastify from 'fastify';
+import swagger from '@fastify/swagger';
+import swaggerUi from '@fastify/swagger-ui';
 import cors from '@fastify/cors';
 import { config, validateConfig } from './config/index.js';
 import { authPlugin } from './plugins/auth.js';
@@ -29,6 +31,19 @@ async function main() {
   });
 
   // Register plugins
+  await fastify.register(swagger, {
+    mode: 'static',
+    specification: {
+      path: new URL('../openapi.yaml', import.meta.url).pathname,
+      baseDir: new URL('..', import.meta.url).pathname,
+    },
+  });
+
+  await fastify.register(swaggerUi, {
+    routePrefix: '/docs',
+    uiConfig: { docExpansion: 'list', deepLinking: true },
+  });
+
   await fastify.register(cors, {
     origin: config.corsOrigin,
     credentials: true,
@@ -36,13 +51,13 @@ async function main() {
 
   await fastify.register(authPlugin);
 
-  // Load and register MCP tools
+  // Load and register tools (local/shared handlers preferred)
   try {
     const tools = await loadMcpTools();
     registerTools(tools);
-    console.log(`✓ Loaded ${tools.length} MCP tools`);
+    console.log(`✓ Loaded ${tools.length} tools`);
   } catch (error) {
-    console.error('Failed to load MCP tools:', error);
+    console.error('Failed to load tools:', error);
     process.exit(1);
   }
 

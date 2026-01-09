@@ -1,5 +1,20 @@
 import type { FastifyInstance } from 'fastify';
 import { executeTool } from './tools.js';
+import {
+  listNotes,
+  listTasks,
+  getTask,
+  getTaskMetrics,
+  getTaskHistory,
+  findTasks,
+  taskNextActions,
+  readNote,
+  getFrontmatter,
+  searchNotes,
+  findRelated,
+  graphSearch,
+  graphStats,
+} from '@vault/handlers';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
@@ -13,7 +28,33 @@ export async function notesRoutes(fastify: FastifyInstance): Promise<void> {
     '/notes',
     async (request) => {
       const { pattern = '**/*.md' } = request.query;
-      return executeTool('obsidian_list_notes', { pattern });
+      const notes = await listNotes(pattern);
+      return { structuredContent: { notes } };
+    }
+  );
+
+  // Read a note
+  fastify.get<{ Params: { path: string } }>('/notes/:path', async (request) => {
+    const { path } = request.params;
+    const decoded = decodeURIComponent(path);
+    const note = await readNote(decoded);
+    return {
+      structuredContent: {
+        path: decoded,
+        frontmatter: note.frontmatter,
+        content: note.content,
+      },
+    };
+  });
+
+  // Get note frontmatter
+  fastify.get<{ Params: { path: string } }>(
+    '/notes/:path/frontmatter',
+    async (request) => {
+      const { path } = request.params;
+      const decoded = decodeURIComponent(path);
+      const frontmatter = await getFrontmatter(decoded);
+      return { structuredContent: { path: decoded, frontmatter } };
     }
   );
 
@@ -22,7 +63,6 @@ export async function notesRoutes(fastify: FastifyInstance): Promise<void> {
     '/notes/search',
     async (request, reply) => {
       const { query, pattern = '**/*.md' } = request.query;
-
       if (!query) {
         reply.code(400).send({
           error: 'BadRequest',
@@ -30,27 +70,8 @@ export async function notesRoutes(fastify: FastifyInstance): Promise<void> {
         });
         return;
       }
-
-      return executeTool('obsidian_search_notes', { query, pattern });
-    }
-  );
-
-  // Read a note
-  fastify.get<{ Params: { path: string } }>('/notes/:path', async (request) => {
-    const { path } = request.params;
-    return executeTool('obsidian_read_note', {
-      path: decodeURIComponent(path),
-    });
-  });
-
-  // Get note frontmatter
-  fastify.get<{ Params: { path: string } }>(
-    '/notes/:path/frontmatter',
-    async (request) => {
-      const { path } = request.params;
-      return executeTool('obsidian_get_frontmatter', {
-        path: decodeURIComponent(path),
-      });
+      const results = await searchNotes(query, pattern);
+      return { structuredContent: { results } };
     }
   );
 }
@@ -74,33 +95,38 @@ export async function tasksRoutes(fastify: FastifyInstance): Promise<void> {
       sortBy = 'priority',
       sortOrder = 'desc',
     } = request.query;
-    return executeTool('obsidian_list_tasks', {
-      status,
-      limit,
-      sortBy,
-      sortOrder,
-    });
+    const tasks = await listTasks({ status, limit, sortBy, sortOrder });
+    return { structuredContent: { tasks, total: tasks.length } };
   });
 
   // Find tasks with filters
   fastify.post<{ Body: Record<string, unknown> }>(
     '/tasks/find',
     async (request) => {
-      return executeTool('obsidian_find_tasks', request.body);
+      const result = await findTasks(request.body || {});
+      return { structuredContent: result };
     }
   );
 
   // Get a task
   fastify.get<{ Params: { path: string } }>('/tasks/:path', async (request) => {
     const { path } = request.params;
-    return executeTool('obsidian_get_task', { path: decodeURIComponent(path) });
+    const decoded = decodeURIComponent(path);
+    const task = await getTask(decoded);
+    return { structuredContent: task };
   });
 
   // Get next actions (COD-aware)
   fastify.get<{
     Querystring: { max?: number; maxEffort?: number; maxFocusCost?: number };
   }>('/tasks/next-actions', async (request) => {
-    return executeTool('obsidian_task_next_actions', request.query);
+    const { max = 10, maxEffort, maxFocusCost } = request.query;
+    const tasks = await taskNextActions({
+      max,
+      maxEffort,
+      maxFocusCost,
+    });
+    return { structuredContent: { tasks, total: tasks.length } };
   });
 
   // Get task metrics
@@ -108,9 +134,20 @@ export async function tasksRoutes(fastify: FastifyInstance): Promise<void> {
     '/tasks/:path/metrics',
     async (request) => {
       const { path } = request.params;
-      return executeTool('obsidian_calculate_task_metrics', {
-        taskPath: decodeURIComponent(path),
-      });
+      const decoded = decodeURIComponent(path);
+      const metrics = await getTaskMetrics(decoded);
+      return { structuredContent: metrics };
+    }
+  );
+
+  // Get task history (stub)
+  fastify.get<{ Params: { path: string } }>(
+    '/tasks/:path/history',
+    async (request) => {
+      const { path } = request.params;
+      const decoded = decodeURIComponent(path);
+      const history = await getTaskHistory(decoded);
+      return { structuredContent: history };
     }
   );
 }
@@ -157,13 +194,15 @@ export async function graphRoutes(fastify: FastifyInstance): Promise<void> {
         return;
       }
 
-      return executeTool('obsidian_graph_search', { query, limit });
+      const results = await graphSearch({ query, limit });
+      return { structuredContent: { results, total: results.length } };
     }
   );
 
   // Graph stats
   fastify.get('/graph/stats', async () => {
-    return executeTool('obsidian_graph_stats', {});
+    const stats = await graphStats({});
+    return { structuredContent: stats };
   });
 
   // Find related notes
@@ -172,10 +211,11 @@ export async function graphRoutes(fastify: FastifyInstance): Promise<void> {
     async (request) => {
       const { path } = request.params;
       const { limit = 10 } = request.query;
-      return executeTool('obsidian_find_related', {
+      const related = await findRelated({
         path: decodeURIComponent(path),
         limit,
       });
+      return { structuredContent: { related, total: related.length } };
     }
   );
 }

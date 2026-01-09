@@ -1,145 +1,368 @@
 import type { McpToolDef } from '@vault/mcp-core';
-
-const MCP_URL = process.env.MCP_URL || 'http://mcp-server-dev:4000';
-
-/**
- * Create a proxy tool that calls the MCP server via JSON-RPC
- */
-function createProxyTool(
-  name: string,
-  title: string,
-  description: string,
-  inputSchema?: unknown
-): McpToolDef {
-  return {
-    name,
-    llmInput: { title, description, inputSchema },
-    cb: async (input: Record<string, unknown>) => {
-      const response = await fetch(`${MCP_URL}/mcp`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json, text/event-stream',
-        },
-        body: JSON.stringify({
-          jsonrpc: '2.0',
-          id: Date.now(),
-          method: 'tools/call',
-          params: { name, arguments: input },
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`MCP call failed: ${response.status}`);
-      }
-
-      const result = (await response.json()) as {
-        result?: { content?: unknown[]; structuredContent?: unknown };
-        error?: { message: string };
-      };
-      if (result.error) {
-        throw new Error(result.error.message);
-      }
-
-      return {
-        content: result.result?.content || [],
-        structuredContent: result.result?.structuredContent,
-      };
-    },
-  };
-}
+import {
+  listNotes,
+  listTasks,
+  readNote,
+  getFrontmatter,
+  searchNotes,
+  findByFrontmatter,
+  findRelated,
+  graphSearch,
+  graphStats,
+  graphExport,
+  graphRebuild,
+  findTasks,
+  getTask,
+  getTaskMetrics,
+  getTaskHistory,
+  taskNextActions,
+  cacheStats,
+} from '@vault/handlers';
 
 /**
- * Load tools by discovering them from the MCP server
- * This creates proxy tools that forward calls to MCP via JSON-RPC
+ * Load local tools (no MCP dependency) using shared handlers.
  */
 export async function loadMcpTools(): Promise<McpToolDef[]> {
-  try {
-    console.log(`Connecting to MCP server at ${MCP_URL}...`);
-
-    // List tools from MCP server
-    const response = await fetch(`${MCP_URL}/mcp`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json, text/event-stream',
-      },
-      body: JSON.stringify({
-        jsonrpc: '2.0',
-        id: Date.now(),
-        method: 'tools/list',
-        params: {},
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to list MCP tools: ${response.status}`);
-    }
-
-    const result = (await response.json()) as {
-      result?: {
-        tools?: Array<{
-          name: string;
-          description?: string;
-          inputSchema?: unknown;
-        }>;
-      };
-      error?: { message: string };
-    };
-    if (result.error) {
-      throw new Error(result.error.message);
-    }
-
-    const toolDefs = result.result?.tools || [];
-    console.log(`✓ Discovered ${toolDefs.length} tools from MCP server`);
-
-    // Create proxy tools for each discovered tool
-    return toolDefs.map((t) =>
-      createProxyTool(
-        t.name,
-        t.name
-          .replace(/^obsidian_/, '')
-          .replace(/_/g, ' ')
-          .replace(/\b\w/g, (c) => c.toUpperCase()),
-        t.description || '',
-        t.inputSchema
-      )
-    );
-  } catch (error) {
-    console.error('Failed to connect to MCP server:', error);
-    console.warn('Falling back to stub tools - MCP server may not be running');
-    return getStubTools();
-  }
-}
-
-/**
- * Stub tools for development when MCP tools aren't available
- */
-function getStubTools(): McpToolDef[] {
-  return [
+  const tools: McpToolDef[] = [
     {
       name: 'obsidian_list_notes',
       llmInput: {
-        title: 'List Notes (stub)',
-        description: 'List notes in the vault - STUB MODE',
+        title: 'List Notes',
+        description: 'List notes in the vault matching a pattern',
+        inputSchema: { pattern: { type: 'string', default: '**/*.md' } },
       },
-      cb: async () => ({
-        content: [{ type: 'text', text: 'Stub: No notes available' }],
-        structuredContent: { notes: [], stub: true },
-      }),
+      cb: async (input: Record<string, unknown>) => {
+        const pattern =
+          typeof input?.pattern === 'string' ? input.pattern : '**/*.md';
+        const notes = await listNotes(pattern);
+        return {
+          content: [{ type: 'text', text: notes.join('\n') }],
+          structuredContent: { notes },
+        };
+      },
+    },
+    {
+      name: 'obsidian_list_tasks',
+      llmInput: {
+        title: 'List Tasks',
+        description: 'List task notes with optional filters',
+      },
+      cb: async (input: Record<string, unknown>) => {
+        const tasks = await listTasks({
+          status: (input.status as string) || 'all',
+          limit: (input.limit as number) || undefined,
+          sortBy: (input.sortBy as string) || 'priority',
+          sortOrder: (input.sortOrder as string) || 'desc',
+        });
+        return {
+          content: [{ type: 'text', text: `Found ${tasks.length} tasks` }],
+          structuredContent: { tasks, total: tasks.length },
+        };
+      },
+    },
+    {
+      name: 'obsidian_read_note',
+      llmInput: {
+        title: 'Read Note',
+        description: 'Read a note content and frontmatter',
+      },
+      cb: async (input: Record<string, unknown>) => {
+        const path = String(input.path || '');
+        const note = await readNote(path);
+        return {
+          content: [{ type: 'text', text: note.content }],
+          structuredContent: {
+            path,
+            frontmatter: note.frontmatter,
+            content: note.content,
+          },
+        };
+      },
+    },
+    {
+      name: 'obsidian_get_frontmatter',
+      llmInput: {
+        title: 'Get Frontmatter',
+        description: 'Retrieve frontmatter for a note',
+      },
+      cb: async (input: Record<string, unknown>) => {
+        const path = String(input.path || '');
+        const frontmatter = await getFrontmatter(path);
+        return {
+          content: [
+            { type: 'text', text: JSON.stringify(frontmatter, null, 2) },
+          ],
+          structuredContent: { path, frontmatter },
+        };
+      },
     },
     {
       name: 'obsidian_search_notes',
       llmInput: {
-        title: 'Search Notes (stub)',
-        description: 'Search notes in the vault - STUB MODE',
+        title: 'Search Notes',
+        description: 'Search note contents for a query string',
       },
-      cb: async () => ({
-        content: [{ type: 'text', text: 'Stub: Search not available' }],
-        structuredContent: { results: [], stub: true },
-      }),
+      cb: async (input: Record<string, unknown>) => {
+        const query = String(input.query || '');
+        const pattern =
+          typeof input?.pattern === 'string' ? input.pattern : '**/*.md';
+        const results = query ? await searchNotes(query, pattern) : [];
+        return {
+          content: [{ type: 'text', text: `Found ${results.length} matches` }],
+          structuredContent: { results },
+        };
+      },
+    },
+    {
+      name: 'obsidian_find_by_frontmatter',
+      llmInput: {
+        title: 'Find Notes by Frontmatter',
+        description: 'Search notes matching frontmatter criteria',
+      },
+      cb: async (input: Record<string, unknown>) => {
+        const operator =
+          (input.operator as Parameters<
+            typeof findByFrontmatter
+          >[0]['operator']) || 'equals';
+        const result = await findByFrontmatter({
+          field: String(input.field || ''),
+          value: input.value,
+          operator,
+          pattern: (input.pattern as string) || '**/*.md',
+          limit: (input.limit as number) || undefined,
+          offset: (input.offset as number) || 0,
+        });
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Found ${result.total} matches`,
+            },
+          ],
+          structuredContent: result,
+        };
+      },
+    },
+    {
+      name: 'obsidian_find_related',
+      llmInput: {
+        title: 'Find Related Notes',
+        description:
+          'Find notes related to a given path based on tags and links',
+      },
+      cb: async (input: Record<string, unknown>) => {
+        const related = await findRelated({
+          path: String(input.path || ''),
+          limit: (input.limit as number) || 10,
+          minScore: (input.minScore as number) || 1,
+        });
+        return {
+          content: [
+            { type: 'text', text: `Found ${related.length} related notes` },
+          ],
+          structuredContent: { related, total: related.length },
+        };
+      },
+    },
+    {
+      name: 'obsidian_graph_search',
+      llmInput: {
+        title: 'Search Notes with Graph Context',
+        description: 'Full-text search with optional tag/path filters',
+      },
+      cb: async (input: Record<string, unknown>) => {
+        const results = await graphSearch({
+          query: String(input.query || ''),
+          pathPrefix: (input.pathPrefix as string) || undefined,
+          tags: (input.tags as string[]) || [],
+          caseSensitive: Boolean(input.caseSensitive),
+          limit: (input.limit as number) || 20,
+          includeContext:
+            input.includeContext === undefined
+              ? true
+              : Boolean(input.includeContext),
+        });
+        return {
+          content: [{ type: 'text', text: `Found ${results.length} notes` }],
+          structuredContent: { results, total: results.length },
+        };
+      },
+    },
+    {
+      name: 'obsidian_graph_export',
+      llmInput: {
+        title: 'Export Knowledge Graph',
+        description: 'Export graph nodes/edges; supports optional rebuild',
+      },
+      cb: async (input: Record<string, unknown>) => {
+        const exported = await graphExport({
+          rebuild: Boolean(input.rebuild),
+        });
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Exported knowledge graph: ${exported.stats.totalNotes} notes, ${exported.stats.totalLinks} links`,
+            },
+          ],
+          structuredContent: exported,
+        };
+      },
+    },
+    {
+      name: 'obsidian_graph_rebuild',
+      llmInput: {
+        title: 'Rebuild Knowledge Graph',
+        description: 'Rebuild graph cache and return stats',
+      },
+      cb: async (input: Record<string, unknown>) => {
+        const result = await graphRebuild({
+          verify: input.verify === undefined ? true : Boolean(input.verify),
+        });
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Rebuilt graph in ${result.buildTime}ms with ${result.stats.totalNotes} notes`,
+            },
+          ],
+          structuredContent: result,
+        };
+      },
+    },
+    {
+      name: 'obsidian_cache_stats',
+      llmInput: {
+        title: 'Cache Stats',
+        description: 'Return cache statistics (handlers)',
+      },
+      cb: async () => {
+        const stats = await cacheStats();
+        return {
+          content: [{ type: 'text', text: 'Cache stats ready' }],
+          structuredContent: stats,
+        };
+      },
+    },
+    {
+      name: 'obsidian_graph_stats',
+      llmInput: {
+        title: 'Knowledge Graph Statistics',
+        description: 'Basic graph stats (hubs, orphans, link counts)',
+      },
+      cb: async (input: Record<string, unknown>) => {
+        const stats = await graphStats({
+          includeHubs: input.includeHubs !== false,
+          includeOrphans: input.includeOrphans !== false,
+          hubLimit: (input.hubLimit as number) || 10,
+        });
+        return {
+          content: [{ type: 'text', text: 'Graph stats ready' }],
+          structuredContent: stats,
+        };
+      },
+    },
+    {
+      name: 'obsidian_find_tasks',
+      llmInput: {
+        title: 'Find Tasks',
+        description: 'Search tasks with filters',
+      },
+      cb: async (input: Record<string, unknown>) => {
+        const result = await findTasks({
+          query: (input.query as string) || undefined,
+          status: (input.status as string) || 'all',
+          hasBlockers:
+            input.hasBlockers === undefined
+              ? undefined
+              : Boolean(input.hasBlockers),
+          minEffortScore: (input.minEffortScore as number) || undefined,
+          maxEffortScore: (input.maxEffortScore as number) || undefined,
+          minFocusCost: (input.minFocusCost as number) || undefined,
+          maxFocusCost: (input.maxFocusCost as number) || undefined,
+          sortBy: (input.sortBy as string) || 'priority',
+          sortOrder: (input.sortOrder as string) || 'desc',
+          limit: (input.limit as number) || 20,
+          offset: (input.offset as number) || 0,
+        });
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Found ${result.total} tasks (showing ${result.tasks.length})`,
+            },
+          ],
+          structuredContent: result,
+        };
+      },
+    },
+    {
+      name: 'obsidian_get_task',
+      llmInput: {
+        title: 'Get Task',
+        description: 'Fetch a task note with frontmatter and content',
+      },
+      cb: async (input: Record<string, unknown>) => {
+        const task = await getTask(String(input.path || ''));
+        return {
+          content: [{ type: 'text', text: `Loaded task: ${task.path}` }],
+          structuredContent: task,
+        };
+      },
+    },
+    {
+      name: 'obsidian_calculate_task_metrics',
+      llmInput: {
+        title: 'Calculate Task Metrics',
+        description:
+          'Return basic task metrics (stub) such as priority and estimated time',
+      },
+      cb: async (input: Record<string, unknown>) => {
+        const metrics = await getTaskMetrics(
+          String(input.taskPath || input.path || '')
+        );
+        return {
+          content: [{ type: 'text', text: 'Task metrics ready' }],
+          structuredContent: metrics,
+        };
+      },
+    },
+    {
+      name: 'obsidian_get_task_history',
+      llmInput: {
+        title: 'Get Task History',
+        description: 'Return task history entries (stub)',
+      },
+      cb: async (input: Record<string, unknown>) => {
+        const history = await getTaskHistory(String(input.path || ''));
+        return {
+          content: [{ type: 'text', text: 'Task history ready' }],
+          structuredContent: history,
+        };
+      },
+    },
+    {
+      name: 'obsidian_task_next_actions',
+      llmInput: {
+        title: 'Task Next Actions',
+        description: 'Ranked unblocked tasks',
+      },
+      cb: async (input: Record<string, unknown>) => {
+        const tasks = await taskNextActions({
+          max: (input.max as number) || 10,
+          maxEffort: (input.maxEffort as number) || undefined,
+          maxFocusCost: (input.maxFocusCost as number) || undefined,
+        });
+        return {
+          content: [
+            { type: 'text', text: `Top ${tasks.length} next actions ready` },
+          ],
+          structuredContent: { tasks, total: tasks.length },
+        };
+      },
     },
   ];
+  return tools;
 }
 
 /**
@@ -154,6 +377,8 @@ export const READ_ONLY_TOOLS = new Set([
   'obsidian_find_by_frontmatter',
   'obsidian_find_related',
   'obsidian_graph_search',
+  'obsidian_graph_export',
+  'obsidian_graph_rebuild',
   'obsidian_graph_stats',
   'obsidian_list_tasks',
   'obsidian_find_tasks',

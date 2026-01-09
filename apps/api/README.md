@@ -41,6 +41,63 @@ cp .env.example .env
 | `AUTH_SERVICE_URL` | `http://localhost:4100` | Auth service URL       |
 | `LOG_LEVEL`        | `info`                  | Logging level          |
 
+## REST Quick Reference
+
+Base URL: `http://localhost:4200/api/v1`
+
+Docs UI: `http://localhost:4200/docs` (Swagger UI, served from `openapi.yaml`)
+
+| Endpoint                       | Method | Purpose                      | Notes                                            |
+| ------------------------------ | ------ | ---------------------------- | ------------------------------------------------ |
+| `/health`                      | GET    | Service liveness             | Also `/health/detailed`                          |
+| `/tools`                       | GET    | List registered tools        |                                                  |
+| `/tools/:name`                 | GET    | Tool info/schema             |                                                  |
+| `/tools/:name/execute`         | POST   | Execute a tool               | Body = tool input                                |
+| `/notes`                       | GET    | List notes                   | `pattern` query (glob)                           |
+| `/notes/search`                | GET    | Search notes                 | `query`, `pattern`                               |
+| `/notes/:path`                 | GET    | Read a note                  | `:path` is URL-encoded                           |
+| `/notes/:path/frontmatter`     | GET    | Frontmatter only             |                                                  |
+| `/tasks`                       | GET    | List tasks                   | `status`, `limit`, `sortBy`, `sortOrder`         |
+| `/tasks/find`                  | POST   | Filter/search tasks          | Body mirrors tool filters                        |
+| `/tasks/:path`                 | GET    | Get task                     |                                                  |
+| `/tasks/:path/metrics`         | GET    | Basic task metrics           | Stub metrics today                               |
+| `/tasks/:path/history`         | GET    | Task history                 | Stub (empty list)                                |
+| `/tasks/next-actions`          | GET    | COD next actions             | `max`, `maxEffort`, `maxFocusCost`               |
+| `/graph/search`                | GET    | Graph-aware search           | `query`, `limit`                                 |
+| `/graph/stats`                 | GET    | Graph stats                  | hubs/orphans                                     |
+| `/graph/related/:path`         | GET    | Related notes                |                                                  |
+| `/sessions`                    | GET    | List sessions                |                                                  |
+| `/sessions/:id`                | GET    | Session details              |                                                  |
+| `/sessions/stats`              | GET    | Session stats                |                                                  |
+| `/cod/status`                  | GET    | Human state + active session | Reads `_state/cod/human-state.json` when present |
+| `/cod/avatar`                  | GET    | Avatar state                 |                                                  |
+| `/cod/world`                   | GET    | World state                  |                                                  |
+| `/cod/hard-stop`               | GET    | HARD_STOP status             |                                                  |
+| `/cod/decision-loop`           | GET    | Decision loop state          |                                                  |
+| `/cod/productivity`            | GET    | Productivity patterns        |                                                  |
+| `/cod/productivity/peak-hours` | GET    | Peak hours                   |                                                  |
+
+### Example requests
+
+- List tasks:
+
+  ```bash
+  curl "http://localhost:4200/api/v1/tasks?status=todo&limit=10"
+  ```
+
+- Execute a tool directly:
+
+  ```bash
+  curl -X POST http://localhost:4200/api/v1/tools/obsidian_list_notes/execute \
+    -H "Content-Type: application/json" \
+    -d '{"pattern":"tasks/**/*.md"}'
+  ```
+
+- Get related notes:
+  ```bash
+  curl "http://localhost:4200/api/v1/graph/related/tasks%2Fmy-task.md?limit=5"
+  ```
+
 ## API Endpoints
 
 ### Health
