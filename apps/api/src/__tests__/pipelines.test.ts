@@ -4,6 +4,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 import { pipelinesRoutes } from '../routes/pipelines.js';
+import { toolsRoutes } from '../routes/tools.js';
 
 /**
  * Fastify.inject tests for the pipelines routes.
@@ -89,6 +90,10 @@ describe('pipelines routes', () => {
     const readBody = readRes.json() as { name: string; pipeline: any };
     expect(readBody.name).toBe('demo');
     expect(readBody.pipeline.steps).toHaveLength(1);
+    expect(readBody.pipeline.options).toEqual({
+      stopOnError: false,
+      previewMode: true,
+    });
   });
 
   it('returns 404 for missing pipeline', async () => {
@@ -121,5 +126,44 @@ describe('pipelines routes', () => {
     expect(res.statusCode).toBe(400);
     const body = res.json() as { message?: string };
     expect(body.message).toContain('Pipeline.steps must be an array');
+  });
+
+  it('validates move steps require from/to', async () => {
+    const badPipeline = { steps: [{ type: 'move', from: 'a.md' }] };
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/v1/pipelines',
+      payload: { name: 'bad-move', pipeline: badPipeline },
+    });
+    expect(res.statusCode).toBe(400);
+    const body = res.json() as { message?: string };
+    expect(body.message).toContain('requires from and to');
+  });
+
+  it('creates via tools route and reads via pipelines route (cross-route)', async () => {
+    const app2 = Fastify({ logger: false });
+    await app2.register(toolsRoutes, { prefix: '/api/v1/tools' });
+    // Register pipelines routes under a different prefix to avoid route collisions with tools helper
+    await app2.register(pipelinesRoutes, { prefix: '/api/v1/pipes' });
+    await app2.ready();
+
+    const pipeline = { steps: [{ type: 'autoLink', path: 'notes' }] };
+    const createRes = await app2.inject({
+      method: 'POST',
+      url: '/api/v1/tools/pipelines',
+      payload: { name: 'via-tools', pipeline },
+    });
+    expect(createRes.statusCode).toBe(200);
+
+    const readRes = await app2.inject({
+      method: 'GET',
+      url: '/api/v1/pipes/pipelines/via-tools',
+    });
+    expect(readRes.statusCode).toBe(200);
+    const readBody = readRes.json() as { pipeline: any };
+    expect(readBody.pipeline.steps).toHaveLength(1);
+    expect(readBody.pipeline.steps[0].type).toBe('autoLink');
+
+    await app2.close();
   });
 });
