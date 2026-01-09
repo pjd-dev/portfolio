@@ -307,3 +307,5 @@ export {
   taskNextActions,
   updateTask,
 } from './tasks.js';
+
+export { listPipelines, readPipeline, writePipeline } from './pipelines.js';

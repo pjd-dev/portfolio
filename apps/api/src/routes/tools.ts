@@ -1,5 +1,6 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import type { McpToolDef } from '@vault/mcp-core';
+import { writePipeline } from '@vault/handlers';
 
 /**
  * Tool registry - maps tool names to their definitions
@@ -127,4 +128,19 @@ export async function toolsRoutes(fastify: FastifyInstance): Promise<void> {
       }
     }
   );
+
+  // Create/update a pipeline definition (simple helper)
+  fastify.post<{
+    Body: { name: string; pipeline: unknown };
+  }>('/pipelines', async (request, reply) => {
+    const { name, pipeline } = request.body || {};
+    if (!name || !pipeline || typeof pipeline !== 'object') {
+      reply
+        .code(400)
+        .send({ error: 'BadRequest', message: 'name + pipeline required' });
+      return;
+    }
+    const result = await writePipeline(name, pipeline);
+    return { success: true, ...result };
+  });
 }

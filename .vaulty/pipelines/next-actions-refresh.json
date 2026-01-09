@@ -1,0 +1,23 @@
+{
+  "name": "next-actions-refresh",
+  "steps": [
+    {
+      "type": "metadata",
+      "path": "core/index.md",
+      "frontmatter": {
+        "nextActionsRefreshed": "{{now}}"
+      },
+      "merge": true
+    },
+    {
+      "type": "insert",
+      "path": "core/index.md",
+      "line": 1,
+      "replacement": "> Next actions refreshed at {{now}}\\n"
+    }
+  ],
+  "options": {
+    "stopOnError": false,
+    "previewMode": true
+  }
+}

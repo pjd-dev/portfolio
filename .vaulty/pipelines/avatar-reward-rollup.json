@@ -1,0 +1,23 @@
+{
+  "name": "avatar-reward-rollup",
+  "steps": [
+    {
+      "type": "metadata",
+      "path": "core/avatar/Avatar.md",
+      "frontmatter": {
+        "rewardRollup": "{{now}}"
+      },
+      "merge": true
+    },
+    {
+      "type": "insert",
+      "path": "core/avatar/Avatar.md",
+      "line": 1,
+      "replacement": "> Reward rollup executed at {{now}}\\n"
+    }
+  ],
+  "options": {
+    "stopOnError": false,
+    "previewMode": true
+  }
+}

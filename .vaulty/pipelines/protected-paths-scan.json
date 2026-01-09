@@ -1,0 +1,23 @@
+{
+  "name": "protected-paths-scan",
+  "steps": [
+    {
+      "type": "metadata",
+      "path": "_system/guardrails.md",
+      "frontmatter": {
+        "lastScan": "{{now}}"
+      },
+      "merge": true
+    },
+    {
+      "type": "insert",
+      "path": "_system/guardrails.md",
+      "line": 1,
+      "replacement": "> Guardrails scan performed at {{now}}\\n"
+    }
+  ],
+  "options": {
+    "stopOnError": false,
+    "previewMode": true
+  }
+}

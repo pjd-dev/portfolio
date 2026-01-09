@@ -76,6 +76,7 @@ Docs UI: `http://localhost:4200/docs` (Swagger UI, served from `openapi.yaml`)
 | `/cod/decision-loop`           | GET    | Decision loop state          |                                                  |
 | `/cod/productivity`            | GET    | Productivity patterns        |                                                  |
 | `/cod/productivity/peak-hours` | GET    | Peak hours                   |                                                  |
+| `/scheduler/status`            | GET    | Scheduler status             | Env-driven pipeline runner status                |
 
 ### Example requests
 
@@ -146,6 +147,7 @@ Docs UI: `http://localhost:4200/docs` (Swagger UI, served from `openapi.yaml`)
 - `GET /api/v1/cod/decision-loop` - Get decision loop state
 - `GET /api/v1/cod/productivity` - Get productivity patterns
 - `GET /api/v1/cod/productivity/peak-hours` - Get peak productivity hours
+- `GET /api/v1/scheduler/status` - Scheduler status (jobs, allowlist, last runs)
 
 ## Example Usage
 

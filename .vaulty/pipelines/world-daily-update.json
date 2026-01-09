@@ -1,0 +1,23 @@
+{
+  "name": "world-daily-update",
+  "steps": [
+    {
+      "type": "metadata",
+      "path": "core/world/World.md",
+      "frontmatter": {
+        "updated": "{{now}}"
+      },
+      "merge": true
+    },
+    {
+      "type": "insert",
+      "path": "core/world/World.md",
+      "line": 1,
+      "replacement": "> World daily sync at {{now}}\\n"
+    }
+  ],
+  "options": {
+    "stopOnError": false,
+    "previewMode": true
+  }
+}

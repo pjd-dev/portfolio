@@ -13,6 +13,8 @@ import {
   graphRoutes,
   codRoutes,
 } from './routes/convenience.js';
+import { schedulerRoutes } from './routes/scheduler.js';
+import { pipelinesRoutes } from './routes/pipelines.js';
 import { loadMcpTools } from './tools/loader.js';
 
 async function main() {
@@ -69,6 +71,8 @@ async function main() {
   await fastify.register(sessionsRoutes, { prefix: '/api/v1' });
   await fastify.register(graphRoutes, { prefix: '/api/v1' });
   await fastify.register(codRoutes, { prefix: '/api/v1' });
+  await fastify.register(schedulerRoutes, { prefix: '/api/v1' });
+  await fastify.register(pipelinesRoutes, { prefix: '/api/v1' });
 
   // Error handler
   fastify.setErrorHandler(

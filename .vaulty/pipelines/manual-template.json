@@ -1,0 +1,17 @@
+{
+  "name": "manual-template",
+  "steps": [
+    {
+      "type": "metadata",
+      "path": "core/pipelines.md",
+      "frontmatter": {
+        "lastTemplateUse": "{{now}}"
+      },
+      "merge": true
+    }
+  ],
+  "options": {
+    "stopOnError": false,
+    "previewMode": true
+  }
+}

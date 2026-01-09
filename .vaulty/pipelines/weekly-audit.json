@@ -1,0 +1,25 @@
+{
+  "name": "weekly-audit",
+  "steps": [
+    {
+      "type": "autoLink",
+      "path": "tasks/**/*.md",
+      "options": {
+        "maxLinksPerParagraph": 1,
+        "maxTotalLinks": 25
+      }
+    },
+    {
+      "type": "metadata",
+      "path": "core/audit.md",
+      "frontmatter": {
+        "lastAudit": "{{now}}"
+      },
+      "merge": true
+    }
+  ],
+  "options": {
+    "stopOnError": false,
+    "previewMode": true
+  }
+}

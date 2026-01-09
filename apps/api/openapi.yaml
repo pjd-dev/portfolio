@@ -346,6 +346,13 @@ paths:
       responses:
         '200':
           description: Peak hours payload
+  /scheduler/status:
+    get:
+      summary: Scheduler status
+      description: Returns scheduler enablement, allowlist, jobs, and last run info.
+      responses:
+        '200':
+          description: Scheduler status payload
   /cod/human-state:
     post:
       summary: Record human state

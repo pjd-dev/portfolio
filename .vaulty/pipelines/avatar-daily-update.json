@@ -1,0 +1,23 @@
+{
+  "name": "avatar-daily-update",
+  "steps": [
+    {
+      "type": "metadata",
+      "path": "core/avatar/Avatar.md",
+      "frontmatter": {
+        "updated": "{{now}}"
+      },
+      "merge": true
+    },
+    {
+      "type": "insert",
+      "path": "core/avatar/Avatar.md",
+      "line": 1,
+      "replacement": "> Avatar daily sync at {{now}}\\n"
+    }
+  ],
+  "options": {
+    "stopOnError": false,
+    "previewMode": true
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "name": "recurring-tasks-rollover",
+  "steps": [
+    {
+      "type": "metadata",
+      "path": "tasks/recurring.md",
+      "frontmatter": {
+        "lastRollover": "{{now}}"
+      },
+      "merge": true
+    },
+    {
+      "type": "insert",
+      "path": "tasks/recurring.md",
+      "line": 1,
+      "replacement": "> Rollover triggered at {{now}}\\n"
+    }
+  ],
+  "options": {
+    "stopOnError": false,
+    "previewMode": true
+  }
+}
