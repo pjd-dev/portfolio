@@ -142,7 +142,10 @@ describe('pipelines routes', () => {
 
   it('creates via tools route and reads via pipelines route (cross-route)', async () => {
     const app2 = Fastify({ logger: false });
-    await app2.register(toolsRoutes, { prefix: '/api/v1/tools' });
+    await app2.register(toolsRoutes, {
+      prefix: '/api/v1/tools',
+      enablePipelineHelper: true,
+    });
     // Register pipelines routes under a different prefix to avoid route collisions with tools helper
     await app2.register(pipelinesRoutes, { prefix: '/api/v1/pipes' });
     await app2.ready();

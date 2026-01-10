@@ -171,8 +171,20 @@ export async function sessionsRoutes(fastify: FastifyInstance): Promise<void> {
   });
 
   // Get session stats
-  fastify.get('/sessions/stats', async () => {
-    return executeTool('obsidian_get_session_stats', {});
+  fastify.get('/sessions/stats', async (_, reply) => {
+    try {
+      return await executeTool('obsidian_get_session_stats', {});
+    } catch (err) {
+      // Graceful fallback: return empty stats instead of propagating 500s to the viewer
+      reply.code(200).send({
+        structuredContent: {
+          completedSessions: 0,
+          totalSessions: 0,
+          activeSessions: 0,
+          error: String(err),
+        },
+      });
+    }
   });
 }
 
@@ -280,25 +292,90 @@ export async function codRoutes(fastify: FastifyInstance): Promise<void> {
       const session = prereq.activeSession || null;
 
       return {
-        humanState,
-        session,
-        canProceed: prereq.canProceed ?? true,
-        warnings: prereq.warnings || [],
+        structuredContent: {
+          humanState,
+          session,
+          canProceed: prereq.canProceed ?? true,
+          warnings: prereq.warnings || [],
+        },
       };
     } catch (err) {
       return {
-        humanState: null,
-        session: null,
-        canProceed: false,
-        warnings: [],
-        error: String(err),
+        structuredContent: {
+          humanState: null,
+          session: null,
+          canProceed: false,
+          warnings: [],
+          error: String(err),
+        },
       };
     }
   });
 
   // Get avatar state
   fastify.get('/cod/avatar', async () => {
-    return executeTool('obsidian_get_avatar_state', {});
+    try {
+      const res = await executeTool('obsidian_get_avatar_state', {});
+      const structured = (res as any)?.structuredContent ?? res ?? null;
+      return { structuredContent: structured };
+    } catch (err) {
+      try {
+        const note = await readNote('core/avatar/Avatar.md');
+        const fm = (note as any)?.frontmatter ?? {};
+        const fallback = {
+          profile: fm.profile ?? {
+            name: fm.name ?? 'Unknown',
+            title: fm.title ?? 'Vault User',
+          },
+          vitals: fm.vitals ?? {
+            health: fm.health ?? 50,
+            energy: fm.energy ?? 50,
+            stress: fm.stress ?? 50,
+            tasksCompletedToday: fm.tasksCompletedToday ?? 0,
+            tasksCompletedThisWeek: fm.tasksCompletedThisWeek ?? 0,
+            sessionsCompletedThisWeek: fm.sessionsCompletedThisWeek ?? 0,
+            needs: fm.needs ?? { sleep: 50, social: 50, food: 50 },
+          },
+          progression: fm.progression ?? {
+            level: fm.level ?? 1,
+            xp: fm.xp ?? 0,
+          },
+          capacity: fm.capacity ?? {
+            focusCostMax: 0,
+            effortScoreMax: 0,
+            timeBudgetMin: 0,
+          },
+          knowledge: fm.knowledge ?? {},
+          flags: fm.flags ?? {},
+          updated: fm.updated ?? null,
+        };
+        return {
+          structuredContent: fallback,
+          warnings: [`Tool unavailable: ${String(err)}`],
+        };
+      } catch (inner) {
+        return {
+          error: `Avatar state unavailable: ${String(err)}; fallback failed: ${String(inner)}`,
+          structuredContent: {
+            profile: { name: 'Unknown', title: 'Vault User' },
+            vitals: {
+              health: 50,
+              energy: 50,
+              stress: 50,
+              tasksCompletedToday: 0,
+              tasksCompletedThisWeek: 0,
+              sessionsCompletedThisWeek: 0,
+              needs: { sleep: 50, social: 50, food: 50 },
+            },
+            progression: { level: 1, xp: 0 },
+            capacity: { focusCostMax: 0, effortScoreMax: 0, timeBudgetMin: 0 },
+            knowledge: {},
+            flags: {},
+            updated: null,
+          },
+        };
+      }
+    }
   });
 
   // Get world state

@@ -59,6 +59,8 @@ PROXY_PORT="${PROXY_PORT:-8080}"
 API_INTERNAL_PORT="${API_INTERNAL_PORT:-4300}"
 API_INTERNAL_HOST="${API_INTERNAL_HOST:-127.0.0.1}"
 API_INTERNAL_URL="${API_INTERNAL_URL:-http://${API_INTERNAL_HOST}:${API_INTERNAL_PORT}}"
+# CORS origins for dev/prod viewer
+DEV_CORS_ORIGINS="${CORS_ORIGIN:-http://localhost:8080,http://127.0.0.1:8080,http://localhost:8000,http://127.0.0.1:8000,http://localhost:3000,http://127.0.0.1:3000,http://localhost:4400,http://127.0.0.1:4400}"
 
 # Volume configuration
 VOLUME_SOURCE="${LOCAL_VAULT_PATH:-${VAULT_DATA_VOLUME:-vault}}"
@@ -244,9 +246,9 @@ start_viewer_service() {
     fi
   done
 
-  # Set API URL for the viewer to connect to (within pod network)
-  # Use internal URL (pod network) instead of host-published port to stay stable/DRY
-  local api_url="${TASKER_API_URL:-$API_INTERNAL_URL}"
+  # API URL exposed to frontend JS. Keep this empty to use relative /api via nginx proxy,
+  # unless explicitly overridden. This avoids CORS by sharing origin with the viewer.
+  local api_url="${TASKER_API_URL:-}"
 
   # Run Viewer container (nginx runs as root, drops privileges itself)
   $RUNTIME run -d \
@@ -254,7 +256,7 @@ start_viewer_service() {
     --pod "$POD_NAME" \
     --volume "$VOLUME_SOURCE:/vault:Z" \
     -e "TASKER_API_URL=$api_url" \
-    -e "API_PROXY_URL=$api_url" \
+    -e "API_PROXY_URL=$API_INTERNAL_URL" \
     "${env_flags[@]}" \
     vault-viewer:latest || die "Failed to start Viewer container"
 
@@ -288,6 +290,7 @@ start_api_service() {
     --pod "$POD_NAME" \
     --volume "$VOLUME_SOURCE:/vault:Z" \
     "${env_flags[@]}" \
+    -e "CORS_ORIGIN=$DEV_CORS_ORIGINS" \
     "${user_flags[@]}" \
     vault-api:latest || die "Failed to start API container"
 

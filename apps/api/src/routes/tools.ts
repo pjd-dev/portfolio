@@ -58,7 +58,11 @@ export async function executeTool(
 /**
  * Tools routes plugin
  */
-export async function toolsRoutes(fastify: FastifyInstance): Promise<void> {
+export async function toolsRoutes(
+  fastify: FastifyInstance,
+  opts?: { enablePipelineHelper?: boolean }
+): Promise<void> {
+  const enablePipelineHelper = opts?.enablePipelineHelper === true;
   // List all available tools
   fastify.get(
     '/tools',
@@ -128,4 +132,29 @@ export async function toolsRoutes(fastify: FastifyInstance): Promise<void> {
       }
     }
   );
+
+  // Create a pipeline (optional tools namespace helper)
+  if (enablePipelineHelper) {
+    fastify.post<{ Body: { name?: string; pipeline?: unknown } }>(
+      '/pipelines',
+      async (request, reply) => {
+        const { name, pipeline } = request.body || {};
+        if (!name || !pipeline || typeof pipeline !== 'object') {
+          reply
+            .code(400)
+            .send({ error: 'BadRequest', message: 'name + pipeline required' });
+          return;
+        }
+        try {
+          const result = await writePipeline(name, pipeline);
+          return { success: true, ...result };
+        } catch (error: any) {
+          reply.code(400).send({
+            error: 'ValidationFailed',
+            message: error?.message || String(error),
+          });
+        }
+      }
+    );
+  }
 }

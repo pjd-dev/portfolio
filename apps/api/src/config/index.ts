@@ -7,7 +7,10 @@ export const config = {
   nodeEnv: process.env.NODE_ENV || 'development',
 
   // CORS - Allow multiple origins for viewer, proxy, and development
-  corsOrigin: parseCorsOrigin(process.env.CORS_ORIGIN),
+  corsOrigin:
+    (process.env.NODE_ENV || 'development') !== 'production'
+      ? true
+      : parseCorsOrigin(process.env.CORS_ORIGIN),
 
   // Vault
   vaultRoot: process.env.VAULT_ROOT || process.env.VAULT_PATH || '/vault', // default for containers,
