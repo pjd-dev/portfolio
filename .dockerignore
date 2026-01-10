@@ -1,0 +1,24 @@
+# Root Docker build context pruning (keep lockfile)
+node_modules
+pnpm-store
+.pnpm-store
+.git
+.gitmodules
+.husky
+.DS_Store
+logs
+.cache
+
+# App-specific caches and build output
+apps/**/node_modules
+apps/**/.cache
+apps/**/dist
+apps/viewer/public
+apps/viewer/static/admin/config.yml
+
+# Virtualenvs
+.venv
+
+# Editor/OS files
+.vscode
+*.log

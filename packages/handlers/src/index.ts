@@ -202,7 +202,18 @@ export async function graphSearch(params: {
   caseSensitive?: boolean;
   limit?: number;
   includeContext?: boolean;
-}) {
+}): Promise<
+  | Array<{
+      path: string;
+      title?: string;
+      matchCount: number;
+    }>
+  | Array<{
+      path: string;
+      title?: string;
+      matches: Array<{ text: string; start?: number; end?: number }>;
+    }>
+> {
   const graph = createGraph();
   const results = await graph.search(params.query, {
     pathPrefix: params.pathPrefix,
@@ -216,7 +227,7 @@ export async function graphSearch(params: {
       path: r.path,
       title: r.title,
       matchCount: r.matches.length,
-    })) as any;
+    }));
   }
 
   return results;

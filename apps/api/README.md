@@ -30,16 +30,16 @@ Create `.env` from the example:
 cp .env.example .env
 ```
 
-| Variable           | Default                 | Description            |
-| ------------------ | ----------------------- | ---------------------- |
-| `PORT`             | `4200`                  | Server port            |
-| `HOST`             | `0.0.0.0`               | Server host            |
-| `NODE_ENV`         | `development`           | Environment            |
-| `CORS_ORIGIN`      | `http://localhost:3000` | CORS allowed origin    |
-| `VAULT_ROOT`       | (required)              | Path to Obsidian vault |
-| `AUTH_ENABLED`     | `false`                 | Enable token auth      |
-| `AUTH_SERVICE_URL` | `http://localhost:4100` | Auth service URL       |
-| `LOG_LEVEL`        | `info`                  | Logging level          |
+| Variable           | Default                 | Description                                                                                                  |
+| ------------------ | ----------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `PORT`             | `4200`                  | Server port                                                                                                  |
+| `HOST`             | `0.0.0.0`               | Server host                                                                                                  |
+| `NODE_ENV`         | `development`           | Environment                                                                                                  |
+| `CORS_ORIGIN`      | `http://localhost:3000` | CORS allowed origin(s). Supports comma-separated list. Set to `true` to allow all (dev), `false` to disable. |
+| `VAULT_ROOT`       | (required)              | Path to Obsidian vault                                                                                       |
+| `AUTH_ENABLED`     | `false`                 | Enable token auth                                                                                            |
+| `AUTH_SERVICE_URL` | `http://localhost:4100` | Auth service URL                                                                                             |
+| `LOG_LEVEL`        | `info`                  | Logging level                                                                                                |
 
 ## REST Quick Reference
 
