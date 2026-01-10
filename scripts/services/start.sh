@@ -55,6 +55,11 @@ API_PORT="${API_PORT:-4300}"
 VIEWER_PORT="${VIEWER_PORT:-4400}"
 PROXY_PORT="${PROXY_PORT:-8080}"
 
+# Internal API wiring (inside the pod)
+API_INTERNAL_PORT="${API_INTERNAL_PORT:-4300}"
+API_INTERNAL_HOST="${API_INTERNAL_HOST:-127.0.0.1}"
+API_INTERNAL_URL="${API_INTERNAL_URL:-http://${API_INTERNAL_HOST}:${API_INTERNAL_PORT}}"
+
 # Volume configuration
 VOLUME_SOURCE="${LOCAL_VAULT_PATH:-${VAULT_DATA_VOLUME:-vault}}"
 
@@ -240,8 +245,8 @@ start_viewer_service() {
   done
 
   # Set API URL for the viewer to connect to (within pod network)
-  # The viewer frontend uses this to make API calls at runtime
-  local api_url="${TASKER_API_URL:-http://localhost:$API_PORT}"
+  # Use internal URL (pod network) instead of host-published port to stay stable/DRY
+  local api_url="${TASKER_API_URL:-$API_INTERNAL_URL}"
 
   # Run Viewer container (nginx runs as root, drops privileges itself)
   $RUNTIME run -d \
@@ -249,6 +254,7 @@ start_viewer_service() {
     --pod "$POD_NAME" \
     --volume "$VOLUME_SOURCE:/vault:Z" \
     -e "TASKER_API_URL=$api_url" \
+    -e "API_PROXY_URL=$api_url" \
     "${env_flags[@]}" \
     vault-viewer:latest || die "Failed to start Viewer container"
 
