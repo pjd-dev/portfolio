@@ -5,6 +5,8 @@ import {
   extractAuthorityConfig,
   type HardStopCheckResult,
   type CallerAuthority,
+  type CodProfile,
+  normalizeTaskState,
 } from '@vault/cod';
 
 type ValidationIssue = {
@@ -111,6 +113,7 @@ export type PlanSessionDeps = {
       projectId?: string;
       tags?: string[];
       maxTasks?: number;
+      profile?: CodProfile;
     }) => Promise<PlanSessionResult>;
   };
   codValidator: {
@@ -123,9 +126,16 @@ export type PlanSessionDeps = {
         totalReward: number;
         focusCost: number;
       },
-      options?: { strict?: boolean }
+      options?: { strict?: boolean; profile?: CodProfile }
     ) => ValidationResult;
-    validateTask: (task: Partial<TaskState>) => ValidationResult;
+    validateTask: (
+      task: Partial<TaskState>,
+      context?: {
+        goalsMap?: Record<string, boolean>;
+        tasksMap?: Record<string, boolean>;
+      },
+      options?: { profile?: CodProfile }
+    ) => ValidationResult;
   };
 };
 
@@ -134,8 +144,9 @@ export async function handler(
   deps: PlanSessionDeps
 ): Promise<PlanSessionOutput> {
   try {
+    const profile: CodProfile = input.profile ?? 'basic';
     // HARD_STOP guardrail: prevent session planning during late-night window
-    const hardStopResult = checkHardStop();
+    const hardStopResult = checkHardStop(new Date(), {}, profile);
     if (hardStopResult.blocked && !input.overrideHardStop) {
       return {
         content: [
@@ -170,7 +181,7 @@ export async function handler(
         totalReward: 0,
         focusCost: input.maxFocusCost ?? 0,
       },
-      { strict: false }
+      { strict: false, profile }
     );
 
     if (sessionValidation.state === 'FAIL') {
@@ -210,6 +221,7 @@ export async function handler(
       projectId: input.projectId,
       tags: input.tags,
       maxTasks: input.maxTasks,
+      profile,
     });
 
     if (result.session && result.session.tasks.length > 0) {
@@ -223,7 +235,13 @@ export async function handler(
           priority: 5,
         };
 
-        const validation = deps.codValidator.validateTask(taskState);
+        const validation = deps.codValidator.validateTask(
+          normalizeTaskState(taskState),
+          undefined,
+          {
+            profile,
+          }
+        );
 
         if (validation.state === 'FAIL') {
           taskValidationErrors.push(

@@ -15,7 +15,8 @@ import {
   graphSearch,
   graphStats,
 } from '@vault/handlers';
-import { readFile } from 'node:fs/promises';
+import { readFile, writeFile, appendFile } from 'node:fs/promises';
+import fs from 'fs-extra';
 import { join } from 'node:path';
 
 /**
@@ -427,14 +428,42 @@ export async function codRoutes(fastify: FastifyInstance): Promise<void> {
       source = 'manual',
     } = request.body;
 
-    return executeTool('obsidian_write_human_state', {
+    // Write directly to vault (fallback if MCP tools unavailable)
+    const ts = new Date().toISOString();
+    const snapshot = {
+      ts,
+      source,
       energy,
       focusCapacity,
       stress,
       sleepHours,
       timeAvailableMin,
-      source,
-    });
+      contextTolerance: 'med',
+    };
+
+    const stateDir = join(vaultPath, '_state/cod');
+    const logDir = join(vaultPath, '_log/cod');
+    const statePath = join(stateDir, 'human-state.json');
+    const logPath = join(logDir, 'human-state.ndjson');
+
+    await fs.ensureDir(stateDir);
+    await fs.ensureDir(logDir);
+    await writeFile(statePath, JSON.stringify(snapshot, null, 2), 'utf-8');
+    await appendFile(logPath, JSON.stringify(snapshot) + '\n', 'utf-8');
+
+    return {
+      structuredContent: {
+        snapshot,
+        snapshotPath: statePath,
+        logPath,
+      },
+      content: [
+        {
+          type: 'text',
+          text: `✅ Human state saved (${statePath})`,
+        },
+      ],
+    };
   });
 
   // Start a new session

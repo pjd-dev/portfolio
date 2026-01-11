@@ -69,29 +69,33 @@ describe('Pattern Detection', () => {
   });
 
   it('detects afternoon energy crash', () => {
+    const base = new Date('2024-01-01T08:00:00.000Z');
+    const isoAt = (hoursFromBase: number) =>
+      new Date(base.getTime() + hoursFromBase * 60 * 60 * 1000).toISOString();
+
     const patterns = detectWorkHabitPatterns({
       recentExecutions: [],
       humanStateHistory: [
         {
-          timestamp: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(), // 8 AM
+          timestamp: isoAt(0), // 8 AM
           energy: 0.9,
           stress: 0.2,
           focus: 0.95,
         },
         {
-          timestamp: new Date(Date.now() - 7 * 60 * 60 * 1000).toISOString(), // 9 AM
+          timestamp: isoAt(1), // 9 AM
           energy: 0.85,
           stress: 0.25,
           focus: 0.9,
         },
         {
-          timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(), // 12 PM
+          timestamp: isoAt(4), // 12 PM
           energy: 0.6,
           stress: 0.35,
           focus: 0.65,
         },
         {
-          timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 PM
+          timestamp: isoAt(6), // 2 PM
           energy: 0.45,
           stress: 0.5,
           focus: 0.4,

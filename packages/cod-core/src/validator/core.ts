@@ -20,6 +20,7 @@ import {
   FailReasonCode,
 } from './types.js';
 import { checkHardStop, toValidationBlocker } from '../hard-stop.js';
+import { DEFAULT_COD_PROFILE } from '../profile.js';
 
 /**
  * COD Validator
@@ -141,6 +142,7 @@ export class CODValidator {
     },
     options: ValidatorOptions = {}
   ): ValidationResult {
+    const profile = options.profile ?? DEFAULT_COD_PROFILE;
     const issues: ValidationIssue[] = [];
     const validStatuses = [
       'backlog',
@@ -278,7 +280,7 @@ export class CODValidator {
       });
     }
 
-    return CODValidator._buildResult(issues, options);
+    return CODValidator._buildResult(issues, { ...options, profile });
   }
 
   /**
@@ -297,10 +299,11 @@ export class CODValidator {
     session: Partial<SessionState>,
     options: ValidatorOptions = {}
   ): ValidationResult {
+    const profile = options.profile ?? DEFAULT_COD_PROFILE;
     const issues: ValidationIssue[] = [];
 
     // RULE 0: HARD_STOP guardrail (time-based protection)
-    const hardStopResult = checkHardStop();
+    const hardStopResult = checkHardStop(new Date(), {}, profile);
     const hardStopBlocker = toValidationBlocker(hardStopResult);
     if (hardStopBlocker) {
       issues.push({

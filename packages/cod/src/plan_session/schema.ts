@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 const CallerAuthorityEnum = z.enum(['human', 'agent', 'system']);
+const CodProfileEnum = z.enum(['basic', 'adhd']);
 
 export const inputSchema = z.object({
   durationMinutes: z
@@ -26,6 +27,9 @@ export const inputSchema = z.object({
     ),
   callerAuthority: CallerAuthorityEnum.optional().describe(
     'Authority level of the caller (human, agent, system). Affects which tasks are included based on delegation rules.'
+  ),
+  profile: CodProfileEnum.optional().describe(
+    'COD profile to apply (basic | adhd). Default: basic.'
   ),
 });
 

@@ -5,6 +5,8 @@ import {
   extractAuthorityConfig,
   type HardStopCheckResult,
   type CallerAuthority,
+  type CodProfile,
+  normalizeTaskState,
 } from '@vault/cod';
 
 type TaskNode = {
@@ -119,7 +121,7 @@ type TaskState = {
   reward?: number;
   focusCost?: number;
   projectId?: string;
-  goal?: string;
+  goal?: string | null;
   path?: string;
   dependencies?: string[];
   blockers?: string[];
@@ -139,6 +141,7 @@ export type TaskNextActionsDeps = {
       };
       focusCapacity?: FocusCapacity;
       recommendedMode?: RecommendedMode;
+      profile?: CodProfile;
     }) => Promise<RankedTask[]>;
   };
   goalService: {
@@ -153,7 +156,8 @@ export type TaskNextActionsDeps = {
       context?: {
         goalsMap?: Record<string, boolean>;
         tasksMap?: Record<string, boolean>;
-      }
+      },
+      options?: { profile?: CodProfile }
     ) => ValidationResult;
   };
 };
@@ -163,8 +167,9 @@ export async function handler(
   deps: TaskNextActionsDeps
 ): Promise<TaskNextActionsOutput> {
   try {
+    const profile: CodProfile = input.profile ?? 'basic';
     // HARD_STOP guardrail: prevent work during late-night window
-    const hardStopResult = checkHardStop();
+    const hardStopResult = checkHardStop(new Date(), {}, profile);
     if (hardStopResult.blocked && !input.overrideHardStop) {
       return {
         content: [
@@ -232,6 +237,7 @@ export async function handler(
       },
       focusCapacity: humanState.snapshot.focusCapacity,
       recommendedMode: humanState.recommendedMode,
+      profile,
     });
 
     const validationMap = new Map<
@@ -254,7 +260,11 @@ export async function handler(
         blockers: ranked.task.blockers || [],
       };
 
-      const result = deps.codValidator.validateTask(taskState, { goalsMap });
+      const result = deps.codValidator.validateTask(
+        normalizeTaskState(taskState),
+        { goalsMap },
+        { profile }
+      );
       const verdict = result.status ?? result.state;
       validationMap.set(ranked.task.id, {
         valid: verdict === 'PASS' || verdict === 'WARN',

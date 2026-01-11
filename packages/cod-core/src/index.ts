@@ -10,6 +10,15 @@
  * Spec: doc/COD_VALIDATION_SPEC.md
  */
 
+export type { CodProfile } from './profile.js';
+export { DEFAULT_COD_PROFILE } from './profile.js';
+export {
+  normalizeTaskState,
+  normalizeTaskStatus,
+  normalizePriority,
+  type CanonicalTaskInput,
+} from './task-shape.js';
+
 export { CODValidator } from './validator/core.js';
 export * from './validator/types.js';
 export {

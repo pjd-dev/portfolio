@@ -7,6 +7,8 @@
  * Canonical Reference: doc/COD_VALIDATION_SPEC.md
  */
 
+import type { CodProfile } from '../profile.js';
+
 /** Validation verdict state (spec-mandated three states) */
 export type ValidationState = 'PASS' | 'WARN' | 'FAIL';
 
@@ -103,4 +105,5 @@ export interface ValidatorOptions {
   strict?: boolean; // treat WARN as FAIL
   maxIssues?: number; // stop collecting after N
   skipChecks?: string[]; // skip specific rule codes
+  profile?: CodProfile; // runtime profile (default: basic)
 }
