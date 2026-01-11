@@ -150,6 +150,11 @@ export type TaskNextActionsDeps = {
   humanStateService: {
     loadPlanningContext: () => Promise<HumanStateContext>;
   };
+  avatarService?: {
+    loadAvatarState: () => Promise<{
+      state?: { vitals?: { money?: any; notoriety?: number; health?: number } };
+    }>;
+  };
   codValidator: {
     validateTask: (
       task: Partial<TaskState>,
@@ -225,6 +230,26 @@ export async function handler(
       goalLoad.index.goals.map((goal) => [goal.id, true])
     );
 
+    // Money-aware scoring context
+    let moneyLow = false;
+    try {
+      if (deps.avatarService?.loadAvatarState) {
+        const avatar = await deps.avatarService.loadAvatarState();
+        const money = avatar?.state?.vitals?.money;
+        if (money) {
+          const defaultCurrency =
+            money.default_currency ||
+            money.defaultCurrency ||
+            Object.keys(money.balances || {})[0];
+          const defaultBalance =
+            (money.balances && money.balances[defaultCurrency]) ?? 0;
+          moneyLow = defaultBalance < 1000; // basic threshold; tune as needed
+        }
+      }
+    } catch {
+      // ignore money fetch errors
+    }
+
     const tasks = await deps.taskGraphService.getNextActions({
       projectId: input.projectId,
       max: input.max,
@@ -239,6 +264,28 @@ export async function handler(
       recommendedMode: humanState.recommendedMode,
       profile,
     });
+
+    const adjustForMoney = (ranked: RankedTask): RankedTask => {
+      if (!moneyLow) return ranked;
+      const tags = ranked.task.tags || [];
+      const financeTags = ['finance', 'money', 'revenue', 'invoice', 'billing'];
+      const hasFinanceTag = tags.some((t) =>
+        financeTags.includes(t.toLowerCase())
+      );
+      if (!hasFinanceTag) return ranked;
+      return {
+        ...ranked,
+        score: ranked.score * 1.5,
+        scoreBreakdown: {
+          ...(ranked.scoreBreakdown || {}),
+          moneyBoost: 1.5,
+        },
+      };
+    };
+
+    const adjustedTasks = tasks
+      .map(adjustForMoney)
+      .sort((a, b) => b.score - a.score);
 
     const validationMap = new Map<
       string,
@@ -276,7 +323,7 @@ export async function handler(
     const callerAuthority: CallerAuthority = input.callerAuthority ?? 'human';
     const authorityExcluded: RankedTask[] = [];
 
-    const authorityFilteredTasks = tasks.filter((ranked) => {
+    const authorityFilteredTasks = adjustedTasks.filter((ranked) => {
       if (callerAuthority === 'human') {
         return true; // Humans see all tasks
       }

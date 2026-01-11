@@ -8,6 +8,7 @@ import {
   getTaskHistory,
   findTasks,
   taskNextActions,
+  updateTask,
   readNote,
   getFrontmatter,
   searchNotes,
@@ -140,6 +141,26 @@ export async function tasksRoutes(fastify: FastifyInstance): Promise<void> {
       return { structuredContent: metrics };
     }
   );
+
+  // Update task status (lightweight CTA for viewer)
+  fastify.patch<{
+    Params: { path: string };
+    Body: { status: string };
+  }>('/tasks/:path/status', async (request, reply) => {
+    const { path } = request.params;
+    const { status } = request.body;
+    if (!status) {
+      reply.code(400).send({ error: 'BadRequest', message: 'status required' });
+      return;
+    }
+    const decoded = decodeURIComponent(path);
+    const result = await updateTask({
+      path: decoded,
+      frontmatterPatch: { status },
+      includeMetrics: true,
+    });
+    return { structuredContent: result };
+  });
 
   // Get task history (stub)
   fastify.get<{ Params: { path: string } }>(
