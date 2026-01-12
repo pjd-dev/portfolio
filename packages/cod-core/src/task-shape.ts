@@ -50,7 +50,7 @@ export const normalizeTaskStatus = (value?: string): TaskState['status'] => {
   if (normalized === 'todo') return 'todo';
   if (normalized === 'in-progress') return 'in_progress';
   if (normalized === 'in_progress') return 'in_progress';
-  if (normalized === 'completed' || normalized === 'done') return 'done';
+  if (normalized === 'completed' || normalized === 'done') return 'completed';
   if (normalized === 'blocked') return 'blocked';
   if (normalized === 'dropped') return 'dropped';
   return 'todo';

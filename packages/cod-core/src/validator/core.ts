@@ -18,6 +18,7 @@ import {
   SessionState,
   ValidatorOptions,
   FailReasonCode,
+  TaskValidationResult,
 } from './types.js';
 import { checkHardStop, toValidationBlocker } from '../hard-stop.js';
 import { DEFAULT_COD_PROFILE } from '../profile.js';
@@ -72,6 +73,11 @@ export class CODValidator {
     CODValidator.validateBlockerResolution(data);
   validateChecklistItem = (data: unknown) =>
     CODValidator.validateChecklistItem(data);
+  validateTasksBatch = (
+    tasks: Partial<TaskState>[],
+    context?: { goals?: string[]; goalsMap?: Record<string, boolean> },
+    options?: ValidatorOptions
+  ) => CODValidator.validateTasksBatch(tasks, context, options);
 
   /** Helper to create a PASS result with compatibility fields */
   private static _passResult(): ValidationResult {
@@ -138,12 +144,13 @@ export class CODValidator {
     task: Partial<TaskState>,
     context?: {
       goalsMap?: Record<string, boolean>;
-      tasksMap?: Record<string, boolean>;
+      tasksMap?: Record<string, boolean | number | 'duplicate'>;
     },
     options: ValidatorOptions = {}
   ): ValidationResult {
     const profile = options.profile ?? DEFAULT_COD_PROFILE;
     const issues: ValidationIssue[] = [];
+    const skipSet = new Set(options.skipChecks || []);
     const validStatuses = [
       'backlog',
       'todo',
@@ -163,9 +170,14 @@ export class CODValidator {
       'dropped',
     ];
 
+    const pushIssue = (issue: ValidationIssue) => {
+      if (skipSet.has(issue.code)) return;
+      issues.push({ ...issue, fixHint: issue.fixHint ?? issue.suggestion });
+    };
+
     // RULE 1: Required fields
     if (!task.id) {
-      issues.push({
+      pushIssue({
         code: 'MISSING_REQUIRED_FIELD',
         severity: 'error',
         message: 'Task requires field: id',
@@ -175,7 +187,7 @@ export class CODValidator {
     }
 
     if (!task.title) {
-      issues.push({
+      pushIssue({
         code: 'MISSING_REQUIRED_FIELD',
         severity: 'error',
         message: 'Task requires field: title',
@@ -185,7 +197,7 @@ export class CODValidator {
     }
 
     if (!task.status) {
-      issues.push({
+      pushIssue({
         code: 'MISSING_REQUIRED_FIELD',
         severity: 'error',
         message: 'Task requires field: status',
@@ -196,7 +208,7 @@ export class CODValidator {
 
     // RULE 2: Status must be valid enum
     if (task.status && !validStatuses.includes(task.status)) {
-      issues.push({
+      pushIssue({
         code: 'INVALID_ENUM_VALUE',
         severity: 'error',
         message: `Task status invalid: ${task.status}`,
@@ -211,7 +223,7 @@ export class CODValidator {
       task.priority !== undefined &&
       (task.priority < 0 || task.priority > 10)
     ) {
-      issues.push({
+      pushIssue({
         code: 'VALUE_OUT_OF_BOUNDS',
         severity: 'error',
         message: `Priority out of bounds: ${task.priority}`,
@@ -221,9 +233,78 @@ export class CODValidator {
       });
     }
 
-    // RULE 4: Goal reference must exist
-    if (task.goal && context?.goalsMap && !context.goalsMap[task.goal]) {
-      issues.push({
+    // RULE 4: Focus cost bounds (0-10)
+    if (
+      task.focusCost !== undefined &&
+      (task.focusCost < 0 || task.focusCost > 10)
+    ) {
+      pushIssue({
+        code: 'VALUE_OUT_OF_BOUNDS',
+        severity: 'error',
+        message: `Focus cost out of bounds: ${task.focusCost}`,
+        field: 'focusCost',
+        value: task.focusCost,
+        suggestion: 'Focus cost must be between 0 and 10',
+      });
+    }
+
+    // RULE 5: Effort bounds (0-10) if provided
+    if (task.effort !== undefined && (task.effort < 0 || task.effort > 10)) {
+      pushIssue({
+        code: 'VALUE_OUT_OF_BOUNDS',
+        severity: 'error',
+        message: `Effort out of bounds: ${task.effort}`,
+        field: 'effort',
+        value: task.effort,
+        suggestion: 'Effort must be between 0 and 10',
+      });
+    }
+
+    // RULE 6: Estimated time must be non-negative (if provided)
+    if (task.estimatedTimeMin !== undefined && task.estimatedTimeMin < 0) {
+      pushIssue({
+        code: 'VALUE_OUT_OF_BOUNDS',
+        severity: 'error',
+        message: `Estimated time must be >= 0 minutes (got ${task.estimatedTimeMin})`,
+        field: 'estimatedTimeMin',
+        value: task.estimatedTimeMin,
+        suggestion: 'Provide a non-negative estimatedTimeMin',
+      });
+    }
+
+    // RULE 3c: Required focusCost
+    if (task.focusCost === undefined) {
+      pushIssue({
+        code: 'MISSING_REQUIRED_FIELD',
+        severity: 'error',
+        message: 'Task requires field: focusCost',
+        field: 'focusCost',
+        suggestion: 'Add focusCost (0-10) to the task',
+      });
+    }
+
+    // RULE 3d: Required estimatedTimeMin/effortMin
+    if (task.estimatedTimeMin === undefined) {
+      pushIssue({
+        code: 'MISSING_REQUIRED_FIELD',
+        severity: 'error',
+        message: 'Task requires field: estimatedTimeMin (or effortMin)',
+        field: 'estimatedTimeMin',
+        suggestion: 'Provide estimatedTimeMin in minutes',
+      });
+    }
+
+    // RULE 4: Goal required and must exist
+    if (task.goal === undefined || task.goal === null || task.goal === '') {
+      pushIssue({
+        code: 'MISSING_REQUIRED_FIELD',
+        severity: 'error',
+        message: 'Task requires field: goal',
+        field: 'goal',
+        suggestion: 'Attach a goal id to the task',
+      });
+    } else if (context?.goalsMap && !context.goalsMap[task.goal]) {
+      pushIssue({
         code: 'INVALID_GOAL_REFERENCE',
         severity: 'error',
         message: `Goal does not exist: ${task.goal}`,
@@ -235,7 +316,7 @@ export class CODValidator {
 
     // RULE 5: No self-dependencies
     if (task.dependsOn?.includes(task.id!)) {
-      issues.push({
+      pushIssue({
         code: 'DEPENDENCY_CYCLE',
         severity: 'error',
         message: `Task cannot depend on itself: ${task.id}`,
@@ -246,7 +327,7 @@ export class CODValidator {
 
     // RULE 6: Cannot be blocked by self
     if (task.blockedBy?.includes(task.id!)) {
-      issues.push({
+      pushIssue({
         code: 'BLOCKED_BY_BLOCKER',
         severity: 'error',
         message: `Task cannot be blocked by itself: ${task.id}`,
@@ -255,9 +336,59 @@ export class CODValidator {
       });
     }
 
+    // RULE 7: Dependency references must exist in tasksMap (if provided)
+    if (context?.tasksMap && task.dependsOn) {
+      for (const dep of task.dependsOn) {
+        if (!context.tasksMap[dep]) {
+          pushIssue({
+            code: 'MISSING_DEPENDENCY',
+            severity: 'error',
+            message: `Missing dependency: ${dep}`,
+            field: 'dependsOn',
+            value: dep,
+            suggestion: 'Create the dependency task or remove this reference',
+          });
+        }
+      }
+    }
+
+    // RULE 8: Blocker references must exist in tasksMap (if provided)
+    if (context?.tasksMap && task.blockedBy) {
+      for (const blocker of task.blockedBy) {
+        if (!context.tasksMap[blocker]) {
+          pushIssue({
+            code: 'BLOCKED_BY_BLOCKER',
+            severity: 'error',
+            message: `Blocked by unknown task: ${blocker}`,
+            field: 'blockedBy',
+            value: blocker,
+            suggestion: 'Reference an existing blocker task or remove it',
+          });
+        }
+      }
+    }
+
+    // RULE 9: Duplicate ID detection (if caller provides counts)
+    if (context?.tasksMap && task.id) {
+      const occurrence = context.tasksMap[task.id];
+      const duplicate =
+        occurrence === 'duplicate' ||
+        (typeof occurrence === 'number' && occurrence > 1);
+      if (duplicate) {
+        pushIssue({
+          code: 'DUPLICATE_ID',
+          severity: 'error',
+          message: `Duplicate task id detected: ${task.id}`,
+          field: 'id',
+          value: task.id,
+          suggestion: 'Ensure each task id is unique',
+        });
+      }
+    }
+
     // WARNING: High dependency count
     if (task.dependsOn && task.dependsOn.length > 5) {
-      issues.push({
+      pushIssue({
         code: 'HIGH_RISK_CONFIGURATION',
         severity: 'warning',
         message: `Task has many dependencies (${task.dependsOn.length}), may be difficult to schedule`,
@@ -271,7 +402,7 @@ export class CODValidator {
       task.blockedBy &&
       task.blockedBy.length === 0
     ) {
-      issues.push({
+      pushIssue({
         code: 'INVALID_STATUS_TRANSITION',
         severity: 'warning',
         message: 'Task status is "blocked" but no blockers are recorded',
@@ -498,6 +629,56 @@ export class CODValidator {
         errors: errors.length,
         warnings: warnings.length,
       },
+      status: state,
+      reason:
+        errors[0]?.message ||
+        warnings[0]?.message ||
+        (limitedIssues[0]?.message ?? undefined),
+      warnings: warnings.map((w) => w.message),
+      errors: errors.map((e) => e.message),
     };
+  }
+
+  /**
+   * Batch validator for multiple tasks (FAST)
+   *
+   * - Builds goalsMap and tasksMap (for duplicate detection)
+   * - Returns PASS/WARN/FAIL per task with compatibility fields
+   */
+  static validateTasksBatch(
+    tasks: Partial<TaskState>[],
+    context?: { goals?: string[]; goalsMap?: Record<string, boolean> },
+    options: ValidatorOptions = {}
+  ): TaskValidationResult[] {
+    const goalsMap =
+      context?.goalsMap ??
+      Object.fromEntries((context?.goals ?? []).map((g) => [g, true]));
+
+    const counts: Record<string, number> = {};
+    for (const t of tasks) {
+      if (!t.id) continue;
+      counts[t.id] = (counts[t.id] || 0) + 1;
+    }
+
+    const tasksMap: Record<string, number> = {};
+    for (const [id, count] of Object.entries(counts)) {
+      tasksMap[id] = count;
+    }
+
+    return tasks.map((task) => {
+      const result = CODValidator.validateTask(
+        task,
+        { goalsMap, tasksMap },
+        options
+      );
+      return {
+        taskId: task.id || '',
+        state: result.state,
+        issues: result.issues,
+        errors: result.errors,
+        warnings: result.warnings,
+        reason: result.reason,
+      };
+    });
   }
 }

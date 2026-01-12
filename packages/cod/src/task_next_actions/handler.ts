@@ -296,328 +296,340 @@ export async function handler(
         },
         isError: false,
       };
+    }
 
-      const goalLoad = await deps.goalService.loadGoals();
-      const humanState = await deps.humanStateService.loadPlanningContext();
-      const contextTolerance = humanState.snapshot.contextTolerance ?? 'med';
-      const goalWarnings = [...goalLoad.warnings];
-      if (goalLoad.source === 'none') {
-        goalWarnings.push('No goals found in Goals/ or dump/Goals.');
-      }
-      const goalContext = {
-        source: goalLoad.source,
-        count: goalLoad.index.goals.length,
-        primaryGoalId: goalLoad.index.primaryGoalId,
-        warnings: goalWarnings,
-      };
-      const goalsMap = Object.fromEntries(
-        goalLoad.index.goals.map((goal) => [goal.id, true])
-      );
+    const goalLoad = await deps.goalService.loadGoals();
+    const humanState = await deps.humanStateService.loadPlanningContext();
+    const contextTolerance = humanState.snapshot.contextTolerance ?? 'med';
+    const goalWarnings = [...goalLoad.warnings];
+    if (goalLoad.source === 'none') {
+      goalWarnings.push('No goals found in Goals/ or dump/Goals.');
+    }
+    const goalContext = {
+      source: goalLoad.source,
+      count: goalLoad.index.goals.length,
+      primaryGoalId: goalLoad.index.primaryGoalId,
+      warnings: goalWarnings,
+    };
+    const goalsMap = Object.fromEntries(
+      goalLoad.index.goals.map((goal) => [goal.id, true])
+    );
 
-      // Money-aware scoring context + profile derive from avatar
-      let moneyLow = false;
-      try {
-        const avatar = await deps.avatarService?.loadAvatarState?.();
-        if (avatar) {
-          const state = avatar?.state;
-          const money = state?.vitals?.money;
-          const avatarProfile = deriveProfileFromAvatar(state);
-          if (!input.profile && avatarProfile) {
-            profile = avatarProfile ?? profile;
-          }
-          if (money) {
-            const defaultCurrency =
-              money.default_currency ||
-              money.defaultCurrency ||
-              Object.keys(money.balances || {})[0];
-            const defaultBalance =
-              (money.balances && money.balances[defaultCurrency]) ?? 0;
-            moneyLow = defaultBalance < 1000; // basic threshold; tune as needed
-          }
+    // Money-aware scoring context + profile derive from avatar
+    let moneyLow = false;
+    try {
+      const avatar = await deps.avatarService?.loadAvatarState?.();
+      if (avatar) {
+        const state = avatar?.state;
+        const money = state?.vitals?.money;
+        const avatarProfile = deriveProfileFromAvatar(state);
+        if (!input.profile && avatarProfile) {
+          profile = avatarProfile ?? profile;
         }
-      } catch {
-        // ignore avatar fetch errors
+        if (money) {
+          const defaultCurrency =
+            money.default_currency ||
+            money.defaultCurrency ||
+            Object.keys(money.balances || {})[0];
+          const defaultBalance =
+            (money.balances && money.balances[defaultCurrency]) ?? 0;
+          moneyLow = defaultBalance < 1000; // basic threshold; tune as needed
+        }
       }
+    } catch {
+      // ignore avatar fetch errors
+    }
 
-      const tasks = await deps.taskGraphService.getNextActions({
-        projectId: input.projectId,
-        max: input.max,
-        maxEffort: input.maxEffort,
-        maxFocusCost: input.maxFocusCost,
-        statusFilter: input.statusFilter,
-        goalContext: {
-          goalIndex: goalLoad.index,
-          contextTolerance,
+    const tasks = await deps.taskGraphService.getNextActions({
+      projectId: input.projectId,
+      max: input.max,
+      maxEffort: input.maxEffort,
+      maxFocusCost: input.maxFocusCost,
+      statusFilter: input.statusFilter,
+      goalContext: {
+        goalIndex: goalLoad.index,
+        contextTolerance,
+      },
+      focusCapacity: humanState.snapshot.focusCapacity,
+      recommendedMode: humanState.recommendedMode,
+      profile,
+    });
+
+    const adjustForMoney = (ranked: RankedTask): RankedTask => {
+      if (!moneyLow) return ranked;
+      const tags = ranked.task.tags || [];
+      const financeTags = ['finance', 'money', 'revenue', 'invoice', 'billing'];
+      const hasFinanceTag = tags.some((t) =>
+        financeTags.includes(t.toLowerCase())
+      );
+      if (!hasFinanceTag) return ranked;
+      return {
+        ...ranked,
+        score: ranked.score * 1.5,
+        scoreBreakdown: {
+          ...(ranked.scoreBreakdown || {}),
+          moneyBoost: 1.5,
         },
-        focusCapacity: humanState.snapshot.focusCapacity,
-        recommendedMode: humanState.recommendedMode,
-        profile,
-      });
+      };
+    };
 
-      const adjustForMoney = (ranked: RankedTask): RankedTask => {
-        if (!moneyLow) return ranked;
-        const tags = ranked.task.tags || [];
-        const financeTags = [
-          'finance',
-          'money',
-          'revenue',
-          'invoice',
-          'billing',
-        ];
-        const hasFinanceTag = tags.some((t) =>
-          financeTags.includes(t.toLowerCase())
-        );
-        if (!hasFinanceTag) return ranked;
-        return {
-          ...ranked,
-          score: ranked.score * 1.5,
-          scoreBreakdown: {
-            ...(ranked.scoreBreakdown || {}),
-            moneyBoost: 1.5,
-          },
-        };
+    const adjustedTasks = tasks
+      .map(adjustForMoney)
+      .sort((a, b) => b.score - a.score);
+
+    const tasksMap: Record<string, number> = {};
+    for (const ranked of tasks) {
+      const id = ranked.task.id;
+      if (id) {
+        tasksMap[id] = (tasksMap[id] || 0) + 1;
+      }
+    }
+
+    const validationMap = new Map<
+      string,
+      { valid: boolean; reason?: string; issues?: any[]; warnings?: string[] }
+    >();
+
+    for (const ranked of tasks) {
+      const taskState: TaskState = {
+        id: ranked.task.id,
+        title: ranked.task.title,
+        status: ranked.task.status,
+        effort: ranked.task.effort,
+        reward: ranked.task.reward,
+        focusCost: ranked.task.focusCost,
+        projectId: ranked.task.projectId,
+        goal: ranked.task.goal,
+        path: ranked.task.path,
+        dependencies: ranked.task.dependencies || [],
+        blockers: ranked.task.blockers || [],
       };
 
-      const adjustedTasks = tasks
-        .map(adjustForMoney)
-        .sort((a, b) => b.score - a.score);
-
-      const validationMap = new Map<
-        string,
-        { valid: boolean; reason?: string }
-      >();
-
-      for (const ranked of tasks) {
-        const taskState: TaskState = {
-          id: ranked.task.id,
-          title: ranked.task.title,
-          status: ranked.task.status,
-          effort: ranked.task.effort,
-          reward: ranked.task.reward,
-          focusCost: ranked.task.focusCost,
-          projectId: ranked.task.projectId,
-          goal: ranked.task.goal,
-          path: ranked.task.path,
-          dependencies: ranked.task.dependencies || [],
-          blockers: ranked.task.blockers || [],
-        };
-
-        const result = deps.codValidator.validateTask(
-          normalizeTaskState(taskState),
-          { goalsMap },
-          { profile }
-        );
-        const verdict = result.status ?? result.state;
-        validationMap.set(ranked.task.id, {
-          valid: verdict === 'PASS' || verdict === 'WARN',
-          reason: verdict === 'FAIL' ? result.reason : undefined,
-        });
-      }
-
-      // Authority enforcement: filter out human-only tasks for non-human callers
-      const callerAuthority: CallerAuthority = input.callerAuthority ?? 'human';
-      const authorityExcluded: RankedTask[] = [];
-
-      const authorityFilteredTasks = adjustedTasks.filter((ranked) => {
-        if (callerAuthority === 'human') {
-          return true; // Humans see all tasks
-        }
-
-        const authorityConfig = extractAuthorityConfig({
-          delegation_mode: ranked.task.delegation_mode,
-          delegatable: ranked.task.delegatable,
-          human_only: ranked.task.human_only,
-          ai_token_budget: ranked.task.ai_token_budget,
-          ai_time_budget_min: ranked.task.ai_time_budget_min,
-          tags: ranked.task.tags ?? [],
-        });
-
-        const inclusion = canIncludeInAgentSession(authorityConfig);
-        if (!inclusion.includable) {
-          authorityExcluded.push(ranked);
-          return false;
-        }
-        return true;
-      });
-
-      const unblocked = authorityFilteredTasks.filter(
-        (t) => !t.blocked && validationMap.get(t.task.id)?.valid
+      const result = deps.codValidator.validateTask(
+        normalizeTaskState(taskState),
+        { goalsMap, tasksMap },
+        { profile }
       );
-      const blocked = authorityFilteredTasks.filter((t) => t.blocked);
-      const failed = authorityFilteredTasks.filter((t) => {
-        const validation = validationMap.get(t.task.id);
-        return validation && !validation.valid;
+      const verdict = result.status ?? result.state;
+      validationMap.set(ranked.task.id, {
+        valid: verdict === 'PASS' || verdict === 'WARN',
+        reason: verdict === 'FAIL' ? result.reason : undefined,
+        issues: result.issues,
+        warnings: result.warnings,
+      });
+    }
+
+    // Authority enforcement: filter out human-only tasks for non-human callers
+    const callerAuthority: CallerAuthority = input.callerAuthority ?? 'human';
+    const authorityExcluded: RankedTask[] = [];
+
+    const authorityFilteredTasks = adjustedTasks.filter((ranked) => {
+      if (callerAuthority === 'human') {
+        return true; // Humans see all tasks
+      }
+
+      const authorityConfig = extractAuthorityConfig({
+        delegation_mode: ranked.task.delegation_mode,
+        delegatable: ranked.task.delegatable,
+        human_only: ranked.task.human_only,
+        ai_token_budget: ranked.task.ai_token_budget,
+        ai_time_budget_min: ranked.task.ai_time_budget_min,
+        tags: ranked.task.tags ?? [],
       });
 
-      const rescueActions = computeRescueActions(authorityFilteredTasks, {
-        startabilityThreshold: 0.6,
-        energy: humanState.snapshot.energy,
-      });
+      const inclusion = canIncludeInAgentSession(authorityConfig);
+      if (!inclusion.includable) {
+        authorityExcluded.push(ranked);
+        return false;
+      }
+      return true;
+    });
 
-      const worldSignalsUsed: string[] = [];
-      if (humanState.snapshot.healthBand) {
-        worldSignalsUsed.push(`healthBand:${humanState.snapshot.healthBand}`);
-      }
-      if (humanState.snapshot.runwayBand) {
-        worldSignalsUsed.push(`runwayBand:${humanState.snapshot.runwayBand}`);
-      }
+    const unblocked = authorityFilteredTasks.filter(
+      (t) => !t.blocked && validationMap.get(t.task.id)?.valid
+    );
+    const blocked = authorityFilteredTasks.filter((t) => t.blocked);
+    const failed = authorityFilteredTasks.filter((t) => {
+      const validation = validationMap.get(t.task.id);
+      return validation && !validation.valid;
+    });
 
-      let text = `# Next Actions\n\n`;
+    const rescueActions = computeRescueActions(authorityFilteredTasks, {
+      startabilityThreshold: 0.6,
+      energy: humanState.snapshot.energy,
+    });
 
-      text += `## Summary\n\n`;
-      text += `- **Unblocked tasks:** ${unblocked.length}\n`;
-      text += `- **Blocked tasks:** ${blocked.length}\n`;
-      text += `- **Failed validation:** ${failed.length}\n`;
-      if (rescueActions.length > 0) {
-        text += `- **Rescue actions suggested:** ${rescueActions.length}\n`;
-      }
-      if (authorityExcluded.length > 0) {
-        text += `- **Human-only (excluded):** ${authorityExcluded.length}\n`;
-      }
-      text += `- **Total:** ${tasks.length}\n`;
-      text += `- **Caller authority:** ${callerAuthority}\n\n`;
+    const worldSignalsUsed: string[] = [];
+    if (humanState.snapshot.healthBand) {
+      worldSignalsUsed.push(`healthBand:${humanState.snapshot.healthBand}`);
+    }
+    if (humanState.snapshot.runwayBand) {
+      worldSignalsUsed.push(`runwayBand:${humanState.snapshot.runwayBand}`);
+    }
 
-      if (goalContext.count > 0 || goalContext.warnings.length > 0) {
-        text += `## Goals Context\n\n`;
-        text += `- **Source:** ${goalContext.source}\n`;
-        text += `- **Goals loaded:** ${goalContext.count}\n`;
-        if (goalContext.primaryGoalId) {
-          text += `- **Primary goal:** ${goalContext.primaryGoalId}\n`;
-        }
-        if (goalContext.warnings.length > 0) {
-          text += `- **Warnings:** ${goalContext.warnings.join('; ')}\n`;
-        }
-        text += `\n`;
-      }
+    let text = `# Next Actions\n\n`;
 
-      text += `## Human State\n\n`;
-      text += `- **Status:** ${humanState.status}\n`;
-      text += `- **Source:** ${humanState.snapshot.source}\n`;
-      text += `- **Energy:** ${humanState.snapshot.energy}\n`;
-      text += `- **Focus capacity:** ${humanState.snapshot.focusCapacity}\n`;
-      text += `- **Stress:** ${humanState.snapshot.stress}\n`;
-      text += `- **Sleep hours:** ${humanState.snapshot.sleepHours}\n`;
-      text += `- **Time available (min):** ${humanState.snapshot.timeAvailableMin}\n`;
-      text += `- **Context tolerance:** ${humanState.snapshot.contextTolerance}\n`;
-      if (humanState.worldStatus) {
-        text += `- **World status:** ${humanState.worldStatus}\n`;
+    text += `## Summary\n\n`;
+    text += `- **Unblocked tasks:** ${unblocked.length}\n`;
+    text += `- **Blocked tasks:** ${blocked.length}\n`;
+    text += `- **Failed validation:** ${failed.length}\n`;
+    if (rescueActions.length > 0) {
+      text += `- **Rescue actions suggested:** ${rescueActions.length}\n`;
+    }
+    if (authorityExcluded.length > 0) {
+      text += `- **Human-only (excluded):** ${authorityExcluded.length}\n`;
+    }
+    text += `- **Total:** ${tasks.length}\n`;
+    text += `- **Caller authority:** ${callerAuthority}\n\n`;
+
+    if (goalContext.count > 0 || goalContext.warnings.length > 0) {
+      text += `## Goals Context\n\n`;
+      text += `- **Source:** ${goalContext.source}\n`;
+      text += `- **Goals loaded:** ${goalContext.count}\n`;
+      if (goalContext.primaryGoalId) {
+        text += `- **Primary goal:** ${goalContext.primaryGoalId}\n`;
       }
-      if (humanState.worldPath) {
-        text += `- **World note:** ${humanState.worldPath}\n`;
-      }
-      if (worldSignalsUsed.length > 0) {
-        text += `- **World signals used:** ${worldSignalsUsed.join(', ')}\n`;
-      }
-      text += `- **Recommended mode:** ${humanState.recommendedMode}\n`;
-      text += `- **Duration cap (min):** ${humanState.durationCapMin}\n`;
-      const ageText = humanState.ageHours?.toFixed(1) ?? 'unknown';
-      text += `- **Age (hours):** ${ageText}\n`;
-      if (humanState.warnings.length > 0) {
-        text += `- **Warnings:** ${humanState.warnings.join('; ')}\n`;
+      if (goalContext.warnings.length > 0) {
+        text += `- **Warnings:** ${goalContext.warnings.join('; ')}\n`;
       }
       text += `\n`;
-
-      if (unblocked.length > 0) {
-        text += `## Unblocked Tasks (Ready to Start)\n\n`;
-        text += `Sorted by score (reward / (effort × focus cost)):\n\n`;
-
-        for (const ranked of unblocked.slice(0, input.max || 10)) {
-          text += `### ${ranked.task.title}\n\n`;
-          text += `- **ID:** \`${ranked.task.id}\`\n`;
-          text += `- **Status:** ${ranked.task.status}\n`;
-          text += `- **Score:** ${ranked.score.toFixed(2)}\n`;
-
-          if (ranked.task.effort)
-            text += `- **Effort:** ${ranked.task.effort}\n`;
-          if (ranked.task.reward)
-            text += `- **Reward:** ${ranked.task.reward}\n`;
-          if (ranked.task.focusCost)
-            text += `- **Focus Cost:** ${ranked.task.focusCost}\n`;
-          if (ranked.task.projectId)
-            text += `- **Project:** ${ranked.task.projectId}\n`;
-          if (ranked.task.goal) text += `- **Goal:** ${ranked.task.goal}\n`;
-
-          text += `- **Path:** ${ranked.task.path}\n\n`;
-        }
-
-        if (unblocked.length > (input.max || 10)) {
-          text += `\n*... and ${unblocked.length - (input.max || 10)} more unblocked tasks*\n\n`;
-        }
-      } else {
-        text += `## No Unblocked Tasks\n\n`;
-        text += `All tasks are either blocked, failed validation, or filtered out.\n\n`;
-      }
-
-      if (failed.length > 0 && failed.length <= 5) {
-        text += `## Failed Validation (COD)\n\n`;
-
-        for (const ranked of failed) {
-          const reason =
-            validationMap.get(ranked.task.id)?.reason || 'Unknown issue';
-          text += `- **${ranked.task.title}** (\`${ranked.task.id}\`)\n`;
-          text += `  Issue: ${reason}\n`;
-        }
-        text += `\n`;
-      } else if (failed.length > 0) {
-        text += `## Failed Validation (COD)\n\n`;
-        text += `${failed.length} tasks failed COD validation.\n\n`;
-      }
-
-      if (blocked.length > 0 && blocked.length <= 5) {
-        text += `## Blocked Tasks\n\n`;
-
-        for (const ranked of blocked) {
-          text += `- **${ranked.task.title}** (\`${ranked.task.id}\`)\n`;
-          text += `  Waiting on: ${ranked.unmetDependencies.join(', ')}\n`;
-        }
-        text += `\n`;
-      } else if (blocked.length > 0) {
-        text += `## Blocked Tasks\n\n`;
-        text += `${blocked.length} tasks are blocked by dependencies.\n\n`;
-      }
-
-      if (rescueActions.length > 0) {
-        text += `## Rescue Actions (quick wins)\n\n`;
-        for (const task of rescueActions) {
-          text += `- **${task.title}** (\`${task.id}\`)\n`;
-        }
-        text += `\n`;
-      }
-
-      return {
-        content: [
-          {
-            type: 'text',
-            text,
-          },
-        ],
-        structuredContent: {
-          unblocked,
-          blocked,
-          failed,
-          total: tasks.length,
-          goalContext,
-          humanState: {
-            status: humanState.status,
-            warnings: humanState.warnings,
-            recommendedMode: humanState.recommendedMode,
-            durationCapMin: humanState.durationCapMin,
-            ageHours: humanState.ageHours,
-            worldSignalsUsed,
-            avatar: humanState.avatar,
-            avatarStatus: humanState.avatarStatus,
-            avatarWarnings: humanState.avatarWarnings,
-            avatarPath: humanState.avatarPath,
-            world: humanState.world,
-            worldStatus: humanState.worldStatus,
-            worldWarnings: humanState.worldWarnings,
-            worldPath: humanState.worldPath,
-            snapshot: humanState.snapshot,
-          },
-          rescueActions,
-        },
-      };
     }
+
+    text += `## Human State\n\n`;
+    text += `- **Status:** ${humanState.status}\n`;
+    text += `- **Source:** ${humanState.snapshot.source}\n`;
+    text += `- **Energy:** ${humanState.snapshot.energy}\n`;
+    text += `- **Focus capacity:** ${humanState.snapshot.focusCapacity}\n`;
+    text += `- **Stress:** ${humanState.snapshot.stress}\n`;
+    text += `- **Sleep hours:** ${humanState.snapshot.sleepHours}\n`;
+    text += `- **Time available (min):** ${humanState.snapshot.timeAvailableMin}\n`;
+    text += `- **Context tolerance:** ${humanState.snapshot.contextTolerance}\n`;
+    if (humanState.worldStatus) {
+      text += `- **World status:** ${humanState.worldStatus}\n`;
+    }
+    if (humanState.worldPath) {
+      text += `- **World note:** ${humanState.worldPath}\n`;
+    }
+    if (worldSignalsUsed.length > 0) {
+      text += `- **World signals used:** ${worldSignalsUsed.join(', ')}\n`;
+    }
+    text += `- **Recommended mode:** ${humanState.recommendedMode}\n`;
+    text += `- **Duration cap (min):** ${humanState.durationCapMin}\n`;
+    const ageText = humanState.ageHours?.toFixed(1) ?? 'unknown';
+    text += `- **Age (hours):** ${ageText}\n`;
+    if (humanState.warnings.length > 0) {
+      text += `- **Warnings:** ${humanState.warnings.join('; ')}\n`;
+    }
+    text += `\n`;
+
+    if (unblocked.length > 0) {
+      text += `## Unblocked Tasks (Ready to Start)\n\n`;
+      text += `Sorted by score (reward / (effort × focus cost)):\n\n`;
+
+      for (const ranked of unblocked.slice(0, input.max || 10)) {
+        text += `### ${ranked.task.title}\n\n`;
+        text += `- **ID:** \`${ranked.task.id}\`\n`;
+        text += `- **Status:** ${ranked.task.status}\n`;
+        text += `- **Score:** ${ranked.score.toFixed(2)}\n`;
+
+        if (ranked.task.effort) text += `- **Effort:** ${ranked.task.effort}\n`;
+        if (ranked.task.reward) text += `- **Reward:** ${ranked.task.reward}\n`;
+        if (ranked.task.focusCost)
+          text += `- **Focus Cost:** ${ranked.task.focusCost}\n`;
+        if (ranked.task.projectId)
+          text += `- **Project:** ${ranked.task.projectId}\n`;
+        if (ranked.task.goal) text += `- **Goal:** ${ranked.task.goal}\n`;
+
+        text += `- **Path:** ${ranked.task.path}\n\n`;
+      }
+
+      if (unblocked.length > (input.max || 10)) {
+        text += `\n*... and ${unblocked.length - (input.max || 10)} more unblocked tasks*\n\n`;
+      }
+    } else {
+      text += `## No Unblocked Tasks\n\n`;
+      text += `All tasks are either blocked, failed validation, or filtered out.\n\n`;
+    }
+
+    if (failed.length > 0 && failed.length <= 5) {
+      text += `## Failed Validation (COD)\n\n`;
+
+      for (const ranked of failed) {
+        const reason =
+          validationMap.get(ranked.task.id)?.reason || 'Unknown issue';
+        const issues = validationMap.get(ranked.task.id)?.issues;
+        text += `- **${ranked.task.title}** (\`${ranked.task.id}\`)\n`;
+        text += `  Issue: ${reason}\n`;
+        if (issues && issues.length > 0) {
+          for (const issue of issues) {
+            const code = issue.code || 'UNKNOWN';
+            const hint = issue.fixHint || issue.suggestion || '';
+            text += `    - [${code}] ${issue.message}`;
+            if (hint) text += ` — Fix: ${hint}`;
+            text += `\n`;
+          }
+        }
+      }
+      text += `\n`;
+    } else if (failed.length > 0) {
+      text += `## Failed Validation (COD)\n\n`;
+      text += `${failed.length} tasks failed COD validation.\n\n`;
+    }
+
+    if (blocked.length > 0 && blocked.length <= 5) {
+      text += `## Blocked Tasks\n\n`;
+
+      for (const ranked of blocked) {
+        text += `- **${ranked.task.title}** (\`${ranked.task.id}\`)\n`;
+        text += `  Waiting on: ${ranked.unmetDependencies.join(', ')}\n`;
+      }
+      text += `\n`;
+    } else if (blocked.length > 0) {
+      text += `## Blocked Tasks\n\n`;
+      text += `${blocked.length} tasks are blocked by dependencies.\n\n`;
+    }
+
+    if (rescueActions.length > 0) {
+      text += `## Rescue Actions (quick wins)\n\n`;
+      for (const task of rescueActions) {
+        text += `- **${task.title}** (\`${task.id}\`)\n`;
+      }
+      text += `\n`;
+    }
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text,
+        },
+      ],
+      structuredContent: {
+        unblocked,
+        blocked,
+        failed,
+        total: tasks.length,
+        goalContext,
+        humanState: {
+          status: humanState.status,
+          warnings: humanState.warnings,
+          recommendedMode: humanState.recommendedMode,
+          durationCapMin: humanState.durationCapMin,
+          ageHours: humanState.ageHours,
+          worldSignalsUsed,
+          avatar: humanState.avatar,
+          avatarStatus: humanState.avatarStatus,
+          avatarWarnings: humanState.avatarWarnings,
+          avatarPath: humanState.avatarPath,
+          world: humanState.world,
+          worldStatus: humanState.worldStatus,
+          worldWarnings: humanState.worldWarnings,
+          worldPath: humanState.worldPath,
+          snapshot: humanState.snapshot,
+        },
+        rescueActions,
+      },
+    };
   } catch (error) {
     const errorMsg =
       error instanceof Error
@@ -636,7 +648,12 @@ export async function handler(
 
   // Fallback (should be unreachable)
   return {
-    content: [{ type: 'text', text: 'Unknown error' }],
+    content: [
+      {
+        type: 'text',
+        text: '❌ task_next_actions hit an unexpected fallback with no result. This is a bug.',
+      },
+    ],
     isError: true,
   };
 }

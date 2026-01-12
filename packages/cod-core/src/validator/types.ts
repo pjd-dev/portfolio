@@ -22,6 +22,7 @@ export type FailReasonCode =
   | 'VALUE_OUT_OF_BOUNDS'
   | 'DEPENDENCY_CYCLE'
   | 'MISSING_DEPENDENCY'
+  | 'DUPLICATE_ID'
   | 'BLOCKED_BY_BLOCKER'
   | 'INVALID_STATUS_TRANSITION'
   | 'INVALID_GOAL_REFERENCE'
@@ -36,6 +37,8 @@ export interface ValidationIssue {
   field?: string;
   value?: unknown;
   suggestion?: string;
+  /** Compatibility alias for suggestion (used by FAST clients) */
+  fixHint?: string;
 }
 
 /** Task state (normalized before COD validation) */
@@ -93,11 +96,23 @@ export interface ValidationResult {
     errors: number;
     warnings: number;
   };
+  /** Legacy compatibility array of error messages */
+  errors?: string[];
 
   // Compatibility aliases for MCP tools
   status?: ValidationState; // alias for state
   reason?: string; // first error message if any
   warnings?: string[]; // error messages for warnings
+}
+
+/** Batch validation result for multiple tasks */
+export interface TaskValidationResult {
+  taskId: string;
+  state: ValidationState;
+  issues: ValidationIssue[];
+  errors?: string[];
+  warnings?: string[];
+  reason?: string;
 }
 
 /** Validator options (runtime behavior) */

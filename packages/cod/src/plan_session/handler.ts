@@ -263,6 +263,10 @@ export async function handler(
 
     if (result.session && result.session.tasks.length > 0) {
       const taskValidationErrors: string[] = [];
+      const tasksMap: Record<string, number> = {};
+      for (const t of result.session.tasks) {
+        tasksMap[t.taskId] = (tasksMap[t.taskId] || 0) + 1;
+      }
 
       for (const task of result.session.tasks) {
         const taskState: TaskState = {
@@ -274,7 +278,7 @@ export async function handler(
 
         const validation = deps.codValidator.validateTask(
           normalizeTaskState(taskState),
-          undefined,
+          { tasksMap },
           {
             profile,
           }
