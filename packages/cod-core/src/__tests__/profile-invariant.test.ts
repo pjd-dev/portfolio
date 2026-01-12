@@ -28,6 +28,9 @@ describe('profile-agnostic validation invariant', () => {
       title: 'Test Task',
       status: 'todo',
       priority: 7,
+      goal: 'goal-1',
+      focusCost: 3,
+      estimatedTimeMin: 15,
     };
 
     const invalidTask: TaskState = {

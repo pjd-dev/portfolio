@@ -355,6 +355,24 @@ export async function handler(
       profile,
     });
 
+    const isRecurringTask = (ranked: RankedTask): boolean => {
+      const tags = ranked.task.tags || [];
+      const tagHit = tags.some((t) => t.toLowerCase().includes('recurring'));
+      const flag =
+        (ranked.task as any).recurring === true ||
+        (ranked.task as any).recurrence === true;
+      return tagHit || flag;
+    };
+
+    const recurringMode = input.recurringMode ?? 'exclude';
+    const filteredTasks = tasks.filter((t) => {
+      if (recurringMode === 'include') return true;
+      const recurring = isRecurringTask(t);
+      if (recurringMode === 'only') return recurring;
+      // exclude
+      return !recurring;
+    });
+
     const adjustForMoney = (ranked: RankedTask): RankedTask => {
       if (!moneyLow) return ranked;
       const tags = ranked.task.tags || [];
@@ -373,12 +391,12 @@ export async function handler(
       };
     };
 
-    const adjustedTasks = tasks
+    const adjustedTasks = filteredTasks
       .map(adjustForMoney)
       .sort((a, b) => b.score - a.score);
 
     const tasksMap: Record<string, number> = {};
-    for (const ranked of tasks) {
+    for (const ranked of filteredTasks) {
       const id = ranked.task.id;
       if (id) {
         tasksMap[id] = (tasksMap[id] || 0) + 1;
@@ -390,7 +408,7 @@ export async function handler(
       { valid: boolean; reason?: string; issues?: any[]; warnings?: string[] }
     >();
 
-    for (const ranked of tasks) {
+    for (const ranked of filteredTasks) {
       const taskState: TaskState = {
         id: ranked.task.id,
         title: ranked.task.title,
@@ -479,7 +497,7 @@ export async function handler(
     if (authorityExcluded.length > 0) {
       text += `- **Human-only (excluded):** ${authorityExcluded.length}\n`;
     }
-    text += `- **Total:** ${tasks.length}\n`;
+    text += `- **Total:** ${filteredTasks.length}\n`;
     text += `- **Caller authority:** ${callerAuthority}\n\n`;
 
     if (goalContext.count > 0 || goalContext.warnings.length > 0) {

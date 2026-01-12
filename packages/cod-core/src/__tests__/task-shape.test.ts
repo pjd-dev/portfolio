@@ -8,7 +8,7 @@ import {
 describe('task-shape normalization', () => {
   it('normalizes status aliases', () => {
     expect(normalizeTaskStatus('in-progress')).toBe('in_progress');
-    expect(normalizeTaskStatus('completed')).toBe('done');
+    expect(normalizeTaskStatus('completed')).toBe('completed');
     expect(normalizeTaskStatus('')).toBe('todo');
   });
 

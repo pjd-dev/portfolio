@@ -11,6 +11,7 @@ const TaskStatusEnum = z.enum([
 
 const CallerAuthorityEnum = z.enum(['human', 'agent', 'system']);
 const CodProfileEnum = z.enum(['basic', 'adhd']);
+const RecurringModeEnum = z.enum(['exclude', 'include', 'only']);
 
 export const inputSchema = z.object({
   projectId: z.string().optional().describe('Filter by project ID'),
@@ -32,6 +33,9 @@ export const inputSchema = z.object({
   ),
   profile: CodProfileEnum.optional().describe(
     'COD profile to apply (basic | adhd). Default: basic.'
+  ),
+  recurringMode: RecurringModeEnum.optional().describe(
+    'Recurring task mode: exclude (default), include, or only recurring tasks.'
   ),
 });
 

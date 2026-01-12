@@ -121,4 +121,60 @@ describe('task_next_actions handler', () => {
     const result = inputSchema.safeParse({ statusFilter: ['not-a-status'] });
     expect(result.success).toBe(false);
   });
+
+  it('filters recurring tasks based on recurringMode', async () => {
+    const deps: TaskNextActionsDeps = {
+      ...baseDeps,
+      taskGraphService: {
+        getNextActions: async () => [
+          {
+            task: {
+              id: 't1',
+              title: 'Task 1',
+              status: 'todo',
+              path: 'tasks/t1.md',
+            },
+            blocked: false,
+            unmetDependencies: [],
+            score: 2,
+          },
+          {
+            task: {
+              id: 'r1',
+              title: 'Recurring 1',
+              status: 'todo',
+              path: 'tasks/r1.md',
+              tags: ['recurring'],
+            },
+            blocked: false,
+            unmetDependencies: [],
+            score: 1,
+          },
+        ],
+      },
+      codValidator: {
+        validateTask: () => ({ state: 'PASS', issues: [] }),
+      },
+    };
+
+    const excludeResult = await handler({}, deps);
+    expect(
+      excludeResult.structuredContent?.unblocked.map((t) => t.task.id)
+    ).toEqual(['t1']);
+
+    const includeResult = await handler({ recurringMode: 'include' }, deps);
+    expect(
+      includeResult.structuredContent?.unblocked.map((t) => t.task.id)
+    ).toEqual(['t1', 'r1']);
+
+    const onlyResult = await handler({ recurringMode: 'only' }, deps);
+    expect(
+      onlyResult.structuredContent?.unblocked.map((t) => t.task.id)
+    ).toEqual(['r1']);
+  });
+
+  it('rejects invalid recurringMode in schema validation', () => {
+    const result = inputSchema.safeParse({ recurringMode: 'sometimes' });
+    expect(result.success).toBe(false);
+  });
 });
