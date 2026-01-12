@@ -1,0 +1,9 @@
+{
+  "default": {
+    "avatarPatch": {
+      "energy": 5,
+      "stress": -2
+    },
+    "worldPatch": {}
+  }
+}

@@ -86,6 +86,7 @@ scripts/
 ### Automation
 
 - `VAULT_PATH=... GITHUB_TOKEN=... GITHUB_PROJECT_ID=... node scripts/automation/cod-delegation-runner.mjs --dry-run`
+- Reward auto-claim (API online): `API_BASE=http://localhost:4200 node scripts/automation/reward-auto-claim.mjs --all --headers '{"Authorization":"Bearer ..."}'` (supports `--dry-run`)
 
 ### Utilities
 
