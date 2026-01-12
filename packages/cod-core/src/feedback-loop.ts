@@ -285,6 +285,7 @@ export function recordOutcome(
       ? {
           ...execution.endHumanState,
           timestamp: new Date().toISOString(),
+          source: 'session-end' as const,
         }
       : undefined,
   };

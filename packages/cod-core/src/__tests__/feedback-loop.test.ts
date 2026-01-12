@@ -29,6 +29,7 @@ describe('feedback-loop', () => {
     energy: 0.7,
     stress: 0.3,
     focus: 0.8,
+    source: 'session-start',
   };
 
   const mockPrediction: TaskPrediction = {
