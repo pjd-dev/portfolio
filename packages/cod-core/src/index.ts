@@ -110,6 +110,9 @@ export * from './decision-loop.js';
 // Export productivity patterns
 export * from './productivity-patterns.js';
 
+// Export feedback loop for continuous learning
+export * from './feedback-loop.js';
+
 export * from './goals.js';
 export * from './human-state.js';
 export * from './time-sensitivity.js';
