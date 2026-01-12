@@ -164,10 +164,10 @@ export type TaskNextActionsDeps = {
       task: Partial<TaskState>,
       context?: {
         goalsMap?: Record<string, boolean>;
-        tasksMap?: Record<string, boolean>;
+        tasksMap?: Record<string, boolean | number | 'duplicate'>;
       },
       options?: { profile?: CodProfile }
-    ) => ValidationResult;
+    ) => ValidationResult & { issues?: any[]; warnings?: string[] };
   };
 };
 
@@ -555,9 +555,9 @@ export async function handler(
       text += `## Failed Validation (COD)\n\n`;
 
       for (const ranked of failed) {
-        const reason =
-          validationMap.get(ranked.task.id)?.reason || 'Unknown issue';
-        const issues = validationMap.get(ranked.task.id)?.issues;
+        const validation = validationMap.get(ranked.task.id);
+        const reason = validation?.reason || 'Unknown issue';
+        const issues = validation?.issues;
         text += `- **${ranked.task.title}** (\`${ranked.task.id}\`)\n`;
         text += `  Issue: ${reason}\n`;
         if (issues && issues.length > 0) {

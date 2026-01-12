@@ -18,6 +18,7 @@ type ValidationIssue = {
 type ValidationResult = {
   state: string;
   issues: ValidationIssue[];
+  reason?: string;
 };
 
 type ContextTolerance = 'low' | 'med' | 'high';
@@ -140,7 +141,7 @@ export type PlanSessionDeps = {
       task: Partial<TaskState>,
       context?: {
         goalsMap?: Record<string, boolean>;
-        tasksMap?: Record<string, boolean>;
+        tasksMap?: Record<string, boolean | number | 'duplicate'>;
       },
       options?: { profile?: CodProfile }
     ) => ValidationResult;
@@ -263,6 +264,13 @@ export async function handler(
 
     if (result.session && result.session.tasks.length > 0) {
       const taskValidationErrors: string[] = [];
+      const taskIssues: Record<
+        string,
+        {
+          issues?: { code?: string; message?: string; fixHint?: string }[];
+          reason?: string;
+        }
+      > = {};
       const tasksMap: Record<string, number> = {};
       for (const t of result.session.tasks) {
         tasksMap[t.taskId] = (tasksMap[t.taskId] || 0) + 1;
@@ -288,6 +296,10 @@ export async function handler(
           taskValidationErrors.push(
             `Task ${task.taskId}: ${validation.issues.map((i) => i.code).join(', ')}`
           );
+          taskIssues[task.taskId] = {
+            issues: validation.issues,
+            reason: validation.reason,
+          };
         }
       }
 
@@ -297,6 +309,23 @@ export async function handler(
 
         for (const error of taskValidationErrors) {
           text += `- ${error}\n`;
+        }
+
+        if (Object.keys(taskIssues).length > 0) {
+          text += `\nDetails:\n`;
+          for (const [taskId, info] of Object.entries(taskIssues)) {
+            const line = info.reason ? `Reason: ${info.reason}` : '';
+            text += `- ${taskId}${line ? ` (${line})` : ''}\n`;
+            if (info.issues && info.issues.length > 0) {
+              for (const issue of info.issues) {
+                const code = issue.code ?? 'UNKNOWN';
+                const hint = issue.fixHint || issue.message || '';
+                text += `    - [${code}] ${issue.message || ''}`;
+                if (hint) text += ` — Fix: ${hint}`;
+                text += `\n`;
+              }
+            }
+          }
         }
 
         text += `\n**Action Required:**\n`;

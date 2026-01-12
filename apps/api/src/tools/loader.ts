@@ -341,26 +341,8 @@ export async function loadMcpTools(): Promise<McpToolDef[]> {
         };
       },
     },
-    {
-      name: 'obsidian_task_next_actions',
-      llmInput: {
-        title: 'Task Next Actions',
-        description: 'Ranked unblocked tasks',
-      },
-      cb: async (input: Record<string, unknown>) => {
-        const tasks = await taskNextActions({
-          max: (input.max as number) || 10,
-          maxEffort: (input.maxEffort as number) || undefined,
-          maxFocusCost: (input.maxFocusCost as number) || undefined,
-        });
-        return {
-          content: [
-            { type: 'text', text: `Top ${tasks.length} next actions ready` },
-          ],
-          structuredContent: { tasks, total: tasks.length },
-        };
-      },
-    },
+    // NOTE: obsidian_task_next_actions now served by MCP (COD handler). This legacy
+    // handler is intentionally removed to avoid bypassing validation gates.
   ];
   return tools;
 }
@@ -392,7 +374,6 @@ export const READ_ONLY_TOOLS = new Set([
   'obsidian_task_graph',
   'obsidian_task_dependencies',
   'obsidian_task_critical_path',
-  'obsidian_task_next_actions',
   'obsidian_list_sessions',
   'obsidian_get_session',
   'obsidian_get_session_stats',

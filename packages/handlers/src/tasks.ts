@@ -164,52 +164,7 @@ export async function findTasks(options?: {
   return { tasks: paginated, total, offset, limit };
 }
 
-export async function taskNextActions(options?: {
-  max?: number;
-  maxEffort?: number;
-  maxFocusCost?: number;
-  projectId?: string;
-}) {
-  const { max = 10, maxEffort, maxFocusCost } = options || {};
-  const { tasks } = await findTasks({
-    status: 'todo',
-    sortBy: 'priority',
-    sortOrder: 'desc',
-    limit: 200,
-  });
-
-  const filtered = tasks.filter((task) => {
-    if (
-      maxEffort !== undefined &&
-      task.effortScore &&
-      task.effortScore > maxEffort
-    )
-      return false;
-    if (
-      maxFocusCost !== undefined &&
-      task.focusCost &&
-      task.focusCost > maxFocusCost
-    )
-      return false;
-    if (task.status && task.status === 'blocked') return false;
-    return true;
-  });
-
-  // Sort by priority then due date (soonest first)
-  filtered.sort((a, b) => {
-    const aPri = a.priority || 0;
-    const bPri = b.priority || 0;
-    if (aPri !== bPri) return bPri - aPri;
-    const aDue = a.dueDate || '';
-    const bDue = b.dueDate || '';
-    if (aDue && bDue) return aDue.localeCompare(bDue);
-    if (aDue) return -1;
-    if (bDue) return 1;
-    return (a.title || '').localeCompare(b.title || '');
-  });
-
-  return filtered.slice(0, max);
-}
+// Legacy taskNextActions removed: use MCP COD handler instead
 
 export async function updateTask(input: {
   path: string;

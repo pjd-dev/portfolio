@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import type { TaskNextActionsDeps } from '../handler.js';
 import { handler } from '../handler.js';
 import { inputSchema } from '../schema.js';
 
@@ -8,7 +9,12 @@ describe('task_next_actions handler', () => {
       loadGoals: async () => ({
         source: 'none',
         warnings: [],
-        index: { goals: [], primaryGoalId: undefined },
+        index: {
+          goals: [],
+          goalsById: {},
+          activeGoalIds: [],
+          primaryGoalId: undefined,
+        },
       }),
     },
     humanStateService: {
@@ -29,10 +35,10 @@ describe('task_next_actions handler', () => {
         },
       }),
     },
-  };
+  } satisfies Pick<TaskNextActionsDeps, 'goalService' | 'humanStateService'>;
 
   it('returns unblocked tasks and filters failed validation', async () => {
-    const deps = {
+    const deps: TaskNextActionsDeps = {
       ...baseDeps,
       taskGraphService: {
         getNextActions: async () => [
@@ -72,30 +78,36 @@ describe('task_next_actions handler', () => {
         ],
       },
       codValidator: {
-        validateTask: (task: { id: string }) => ({
-          status: task.id === 'bad' ? 'FAIL' : 'PASS',
-          reason: task.id === 'bad' ? 'invalid' : undefined,
-        }),
+        validateTask: (task) => {
+          const isBad = task.id === 'bad';
+          return {
+            state: isBad ? 'FAIL' : 'PASS',
+            reason: isBad ? 'invalid' : undefined,
+            issues: isBad ? [{ code: 'INVALID', message: 'bad task' }] : [],
+          };
+        },
       },
     };
 
     const result = await handler({}, deps);
 
-    expect(result.structuredContent.unblocked).toHaveLength(1);
-    expect(result.structuredContent.unblocked[0].task.id).toBe('t1');
-    expect(result.structuredContent.blocked).toHaveLength(1);
-    expect(result.structuredContent.failed).toHaveLength(1);
+    expect(result.structuredContent).toBeDefined();
+    const sc = result.structuredContent!;
+    expect(sc.unblocked).toHaveLength(1);
+    expect(sc.unblocked[0].task.id).toBe('t1');
+    expect(sc.blocked).toHaveLength(1);
+    expect(sc.failed).toHaveLength(1);
     expect(result.content[0]?.text).toContain('# Next Actions');
   });
 
   it('is deterministic for identical inputs', async () => {
-    const deps = {
+    const deps: TaskNextActionsDeps = {
       ...baseDeps,
       taskGraphService: {
         getNextActions: async () => [],
       },
       codValidator: {
-        validateTask: () => ({ status: 'PASS' }),
+        validateTask: () => ({ state: 'PASS', issues: [] }),
       },
     };
 
