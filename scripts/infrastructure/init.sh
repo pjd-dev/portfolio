@@ -67,18 +67,33 @@ init_vault_volume() {
     else
       log_success "Local path exists: $expanded_path"
     fi
-    
-    # Copy contents from local to volume if local has files
+
+    # Copy contents from local to volume if local has files, but avoid clobbering a non-empty volume unless forced
     if [[ -n "$(ls -A "$expanded_path" 2>/dev/null || true)" ]]; then
-      log_info "Copying contents from $expanded_path to volume $volume..."
-      $RUNTIME run --rm \
-        -v "$expanded_path:/src:Z" \
-        -v "$volume:/dst" \
-        alpine sh -c "cp -a /src/. /dst/" || log_warn "Some files may not have been copied"
-      log_success "Contents copied to volume"
+      local volume_non_empty
+      volume_non_empty=$($RUNTIME run --rm -v "$volume:/dst" alpine sh -c 'ls -A /dst 2>/dev/null | head -n1')
+      if [[ -n "$volume_non_empty" && "${FORCE_SYNC:-0}" != "1" ]]; then
+        log_warn "Volume $volume already has content; skipping copy from $expanded_path (set FORCE_SYNC=1 to overwrite)"
+      else
+        log_info "Copying contents from $expanded_path to volume $volume..."
+        $RUNTIME run --rm \
+          -v "$expanded_path:/src:Z" \
+          -v "$volume:/dst" \
+          alpine sh -c "cp -a /src/. /dst/" || log_warn "Some files may not have been copied"
+        log_success "Contents copied to volume"
+      fi
     else
       log_debug "Local path is empty, no copy needed"
     fi
+  fi
+
+  # If a local path is provided, emit a suggested bind mount for convenience
+  if [[ -n "$local_path" ]]; then
+    echo ""
+    echo "👉 To run the pod using the host vault directly, bind-mount it:" 
+    echo "   podman run ... -v ${expanded_path}:/vault:Z -e VAULT_PATH=/vault <image>" 
+    echo "   # or docker run ... -v ${expanded_path}:/vault -e VAULT_PATH=/vault <image>" 
+    echo ""
   fi
 }
 
@@ -115,8 +130,15 @@ init_directories() {
   )
   
   for dir in "${dirs[@]}"; do
-    mkdir_p "$dir"
-    log_success "Directory ready: $dir"
+    if [[ -d "$dir" ]]; then
+      log_success "Directory exists: $dir"
+      continue
+    fi
+    if mkdir_p "$dir" 2>/dev/null; then
+      log_success "Directory ready: $dir"
+    else
+      log_warn "Unable to create directory (read-only or missing mount): $dir"
+    fi
   done
 }
 

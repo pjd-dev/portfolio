@@ -53,7 +53,13 @@ export interface UnifiedVitals {
  */
 export interface AvatarVitalsFromUnified extends UnifiedVitals {
   /** Money/currency (gamification only) */
-  money?: number;
+  money?:
+    | number
+    | {
+        default_currency?: string;
+        balances?: Record<string, number>;
+        forms?: Record<string, number>;
+      };
 
   /** Notoriety/reputation (gamification only) */
   notoriety?: number;
@@ -128,7 +134,13 @@ export function deriveUnifiedVitals(
 export function toAvatarVitals(
   unified: UnifiedVitals,
   gamification?: {
-    money?: number;
+    money?:
+      | number
+      | {
+          default_currency?: string;
+          balances?: Record<string, number>;
+          forms?: Record<string, number>;
+        };
     notoriety?: number;
     needs?: Record<string, number>;
   }

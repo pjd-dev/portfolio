@@ -5,6 +5,8 @@ import {
   extractAuthorityConfig,
   type HardStopCheckResult,
   type CallerAuthority,
+  type CodProfile,
+  normalizeTaskState,
 } from '@vault/cod';
 
 type TaskNode = {
@@ -119,7 +121,7 @@ type TaskState = {
   reward?: number;
   focusCost?: number;
   projectId?: string;
-  goal?: string;
+  goal?: string | null;
   path?: string;
   dependencies?: string[];
   blockers?: string[];
@@ -139,6 +141,7 @@ export type TaskNextActionsDeps = {
       };
       focusCapacity?: FocusCapacity;
       recommendedMode?: RecommendedMode;
+      profile?: CodProfile;
     }) => Promise<RankedTask[]>;
   };
   goalService: {
@@ -147,15 +150,106 @@ export type TaskNextActionsDeps = {
   humanStateService: {
     loadPlanningContext: () => Promise<HumanStateContext>;
   };
+  avatarService?: {
+    loadAvatarState: () => Promise<{
+      state?: {
+        vitals?: { money?: any; notoriety?: number; health?: number };
+        profile?: { archetype?: string; title?: string; handle?: string };
+        flags?: Record<string, unknown>;
+      };
+    }>;
+  };
   codValidator: {
     validateTask: (
       task: Partial<TaskState>,
       context?: {
         goalsMap?: Record<string, boolean>;
-        tasksMap?: Record<string, boolean>;
-      }
-    ) => ValidationResult;
+        tasksMap?: Record<string, boolean | number | 'duplicate'>;
+      },
+      options?: { profile?: CodProfile }
+    ) => ValidationResult & { issues?: any[]; warnings?: string[] };
   };
+};
+
+function computeRescueActions(
+  ranked: RankedTask[],
+  options: { startabilityThreshold?: number; energy?: number }
+): Array<{
+  id: string;
+  title: string;
+  status: TaskStatus;
+  path: string;
+  priority?: number;
+}> {
+  const startabilityThreshold = options.startabilityThreshold ?? 0.6;
+  const energyLow = options.energy !== undefined && options.energy < 0.4;
+
+  const breakdown = (rt: RankedTask) =>
+    (rt.scoreBreakdown ?? {}) as Record<string, any>;
+
+  const startable = ranked.filter(
+    (r) => (breakdown(r).adhdStartability ?? 0) >= startabilityThreshold
+  );
+  const needRescue = energyLow || startable.length === 0;
+  if (!needRescue) return [];
+
+  const candidates = ranked
+    .filter((r) => {
+      const bd = breakdown(r);
+      const clarity = bd.adhdBreakdown?.clarity ?? 2;
+      const fric = bd.adhdBreakdown?.friction ?? 3;
+      const short = (r.task as any).estimatedTimeMin
+        ? (r.task as any).estimatedTimeMin <= 10
+        : false;
+      return (
+        (r.task as any).adhd?.rescue === true ||
+        short ||
+        (clarity >= 3 && fric <= 2)
+      );
+    })
+    .sort(
+      (a, b) =>
+        (breakdown(b).adhdDopamineROI ?? 0) -
+        (breakdown(a).adhdDopamineROI ?? 0)
+    )
+    .slice(0, 3)
+    .map((r) => ({
+      id: r.task.id,
+      title: r.task.title,
+      status: r.task.status,
+      priority: (r.task as any).priority,
+      path: (r.task as any).path,
+    }));
+
+  return candidates;
+}
+
+const deriveProfileFromAvatar = (avatarState?: {
+  profile?: { archetype?: string; title?: string; handle?: string };
+  flags?: Record<string, unknown>;
+}): CodProfile | undefined => {
+  if (!avatarState) return undefined;
+  const archetype =
+    avatarState.profile?.archetype ||
+    avatarState.profile?.title ||
+    avatarState.profile?.handle;
+  if (
+    typeof archetype === 'string' &&
+    archetype.toLowerCase().includes('adhd')
+  ) {
+    return 'adhd';
+  }
+  if (avatarState.flags) {
+    for (const [k, v] of Object.entries(avatarState.flags)) {
+      if (
+        k.toLowerCase().includes('adhd') &&
+        (v === true || (typeof v === 'string' && v.toLowerCase() === 'true'))
+      ) {
+        return 'adhd';
+      }
+    }
+  }
+  return undefined;
 };
 
 export async function handler(
@@ -163,8 +257,9 @@ export async function handler(
   deps: TaskNextActionsDeps
 ): Promise<TaskNextActionsOutput> {
   try {
+    let profile: CodProfile = input.profile ?? 'basic';
     // HARD_STOP guardrail: prevent work during late-night window
-    const hardStopResult = checkHardStop();
+    const hardStopResult = checkHardStop(new Date(), {}, profile);
     if (hardStopResult.blocked && !input.overrideHardStop) {
       return {
         content: [
@@ -220,6 +315,31 @@ export async function handler(
       goalLoad.index.goals.map((goal) => [goal.id, true])
     );
 
+    // Money-aware scoring context + profile derive from avatar
+    let moneyLow = false;
+    try {
+      const avatar = await deps.avatarService?.loadAvatarState?.();
+      if (avatar) {
+        const state = avatar?.state;
+        const money = state?.vitals?.money;
+        const avatarProfile = deriveProfileFromAvatar(state);
+        if (!input.profile && avatarProfile) {
+          profile = avatarProfile ?? profile;
+        }
+        if (money) {
+          const defaultCurrency =
+            money.default_currency ||
+            money.defaultCurrency ||
+            Object.keys(money.balances || {})[0];
+          const defaultBalance =
+            (money.balances && money.balances[defaultCurrency]) ?? 0;
+          moneyLow = defaultBalance < 1000; // basic threshold; tune as needed
+        }
+      }
+    } catch {
+      // ignore avatar fetch errors
+    }
+
     const tasks = await deps.taskGraphService.getNextActions({
       projectId: input.projectId,
       max: input.max,
@@ -232,11 +352,42 @@ export async function handler(
       },
       focusCapacity: humanState.snapshot.focusCapacity,
       recommendedMode: humanState.recommendedMode,
+      profile,
     });
+
+    const adjustForMoney = (ranked: RankedTask): RankedTask => {
+      if (!moneyLow) return ranked;
+      const tags = ranked.task.tags || [];
+      const financeTags = ['finance', 'money', 'revenue', 'invoice', 'billing'];
+      const hasFinanceTag = tags.some((t) =>
+        financeTags.includes(t.toLowerCase())
+      );
+      if (!hasFinanceTag) return ranked;
+      return {
+        ...ranked,
+        score: ranked.score * 1.5,
+        scoreBreakdown: {
+          ...(ranked.scoreBreakdown || {}),
+          moneyBoost: 1.5,
+        },
+      };
+    };
+
+    const adjustedTasks = tasks
+      .map(adjustForMoney)
+      .sort((a, b) => b.score - a.score);
+
+    const tasksMap: Record<string, number> = {};
+    for (const ranked of tasks) {
+      const id = ranked.task.id;
+      if (id) {
+        tasksMap[id] = (tasksMap[id] || 0) + 1;
+      }
+    }
 
     const validationMap = new Map<
       string,
-      { valid: boolean; reason?: string }
+      { valid: boolean; reason?: string; issues?: any[]; warnings?: string[] }
     >();
 
     for (const ranked of tasks) {
@@ -254,11 +405,17 @@ export async function handler(
         blockers: ranked.task.blockers || [],
       };
 
-      const result = deps.codValidator.validateTask(taskState, { goalsMap });
+      const result = deps.codValidator.validateTask(
+        normalizeTaskState(taskState),
+        { goalsMap, tasksMap },
+        { profile }
+      );
       const verdict = result.status ?? result.state;
       validationMap.set(ranked.task.id, {
         valid: verdict === 'PASS' || verdict === 'WARN',
         reason: verdict === 'FAIL' ? result.reason : undefined,
+        issues: result.issues,
+        warnings: result.warnings,
       });
     }
 
@@ -266,7 +423,7 @@ export async function handler(
     const callerAuthority: CallerAuthority = input.callerAuthority ?? 'human';
     const authorityExcluded: RankedTask[] = [];
 
-    const authorityFilteredTasks = tasks.filter((ranked) => {
+    const authorityFilteredTasks = adjustedTasks.filter((ranked) => {
       if (callerAuthority === 'human') {
         return true; // Humans see all tasks
       }
@@ -297,6 +454,11 @@ export async function handler(
       return validation && !validation.valid;
     });
 
+    const rescueActions = computeRescueActions(authorityFilteredTasks, {
+      startabilityThreshold: 0.6,
+      energy: humanState.snapshot.energy,
+    });
+
     const worldSignalsUsed: string[] = [];
     if (humanState.snapshot.healthBand) {
       worldSignalsUsed.push(`healthBand:${humanState.snapshot.healthBand}`);
@@ -311,6 +473,9 @@ export async function handler(
     text += `- **Unblocked tasks:** ${unblocked.length}\n`;
     text += `- **Blocked tasks:** ${blocked.length}\n`;
     text += `- **Failed validation:** ${failed.length}\n`;
+    if (rescueActions.length > 0) {
+      text += `- **Rescue actions suggested:** ${rescueActions.length}\n`;
+    }
     if (authorityExcluded.length > 0) {
       text += `- **Human-only (excluded):** ${authorityExcluded.length}\n`;
     }
@@ -350,9 +515,8 @@ export async function handler(
     }
     text += `- **Recommended mode:** ${humanState.recommendedMode}\n`;
     text += `- **Duration cap (min):** ${humanState.durationCapMin}\n`;
-    if (humanState.ageHours !== undefined) {
-      text += `- **Age (hours):** ${humanState.ageHours.toFixed(1)}\n`;
-    }
+    const ageText = humanState.ageHours?.toFixed(1) ?? 'unknown';
+    text += `- **Age (hours):** ${ageText}\n`;
     if (humanState.warnings.length > 0) {
       text += `- **Warnings:** ${humanState.warnings.join('; ')}\n`;
     }
@@ -391,10 +555,20 @@ export async function handler(
       text += `## Failed Validation (COD)\n\n`;
 
       for (const ranked of failed) {
-        const reason =
-          validationMap.get(ranked.task.id)?.reason || 'Unknown issue';
+        const validation = validationMap.get(ranked.task.id);
+        const reason = validation?.reason || 'Unknown issue';
+        const issues = validation?.issues;
         text += `- **${ranked.task.title}** (\`${ranked.task.id}\`)\n`;
         text += `  Issue: ${reason}\n`;
+        if (issues && issues.length > 0) {
+          for (const issue of issues) {
+            const code = issue.code || 'UNKNOWN';
+            const hint = issue.fixHint || issue.suggestion || '';
+            text += `    - [${code}] ${issue.message}`;
+            if (hint) text += ` — Fix: ${hint}`;
+            text += `\n`;
+          }
+        }
       }
       text += `\n`;
     } else if (failed.length > 0) {
@@ -413,6 +587,14 @@ export async function handler(
     } else if (blocked.length > 0) {
       text += `## Blocked Tasks\n\n`;
       text += `${blocked.length} tasks are blocked by dependencies.\n\n`;
+    }
+
+    if (rescueActions.length > 0) {
+      text += `## Rescue Actions (quick wins)\n\n`;
+      for (const task of rescueActions) {
+        text += `- **${task.title}** (\`${task.id}\`)\n`;
+      }
+      text += `\n`;
     }
 
     return {
@@ -445,6 +627,7 @@ export async function handler(
           worldPath: humanState.worldPath,
           snapshot: humanState.snapshot,
         },
+        rescueActions,
       },
     };
   } catch (error) {
@@ -462,4 +645,15 @@ export async function handler(
       isError: true,
     };
   }
+
+  // Fallback (should be unreachable)
+  return {
+    content: [
+      {
+        type: 'text',
+        text: '❌ task_next_actions hit an unexpected fallback with no result. This is a bug.',
+      },
+    ],
+    isError: true,
+  };
 }

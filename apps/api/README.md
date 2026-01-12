@@ -30,16 +30,74 @@ Create `.env` from the example:
 cp .env.example .env
 ```
 
-| Variable           | Default                 | Description            |
-| ------------------ | ----------------------- | ---------------------- |
-| `PORT`             | `4200`                  | Server port            |
-| `HOST`             | `0.0.0.0`               | Server host            |
-| `NODE_ENV`         | `development`           | Environment            |
-| `CORS_ORIGIN`      | `http://localhost:3000` | CORS allowed origin    |
-| `VAULT_ROOT`       | (required)              | Path to Obsidian vault |
-| `AUTH_ENABLED`     | `false`                 | Enable token auth      |
-| `AUTH_SERVICE_URL` | `http://localhost:4100` | Auth service URL       |
-| `LOG_LEVEL`        | `info`                  | Logging level          |
+| Variable           | Default                 | Description                                                                                                  |
+| ------------------ | ----------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `PORT`             | `4200`                  | Server port                                                                                                  |
+| `HOST`             | `0.0.0.0`               | Server host                                                                                                  |
+| `NODE_ENV`         | `development`           | Environment                                                                                                  |
+| `CORS_ORIGIN`      | `http://localhost:3000` | CORS allowed origin(s). Supports comma-separated list. Set to `true` to allow all (dev), `false` to disable. |
+| `VAULT_ROOT`       | (required)              | Path to Obsidian vault                                                                                       |
+| `AUTH_ENABLED`     | `false`                 | Enable token auth                                                                                            |
+| `AUTH_SERVICE_URL` | `http://localhost:4100` | Auth service URL                                                                                             |
+| `LOG_LEVEL`        | `info`                  | Logging level                                                                                                |
+
+## REST Quick Reference
+
+Base URL: `http://localhost:4200/api/v1`
+
+Docs UI: `http://localhost:4200/docs` (Swagger UI, served from `openapi.yaml`)
+
+| Endpoint                       | Method | Purpose                      | Notes                                            |
+| ------------------------------ | ------ | ---------------------------- | ------------------------------------------------ |
+| `/health`                      | GET    | Service liveness             | Also `/health/detailed`                          |
+| `/tools`                       | GET    | List registered tools        |                                                  |
+| `/tools/:name`                 | GET    | Tool info/schema             |                                                  |
+| `/tools/:name/execute`         | POST   | Execute a tool               | Body = tool input                                |
+| `/notes`                       | GET    | List notes                   | `pattern` query (glob)                           |
+| `/notes/search`                | GET    | Search notes                 | `query`, `pattern`                               |
+| `/notes/:path`                 | GET    | Read a note                  | `:path` is URL-encoded                           |
+| `/notes/:path/frontmatter`     | GET    | Frontmatter only             |                                                  |
+| `/tasks`                       | GET    | List tasks                   | `status`, `limit`, `sortBy`, `sortOrder`         |
+| `/tasks/find`                  | POST   | Filter/search tasks          | Body mirrors tool filters                        |
+| `/tasks/:path`                 | GET    | Get task                     |                                                  |
+| `/tasks/:path/metrics`         | GET    | Basic task metrics           | Stub metrics today                               |
+| `/tasks/:path/history`         | GET    | Task history                 | Stub (empty list)                                |
+| `/tasks/next-actions`          | GET    | COD next actions             | `max`, `maxEffort`, `maxFocusCost`               |
+| `/graph/search`                | GET    | Graph-aware search           | `query`, `limit`                                 |
+| `/graph/stats`                 | GET    | Graph stats                  | hubs/orphans                                     |
+| `/graph/related/:path`         | GET    | Related notes                |                                                  |
+| `/sessions`                    | GET    | List sessions                |                                                  |
+| `/sessions/:id`                | GET    | Session details              |                                                  |
+| `/sessions/stats`              | GET    | Session stats                |                                                  |
+| `/cod/status`                  | GET    | Human state + active session | Reads `_state/cod/human-state.json` when present |
+| `/cod/avatar`                  | GET    | Avatar state                 |                                                  |
+| `/cod/world`                   | GET    | World state                  |                                                  |
+| `/cod/hard-stop`               | GET    | HARD_STOP status             |                                                  |
+| `/cod/decision-loop`           | GET    | Decision loop state          |                                                  |
+| `/cod/productivity`            | GET    | Productivity patterns        |                                                  |
+| `/cod/productivity/peak-hours` | GET    | Peak hours                   |                                                  |
+| `/scheduler/status`            | GET    | Scheduler status             | Env-driven pipeline runner status                |
+
+### Example requests
+
+- List tasks:
+
+  ```bash
+  curl "http://localhost:4200/api/v1/tasks?status=todo&limit=10"
+  ```
+
+- Execute a tool directly:
+
+  ```bash
+  curl -X POST http://localhost:4200/api/v1/tools/obsidian_list_notes/execute \
+    -H "Content-Type: application/json" \
+    -d '{"pattern":"tasks/**/*.md"}'
+  ```
+
+- Get related notes:
+  ```bash
+  curl "http://localhost:4200/api/v1/graph/related/tasks%2Fmy-task.md?limit=5"
+  ```
 
 ## API Endpoints
 
@@ -89,6 +147,7 @@ cp .env.example .env
 - `GET /api/v1/cod/decision-loop` - Get decision loop state
 - `GET /api/v1/cod/productivity` - Get productivity patterns
 - `GET /api/v1/cod/productivity/peak-hours` - Get peak productivity hours
+- `GET /api/v1/scheduler/status` - Scheduler status (jobs, allowlist, last runs)
 
 ## Example Usage
 

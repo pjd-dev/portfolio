@@ -1,9 +1,14 @@
 import { describe, expect, it, vi } from 'vitest';
+import type { PlanSessionDeps } from '../handler.js';
 import { handler } from '../handler.js';
 import { inputSchema } from '../schema.js';
 
 describe('plan_session handler', () => {
-  const baseResult = {
+  type PlanSessionResult = Awaited<
+    ReturnType<PlanSessionDeps['sessionPlannerService']['planSession']>
+  >;
+
+  const baseResult: PlanSessionResult = {
     session: {
       id: 'session-1',
       status: 'planned',
@@ -58,7 +63,7 @@ describe('plan_session handler', () => {
     const result = await handler({ durationMinutes: 30 }, deps);
 
     expect(result.content[0]?.text).toContain('Work Session Planned');
-    expect(result.structuredContent.session.id).toBe('session-1');
+    expect(result.structuredContent?.session?.id).toBe('session-1');
   });
 
   it('blocks planning when session validation fails', async () => {
@@ -77,7 +82,7 @@ describe('plan_session handler', () => {
     const result = await handler({ durationMinutes: 0 }, deps);
 
     expect(result.content[0]?.text).toContain('Cannot Plan Session');
-    expect(result.structuredContent.validationState).toBe('FAIL');
+    expect(result.structuredContent?.validationState).toBe('FAIL');
     expect(planSession).not.toHaveBeenCalled();
   });
 

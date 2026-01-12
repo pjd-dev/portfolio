@@ -7,6 +7,7 @@ export {
   type ValidationState,
   type ValidationResult,
   type ValidationIssue,
+  type TaskValidationResult,
   type TaskState,
   type SessionState,
   type ValidatorOptions,

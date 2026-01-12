@@ -1,4 +1,6 @@
 import Fastify from 'fastify';
+import swagger from '@fastify/swagger';
+import swaggerUi from '@fastify/swagger-ui';
 import cors from '@fastify/cors';
 import { config, validateConfig } from './config/index.js';
 import { authPlugin } from './plugins/auth.js';
@@ -11,6 +13,8 @@ import {
   graphRoutes,
   codRoutes,
 } from './routes/convenience.js';
+import { schedulerRoutes } from './routes/scheduler.js';
+import { pipelinesRoutes } from './routes/pipelines.js';
 import { loadMcpTools } from './tools/loader.js';
 
 async function main() {
@@ -29,6 +33,19 @@ async function main() {
   });
 
   // Register plugins
+  await fastify.register(swagger, {
+    mode: 'static',
+    specification: {
+      path: new URL('../openapi.yaml', import.meta.url).pathname,
+      baseDir: new URL('..', import.meta.url).pathname,
+    },
+  });
+
+  await fastify.register(swaggerUi, {
+    routePrefix: '/docs',
+    uiConfig: { docExpansion: 'list', deepLinking: true },
+  });
+
   await fastify.register(cors, {
     origin: config.corsOrigin,
     credentials: true,
@@ -36,13 +53,13 @@ async function main() {
 
   await fastify.register(authPlugin);
 
-  // Load and register MCP tools
+  // Load and register tools (local/shared handlers preferred)
   try {
     const tools = await loadMcpTools();
     registerTools(tools);
-    console.log(`✓ Loaded ${tools.length} MCP tools`);
+    console.log(`✓ Loaded ${tools.length} tools`);
   } catch (error) {
-    console.error('Failed to load MCP tools:', error);
+    console.error('Failed to load tools:', error);
     process.exit(1);
   }
 
@@ -54,6 +71,8 @@ async function main() {
   await fastify.register(sessionsRoutes, { prefix: '/api/v1' });
   await fastify.register(graphRoutes, { prefix: '/api/v1' });
   await fastify.register(codRoutes, { prefix: '/api/v1' });
+  await fastify.register(schedulerRoutes, { prefix: '/api/v1' });
+  await fastify.register(pipelinesRoutes, { prefix: '/api/v1' });
 
   // Error handler
   fastify.setErrorHandler(
@@ -93,6 +112,7 @@ Endpoints:
   GET  /api/v1/tasks/next-actions - Get COD-aware next actions
   GET  /api/v1/sessions           - List sessions
   GET  /api/v1/graph/search       - Search knowledge graph
+  GET  /api/v1/cod/status         - Get COD status (for viewer dashboard)
   GET  /api/v1/cod/avatar         - Get avatar state
   GET  /api/v1/cod/hard-stop      - Get HARD_STOP status
 `);

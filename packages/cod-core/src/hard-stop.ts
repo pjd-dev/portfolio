@@ -1,3 +1,6 @@
+import type { CodProfile } from './profile.js';
+import { DEFAULT_COD_PROFILE } from './profile.js';
+
 /**
  * HARD_STOP Guardrail: Prevent work during high-risk times (late night)
  *
@@ -37,7 +40,8 @@ const DEFAULT_CONFIG: HardStopConfig = {
  */
 export function isHardStopActive(
   now: Date = new Date(),
-  config: Partial<HardStopConfig> = {}
+  config: Partial<HardStopConfig> = {},
+  _profile: CodProfile = DEFAULT_COD_PROFILE
 ): boolean {
   const { windowStart, windowEnd } = { ...DEFAULT_CONFIG, ...config };
 
@@ -57,7 +61,8 @@ export function isHardStopActive(
  */
 export function timeUntilHardStopEnd(
   now: Date = new Date(),
-  config: Partial<HardStopConfig> = {}
+  config: Partial<HardStopConfig> = {},
+  _profile: CodProfile = DEFAULT_COD_PROFILE
 ): number {
   const { windowEnd } = { ...DEFAULT_CONFIG, ...config };
 
@@ -103,10 +108,12 @@ function formatDuration(minutes: number): string {
  */
 export function checkHardStop(
   now: Date = new Date(),
-  config: Partial<HardStopConfig> = {}
+  config: Partial<HardStopConfig> = {},
+  profile: CodProfile = DEFAULT_COD_PROFILE
 ): HardStopCheckResult {
   const merged = { ...DEFAULT_CONFIG, ...config };
-  const blocked = isHardStopActive(now, merged);
+  // profile reserved for future heuristics; current behavior is profile-agnostic
+  const blocked = isHardStopActive(now, merged, profile);
 
   if (!blocked) {
     return {
@@ -115,7 +122,7 @@ export function checkHardStop(
     };
   }
 
-  const minutesUntilResume = timeUntilHardStopEnd(now, merged);
+  const minutesUntilResume = timeUntilHardStopEnd(now, merged, profile);
   const duration = formatDuration(minutesUntilResume);
 
   return {

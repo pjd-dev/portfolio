@@ -1,5 +1,24 @@
 import type { FastifyInstance } from 'fastify';
 import { executeTool } from './tools.js';
+import {
+  listNotes,
+  listTasks,
+  getTask,
+  getTaskMetrics,
+  getTaskHistory,
+  findTasks,
+  taskNextActions,
+  updateTask,
+  readNote,
+  getFrontmatter,
+  searchNotes,
+  findRelated,
+  graphSearch,
+  graphStats,
+} from '@vault/handlers';
+import { readFile, writeFile, appendFile } from 'node:fs/promises';
+import fs from 'fs-extra';
+import { join } from 'node:path';
 
 /**
  * Notes routes - convenience endpoints for note operations
@@ -11,7 +30,33 @@ export async function notesRoutes(fastify: FastifyInstance): Promise<void> {
     '/notes',
     async (request) => {
       const { pattern = '**/*.md' } = request.query;
-      return executeTool('obsidian_list_notes', { pattern });
+      const notes = await listNotes(pattern);
+      return { structuredContent: { notes } };
+    }
+  );
+
+  // Read a note
+  fastify.get<{ Params: { path: string } }>('/notes/:path', async (request) => {
+    const { path } = request.params;
+    const decoded = decodeURIComponent(path);
+    const note = await readNote(decoded);
+    return {
+      structuredContent: {
+        path: decoded,
+        frontmatter: note.frontmatter,
+        content: note.content,
+      },
+    };
+  });
+
+  // Get note frontmatter
+  fastify.get<{ Params: { path: string } }>(
+    '/notes/:path/frontmatter',
+    async (request) => {
+      const { path } = request.params;
+      const decoded = decodeURIComponent(path);
+      const frontmatter = await getFrontmatter(decoded);
+      return { structuredContent: { path: decoded, frontmatter } };
     }
   );
 
@@ -20,7 +65,6 @@ export async function notesRoutes(fastify: FastifyInstance): Promise<void> {
     '/notes/search',
     async (request, reply) => {
       const { query, pattern = '**/*.md' } = request.query;
-
       if (!query) {
         reply.code(400).send({
           error: 'BadRequest',
@@ -28,27 +72,8 @@ export async function notesRoutes(fastify: FastifyInstance): Promise<void> {
         });
         return;
       }
-
-      return executeTool('obsidian_search_notes', { query, pattern });
-    }
-  );
-
-  // Read a note
-  fastify.get<{ Params: { path: string } }>('/notes/:path', async (request) => {
-    const { path } = request.params;
-    return executeTool('obsidian_read_note', {
-      path: decodeURIComponent(path),
-    });
-  });
-
-  // Get note frontmatter
-  fastify.get<{ Params: { path: string } }>(
-    '/notes/:path/frontmatter',
-    async (request) => {
-      const { path } = request.params;
-      return executeTool('obsidian_get_frontmatter', {
-        path: decodeURIComponent(path),
-      });
+      const results = await searchNotes(query, pattern);
+      return { structuredContent: { results } };
     }
   );
 }
@@ -72,33 +97,38 @@ export async function tasksRoutes(fastify: FastifyInstance): Promise<void> {
       sortBy = 'priority',
       sortOrder = 'desc',
     } = request.query;
-    return executeTool('obsidian_list_tasks', {
-      status,
-      limit,
-      sortBy,
-      sortOrder,
-    });
+    const tasks = await listTasks({ status, limit, sortBy, sortOrder });
+    return { structuredContent: { tasks, total: tasks.length } };
   });
 
   // Find tasks with filters
   fastify.post<{ Body: Record<string, unknown> }>(
     '/tasks/find',
     async (request) => {
-      return executeTool('obsidian_find_tasks', request.body);
+      const result = await findTasks(request.body || {});
+      return { structuredContent: result };
     }
   );
 
   // Get a task
   fastify.get<{ Params: { path: string } }>('/tasks/:path', async (request) => {
     const { path } = request.params;
-    return executeTool('obsidian_get_task', { path: decodeURIComponent(path) });
+    const decoded = decodeURIComponent(path);
+    const task = await getTask(decoded);
+    return { structuredContent: task };
   });
 
   // Get next actions (COD-aware)
   fastify.get<{
     Querystring: { max?: number; maxEffort?: number; maxFocusCost?: number };
   }>('/tasks/next-actions', async (request) => {
-    return executeTool('obsidian_task_next_actions', request.query);
+    const { max = 10, maxEffort, maxFocusCost } = request.query;
+    const tasks = await taskNextActions({
+      max,
+      maxEffort,
+      maxFocusCost,
+    });
+    return { structuredContent: { tasks, total: tasks.length } };
   });
 
   // Get task metrics
@@ -106,9 +136,40 @@ export async function tasksRoutes(fastify: FastifyInstance): Promise<void> {
     '/tasks/:path/metrics',
     async (request) => {
       const { path } = request.params;
-      return executeTool('obsidian_calculate_task_metrics', {
-        taskPath: decodeURIComponent(path),
-      });
+      const decoded = decodeURIComponent(path);
+      const metrics = await getTaskMetrics(decoded);
+      return { structuredContent: metrics };
+    }
+  );
+
+  // Update task status (lightweight CTA for viewer)
+  fastify.patch<{
+    Params: { path: string };
+    Body: { status: string };
+  }>('/tasks/:path/status', async (request, reply) => {
+    const { path } = request.params;
+    const { status } = request.body;
+    if (!status) {
+      reply.code(400).send({ error: 'BadRequest', message: 'status required' });
+      return;
+    }
+    const decoded = decodeURIComponent(path);
+    const result = await updateTask({
+      path: decoded,
+      frontmatterPatch: { status },
+      includeMetrics: true,
+    });
+    return { structuredContent: result };
+  });
+
+  // Get task history (stub)
+  fastify.get<{ Params: { path: string } }>(
+    '/tasks/:path/history',
+    async (request) => {
+      const { path } = request.params;
+      const decoded = decodeURIComponent(path);
+      const history = await getTaskHistory(decoded);
+      return { structuredContent: history };
     }
   );
 }
@@ -132,8 +193,20 @@ export async function sessionsRoutes(fastify: FastifyInstance): Promise<void> {
   });
 
   // Get session stats
-  fastify.get('/sessions/stats', async () => {
-    return executeTool('obsidian_get_session_stats', {});
+  fastify.get('/sessions/stats', async (_, reply) => {
+    try {
+      return await executeTool('obsidian_get_session_stats', {});
+    } catch (err) {
+      // Graceful fallback: return empty stats instead of propagating 500s to the viewer
+      reply.code(200).send({
+        structuredContent: {
+          completedSessions: 0,
+          totalSessions: 0,
+          activeSessions: 0,
+          error: String(err),
+        },
+      });
+    }
   });
 }
 
@@ -155,13 +228,15 @@ export async function graphRoutes(fastify: FastifyInstance): Promise<void> {
         return;
       }
 
-      return executeTool('obsidian_graph_search', { query, limit });
+      const results = await graphSearch({ query, limit });
+      return { structuredContent: { results, total: results.length } };
     }
   );
 
   // Graph stats
   fastify.get('/graph/stats', async () => {
-    return executeTool('obsidian_graph_stats', {});
+    const stats = await graphStats({});
+    return { structuredContent: stats };
   });
 
   // Find related notes
@@ -170,10 +245,11 @@ export async function graphRoutes(fastify: FastifyInstance): Promise<void> {
     async (request) => {
       const { path } = request.params;
       const { limit = 10 } = request.query;
-      return executeTool('obsidian_find_related', {
+      const related = await findRelated({
         path: decodeURIComponent(path),
         limit,
       });
+      return { structuredContent: { related, total: related.length } };
     }
   );
 }
@@ -182,9 +258,146 @@ export async function graphRoutes(fastify: FastifyInstance): Promise<void> {
  * COD routes - Cognitive Operating Discipline endpoints
  */
 export async function codRoutes(fastify: FastifyInstance): Promise<void> {
+  const vaultPath =
+    process.env.VAULT_PATH || process.env.VAULT_ROOT || '/vault';
+
+  // Combined status for viewer dashboard
+  fastify.get('/cod/status', async () => {
+    try {
+      // Try to read human state from the COD state file
+      let humanState = {
+        energy: 0,
+        focusCapacity: 'unknown' as string,
+        stress: 0,
+        sleepDebt: 0,
+        timeAvailableMin: 0,
+        source: 'none' as string,
+        timestamp: null as string | null,
+      };
+
+      try {
+        // Read the human state JSON file directly from the vault
+        const humanStatePath = join(vaultPath, '_state/cod/human-state.json');
+        const content = await readFile(humanStatePath, 'utf-8');
+        const parsed = JSON.parse(content) as {
+          energy?: number;
+          focusCapacity?: string;
+          stress?: number;
+          sleepHours?: number;
+          timeAvailableMin?: number;
+          source?: string;
+          ts?: string;
+        };
+        humanState = {
+          energy: Math.round((parsed.energy || 0) * 100),
+          focusCapacity: parsed.focusCapacity || 'unknown',
+          stress: Math.round((parsed.stress || 0) * 100),
+          sleepDebt: parsed.sleepHours ? Math.max(0, 8 - parsed.sleepHours) : 0,
+          timeAvailableMin: parsed.timeAvailableMin || 0,
+          source: parsed.source || 'none',
+          timestamp: parsed.ts || null,
+        };
+      } catch {
+        // Human state file not found or invalid - use defaults
+      }
+
+      // Get planning prerequisites for session info
+      const prereqResult = (await executeTool(
+        'obsidian_planning_prerequisites',
+        {}
+      )) as Record<string, unknown>;
+      const prereq = (prereqResult?.structuredContent ||
+        prereqResult ||
+        {}) as Record<string, unknown>;
+
+      // Session info (if active)
+      const session = prereq.activeSession || null;
+
+      return {
+        structuredContent: {
+          humanState,
+          session,
+          canProceed: prereq.canProceed ?? true,
+          warnings: prereq.warnings || [],
+        },
+      };
+    } catch (err) {
+      return {
+        structuredContent: {
+          humanState: null,
+          session: null,
+          canProceed: false,
+          warnings: [],
+          error: String(err),
+        },
+      };
+    }
+  });
+
   // Get avatar state
   fastify.get('/cod/avatar', async () => {
-    return executeTool('obsidian_get_avatar_state', {});
+    try {
+      const res = await executeTool('obsidian_get_avatar_state', {});
+      const structured = (res as any)?.structuredContent ?? res ?? null;
+      return { structuredContent: structured };
+    } catch (err) {
+      try {
+        const note = await readNote('core/avatar/Avatar.md');
+        const fm = (note as any)?.frontmatter ?? {};
+        const fallback = {
+          profile: fm.profile ?? {
+            name: fm.name ?? 'Unknown',
+            title: fm.title ?? 'Vault User',
+          },
+          vitals: fm.vitals ?? {
+            health: fm.health ?? 50,
+            energy: fm.energy ?? 50,
+            stress: fm.stress ?? 50,
+            tasksCompletedToday: fm.tasksCompletedToday ?? 0,
+            tasksCompletedThisWeek: fm.tasksCompletedThisWeek ?? 0,
+            sessionsCompletedThisWeek: fm.sessionsCompletedThisWeek ?? 0,
+            needs: fm.needs ?? { sleep: 50, social: 50, food: 50 },
+          },
+          progression: fm.progression ?? {
+            level: fm.level ?? 1,
+            xp: fm.xp ?? 0,
+          },
+          capacity: fm.capacity ?? {
+            focusCostMax: 0,
+            effortScoreMax: 0,
+            timeBudgetMin: 0,
+          },
+          knowledge: fm.knowledge ?? {},
+          flags: fm.flags ?? {},
+          updated: fm.updated ?? null,
+        };
+        return {
+          structuredContent: fallback,
+          warnings: [`Tool unavailable: ${String(err)}`],
+        };
+      } catch (inner) {
+        return {
+          error: `Avatar state unavailable: ${String(err)}; fallback failed: ${String(inner)}`,
+          structuredContent: {
+            profile: { name: 'Unknown', title: 'Vault User' },
+            vitals: {
+              health: 50,
+              energy: 50,
+              stress: 50,
+              tasksCompletedToday: 0,
+              tasksCompletedThisWeek: 0,
+              sessionsCompletedThisWeek: 0,
+              needs: { sleep: 50, social: 50, food: 50 },
+            },
+            progression: { level: 1, xp: 0 },
+            capacity: { focusCostMax: 0, effortScoreMax: 0, timeBudgetMin: 0 },
+            knowledge: {},
+            flags: {},
+            updated: null,
+          },
+        };
+      }
+    }
   });
 
   // Get world state
@@ -210,5 +423,129 @@ export async function codRoutes(fastify: FastifyInstance): Promise<void> {
   // Get peak hours
   fastify.get('/cod/productivity/peak-hours', async () => {
     return executeTool('obsidian_get_peak_hours', {});
+  });
+
+  // ============================================================================
+  // COD Write Endpoints
+  // ============================================================================
+
+  // Update human state
+  fastify.post<{
+    Body: {
+      energy: number;
+      focusCapacity: 'low' | 'med' | 'high';
+      stress: number;
+      sleepHours: number;
+      timeAvailableMin: number;
+      source?: 'morning-check' | 'moment-check' | 'manual';
+    };
+  }>('/cod/human-state', async (request) => {
+    const {
+      energy,
+      focusCapacity,
+      stress,
+      sleepHours,
+      timeAvailableMin,
+      source = 'manual',
+    } = request.body;
+
+    // Write directly to vault (fallback if MCP tools unavailable)
+    const ts = new Date().toISOString();
+    const snapshot = {
+      ts,
+      source,
+      energy,
+      focusCapacity,
+      stress,
+      sleepHours,
+      timeAvailableMin,
+      contextTolerance: 'med',
+    };
+
+    const stateDir = join(vaultPath, '_state/cod');
+    const logDir = join(vaultPath, '_log/cod');
+    const statePath = join(stateDir, 'human-state.json');
+    const logPath = join(logDir, 'human-state.ndjson');
+
+    await fs.ensureDir(stateDir);
+    await fs.ensureDir(logDir);
+    await writeFile(statePath, JSON.stringify(snapshot, null, 2), 'utf-8');
+    await appendFile(logPath, JSON.stringify(snapshot) + '\n', 'utf-8');
+
+    return {
+      structuredContent: {
+        snapshot,
+        snapshotPath: statePath,
+        logPath,
+      },
+      content: [
+        {
+          type: 'text',
+          text: `✅ Human state saved (${statePath})`,
+        },
+      ],
+    };
+  });
+
+  // Start a new session
+  fastify.post<{
+    Body: {
+      taskIds?: string[];
+      budgetMin?: number;
+    };
+  }>('/cod/session/start', async (request) => {
+    const { taskIds = [], budgetMin = 60 } = request.body;
+    return executeTool('obsidian_start_session', {
+      taskIds,
+      budgetMin,
+    });
+  });
+
+  // End current session
+  fastify.post<{
+    Body: {
+      sessionId: string;
+      status?: 'completed' | 'aborted';
+    };
+  }>('/cod/session/end', async (request) => {
+    const { sessionId, status = 'completed' } = request.body;
+    return executeTool('obsidian_end_session', {
+      sessionId,
+      status,
+    });
+  });
+
+  // Transition decision loop state
+  fastify.post<{
+    Body: {
+      transition: string;
+      reason?: string;
+    };
+  }>('/cod/decision-loop/transition', async (request) => {
+    const { transition, reason } = request.body;
+    return executeTool('obsidian_decision_loop_transition', {
+      transition,
+      reason,
+    });
+  });
+
+  // Update avatar state
+  fastify.patch<{
+    Body: {
+      patch: Record<string, unknown>;
+    };
+  }>('/cod/avatar', async (request) => {
+    const { patch } = request.body;
+    return executeTool('obsidian_update_avatar_state', { patch });
+  });
+
+  // Update world state
+  fastify.patch<{
+    Body: {
+      patch: Record<string, unknown>;
+    };
+  }>('/cod/world', async (request) => {
+    const { patch } = request.body;
+    return executeTool('obsidian_update_world_state', { patch });
   });
 }

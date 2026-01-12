@@ -10,6 +10,7 @@ const TaskStatusEnum = z.enum([
 ]);
 
 const CallerAuthorityEnum = z.enum(['human', 'agent', 'system']);
+const CodProfileEnum = z.enum(['basic', 'adhd']);
 
 export const inputSchema = z.object({
   projectId: z.string().optional().describe('Filter by project ID'),
@@ -28,6 +29,9 @@ export const inputSchema = z.object({
     ),
   callerAuthority: CallerAuthorityEnum.optional().describe(
     'Authority level of the caller (human, agent, system). Affects which tasks are returned based on delegation rules.'
+  ),
+  profile: CodProfileEnum.optional().describe(
+    'COD profile to apply (basic | adhd). Default: basic.'
   ),
 });
 
@@ -53,6 +57,8 @@ const rankedTaskSchema = z.object({
   score: z.number(),
   scoreBreakdown: z.unknown().optional(),
 });
+
+const rescueTaskSchema = taskNodeSchema;
 
 const goalContextSchema = z.object({
   source: z.string(),
@@ -96,6 +102,7 @@ export const outputSchema = z.object({
   total: z.number(),
   goalContext: goalContextSchema,
   humanState: humanStateSchema,
+  rescueActions: z.array(rescueTaskSchema).optional(),
 });
 
 type ToolContent = { type: 'text'; text: string };

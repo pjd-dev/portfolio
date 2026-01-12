@@ -55,7 +55,14 @@ API_PORT="${API_PORT:-4300}"
 VIEWER_PORT="${VIEWER_PORT:-4400}"
 PROXY_PORT="${PROXY_PORT:-8080}"
 
-# Volume configuration
+# Internal API wiring (inside the pod)
+API_INTERNAL_PORT="${API_INTERNAL_PORT:-4300}"
+API_INTERNAL_HOST="${API_INTERNAL_HOST:-127.0.0.1}"
+API_INTERNAL_URL="${API_INTERNAL_URL:-http://${API_INTERNAL_HOST}:${API_INTERNAL_PORT}}"
+# CORS origins for dev/prod viewer
+DEV_CORS_ORIGINS="${CORS_ORIGIN:-http://localhost:8080,http://127.0.0.1:8080,http://localhost:8000,http://127.0.0.1:8000,http://localhost:3000,http://127.0.0.1:3000,http://localhost:4400,http://127.0.0.1:4400}"
+
+# Volume configuration: prefer explicit LOCAL_VAULT_PATH, then VAULT_PATH if absolute; otherwise use named volume
 VOLUME_SOURCE="${LOCAL_VAULT_PATH:-${VAULT_DATA_VOLUME:-vault}}"
 
 # Expand ~ if present in host path
@@ -63,25 +70,34 @@ if [[ "${VOLUME_SOURCE#~}" != "$VOLUME_SOURCE" ]]; then
   VOLUME_SOURCE="$(eval echo "$VOLUME_SOURCE")"
 fi
 
-# If expanded path is an absolute path, ensure it exists and is readable
+# If VOLUME_SOURCE is not an absolute path, but VAULT_PATH is absolute, use that as host bind
+if [[ "${VOLUME_SOURCE:0:1}" != "/" && "${VAULT_PATH:-}" == /* ]]; then
+  VOLUME_SOURCE="$VAULT_PATH"
+fi
+
+VOLUME_BIND_MODE="volume"
+# If expanded path is an absolute path, ensure it exists and is readable; otherwise fall back to named volume
 if [[ "${VOLUME_SOURCE:0:1}" == "/" ]]; then
   # Try to create the directory if it doesn't exist
   if [[ ! -d "$VOLUME_SOURCE" ]]; then
-    log_info "Creating LOCAL_VAULT_PATH directory: $VOLUME_SOURCE"
+    log_info "Creating host vault path: $VOLUME_SOURCE"
     if mkdir -p "$VOLUME_SOURCE" 2>/dev/null; then
       log_success "Directory created: $VOLUME_SOURCE"
     else
-      log_warn "Failed to create LOCAL_VAULT_PATH '$VOLUME_SOURCE', falling back to named volume"
+      log_warn "Failed to create host vault path '$VOLUME_SOURCE', falling back to named volume"
       VOLUME_SOURCE="vault"
     fi
   elif [[ ! -r "$VOLUME_SOURCE" ]]; then
     # Directory exists but not readable
-    log_warn "LOCAL_VAULT_PATH '$VOLUME_SOURCE' not readable, falling back to named volume"
+    log_warn "Host vault path '$VOLUME_SOURCE' not readable, falling back to named volume"
     VOLUME_SOURCE="vault"
   else
-    log_success "Using LOCAL_VAULT_PATH: $VOLUME_SOURCE"
+    log_success "Using host vault path: $VOLUME_SOURCE"
+    VOLUME_BIND_MODE="bind"
   fi
 fi
+
+log_info "Vault mount source: $VOLUME_SOURCE (mode: $VOLUME_BIND_MODE)"
 
 # User/group mapping
 CONTAINER_USER="${CONTAINER_USER:-$(id -u):$(id -g)}"
@@ -169,7 +185,7 @@ create_pod() {
 
 start_mcp_service() {
   log_info "Starting MCP service..."
-  
+
   # Prepare environment and volume flags
   local env_flags=()
   for env_file in "$PROJECT_ROOT/.env" "$PROJECT_ROOT/apps/mcp/.env"; do
@@ -182,12 +198,24 @@ start_mcp_service() {
   if [[ -n "$CONTAINER_USER" ]]; then
     user_flags=(--user "$CONTAINER_USER")
   fi
-  
+
+  # Remove existing container if present to avoid name collision
+  $RUNTIME rm -f "$MCP_CONTAINER" >/dev/null 2>&1 && log_info "Removed existing container $MCP_CONTAINER" || true
+
   # Run MCP container
+  local volume_flag="${VOLUME_FLAG_OVERRIDE:-}"
+  if [[ -z "$volume_flag" ]]; then
+    if [[ "$VOLUME_BIND_MODE" == "bind" ]]; then
+      volume_flag="-v"
+    else
+      volume_flag="--volume"
+    fi
+  fi
+
   $RUNTIME run -d \
     --name "$MCP_CONTAINER" \
     --pod "$POD_NAME" \
-    --volume "$VOLUME_SOURCE:/vault:Z" \
+    $volume_flag "$VOLUME_SOURCE:/vault:Z" \
     "${env_flags[@]}" \
     "${user_flags[@]}" \
     vault-mcp:latest || die "Failed to start MCP container"
@@ -197,7 +225,7 @@ start_mcp_service() {
 
 start_vault_service() {
   log_info "Starting Vault service..."
-  
+
   # Prepare environment and volume flags
   local env_flags=()
   for env_file in "$PROJECT_ROOT/.env" "$PROJECT_ROOT/apps/vaulty/.env"; do
@@ -210,12 +238,25 @@ start_vault_service() {
   if [[ -n "$CONTAINER_USER" ]]; then
     user_flags=(--user "$CONTAINER_USER")
   fi
-  
+
+  # Remove existing container if present to avoid name collision
+  $RUNTIME rm -f "$VAULT_CONTAINER" >/dev/null 2>&1 && log_info "Removed existing container $VAULT_CONTAINER" || true
+
+  # Volume flag based on bind/volume mode
+  local volume_flag="${VOLUME_FLAG_OVERRIDE:-}"
+  if [[ -z "$volume_flag" ]]; then
+    if [[ "$VOLUME_BIND_MODE" == "bind" ]]; then
+      volume_flag="-v"
+    else
+      volume_flag="--volume"
+    fi
+  fi
+
   # Run Vault container
   $RUNTIME run -d \
     --name "$VAULT_CONTAINER" \
     --pod "$POD_NAME" \
-    --volume "$VOLUME_SOURCE:/vault:Z" \
+    $volume_flag "$VOLUME_SOURCE:/vault:Z" \
     "${env_flags[@]}" \
     "${user_flags[@]}" \
     vault-vaulty:latest || die "Failed to start Vault container"
@@ -231,6 +272,19 @@ start_viewer_service() {
     return
   fi
 
+  # Remove existing container if present to avoid name collision
+  $RUNTIME rm -f "$VIEWER_CONTAINER" >/dev/null 2>&1 && log_info "Removed existing container $VIEWER_CONTAINER" || true
+
+  # Volume flag based on bind/volume mode
+  local volume_flag="${VOLUME_FLAG_OVERRIDE:-}"
+  if [[ -z "$volume_flag" ]]; then
+    if [[ "$VOLUME_BIND_MODE" == "bind" ]]; then
+      volume_flag="-v"
+    else
+      volume_flag="--volume"
+    fi
+  fi
+
   # Prepare environment flags (no user flag - nginx handles privileges internally)
   local env_flags=()
   for env_file in "$PROJECT_ROOT/.env" "$PROJECT_ROOT/apps/viewer/.env"; do
@@ -239,15 +293,21 @@ start_viewer_service() {
     fi
   done
 
+  # API URL exposed to frontend JS. Keep this empty to use relative /api via nginx proxy,
+  # unless explicitly overridden. This avoids CORS by sharing origin with the viewer.
+  local api_url="${TASKER_API_URL:-}"
+
   # Run Viewer container (nginx runs as root, drops privileges itself)
   $RUNTIME run -d \
     --name "$VIEWER_CONTAINER" \
     --pod "$POD_NAME" \
-    --volume "$VOLUME_SOURCE:/vault:Z" \
+    $volume_flag "$VOLUME_SOURCE:/vault:Z" \
+    -e "TASKER_API_URL=$api_url" \
+    -e "API_PROXY_URL=$API_INTERNAL_URL" \
     "${env_flags[@]}" \
     vault-viewer:latest || die "Failed to start Viewer container"
 
-  log_success "Viewer service started: $VIEWER_CONTAINER"
+  log_success "Viewer service started: $VIEWER_CONTAINER (API: $api_url)"
 }
 
 start_api_service() {
@@ -256,6 +316,20 @@ start_api_service() {
   if [[ ! -d "$PROJECT_ROOT/apps/api" ]]; then
     log_warn "API app not found at apps/api (skipping)"
     return
+  fi
+
+  # Remove existing container if present to avoid name collision
+  # Remove existing container if present to avoid name collision
+  $RUNTIME rm -f "$API_CONTAINER" >/dev/null 2>&1 && log_info "Removed existing container $API_CONTAINER" || true
+
+  # Volume flag based on bind/volume mode
+  local volume_flag="${VOLUME_FLAG_OVERRIDE:-}"
+  if [[ -z "$volume_flag" ]]; then
+    if [[ "$VOLUME_BIND_MODE" == "bind" ]]; then
+      volume_flag="-v"
+    else
+      volume_flag="--volume"
+    fi
   fi
 
   # Prepare environment and volume flags
@@ -275,8 +349,9 @@ start_api_service() {
   $RUNTIME run -d \
     --name "$API_CONTAINER" \
     --pod "$POD_NAME" \
-    --volume "$VOLUME_SOURCE:/vault:Z" \
+    $volume_flag "$VOLUME_SOURCE:/vault:Z" \
     "${env_flags[@]}" \
+    -e "CORS_ORIGIN=$DEV_CORS_ORIGINS" \
     "${user_flags[@]}" \
     vault-api:latest || die "Failed to start API container"
 
@@ -289,6 +364,12 @@ start_proxy_service() {
   if [[ ! -d "$PROJECT_ROOT/apps/proxy" ]]; then
     log_warn "Proxy app not found at apps/proxy (skipping)"
     return
+  fi
+
+  # Remove existing container if present to avoid name collision
+  if $RUNTIME ps -a --format "{{.Names}}" | grep -q "^${PROXY_CONTAINER}\$"; then
+    log_warn "Container ${PROXY_CONTAINER} already exists; removing it first"
+    $RUNTIME rm -f "$PROXY_CONTAINER" >/dev/null 2>&1 && log_info "Removed existing container $PROXY_CONTAINER" || true
   fi
 
   # Run Proxy container
@@ -371,3 +452,11 @@ fi
 
 log_success "All services started successfully"
 log_info "Access the platform at http://localhost:$PROXY_PORT"
+
+# Inspect vault mounts inside containers that should have /vault
+for c in "$MCP_CONTAINER" "$VAULT_CONTAINER" "$API_CONTAINER" "$VIEWER_CONTAINER"; do
+  if $RUNTIME ps --format "{{.Names}}" | grep -q "^$c$"; then
+    log_info "Inspecting vault mount in $c (ls -la /vault | head)..."
+    $RUNTIME exec "$c" sh -c 'ls -la /vault | head' || log_warn "Unable to list /vault in $c"
+  fi
+done

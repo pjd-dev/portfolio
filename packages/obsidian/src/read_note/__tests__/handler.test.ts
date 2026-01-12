@@ -14,7 +14,7 @@ describe('read_note handler', () => {
 
     const result = await handler({ path: 'notes/test.md' }, deps);
 
-    expect(result.structuredContent.path).toBe('notes/test.md');
+    expect(result.structuredContent?.path).toBe('notes/test.md');
     expect(result.content[0]?.text).toContain('# notes/test.md');
     expect(result.content[0]?.text).toContain('Hello world');
   });

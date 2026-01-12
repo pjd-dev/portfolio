@@ -5,6 +5,8 @@ import {
   extractAuthorityConfig,
   type HardStopCheckResult,
   type CallerAuthority,
+  type CodProfile,
+  normalizeTaskState,
 } from '@vault/cod';
 
 type ValidationIssue = {
@@ -16,6 +18,7 @@ type ValidationIssue = {
 type ValidationResult = {
   state: string;
   issues: ValidationIssue[];
+  reason?: string;
 };
 
 type ContextTolerance = 'low' | 'med' | 'high';
@@ -111,7 +114,16 @@ export type PlanSessionDeps = {
       projectId?: string;
       tags?: string[];
       maxTasks?: number;
+      profile?: CodProfile;
     }) => Promise<PlanSessionResult>;
+  };
+  avatarService?: {
+    loadAvatarState: () => Promise<{
+      state?: {
+        profile?: { archetype?: string; title?: string; handle?: string };
+        flags?: Record<string, unknown>;
+      };
+    }>;
   };
   codValidator: {
     validateSession: (
@@ -123,9 +135,16 @@ export type PlanSessionDeps = {
         totalReward: number;
         focusCost: number;
       },
-      options?: { strict?: boolean }
+      options?: { strict?: boolean; profile?: CodProfile }
     ) => ValidationResult;
-    validateTask: (task: Partial<TaskState>) => ValidationResult;
+    validateTask: (
+      task: Partial<TaskState>,
+      context?: {
+        goalsMap?: Record<string, boolean>;
+        tasksMap?: Record<string, boolean | number | 'duplicate'>;
+      },
+      options?: { profile?: CodProfile }
+    ) => ValidationResult;
   };
 };
 
@@ -134,8 +153,9 @@ export async function handler(
   deps: PlanSessionDeps
 ): Promise<PlanSessionOutput> {
   try {
+    let profile: CodProfile = input.profile ?? 'basic';
     // HARD_STOP guardrail: prevent session planning during late-night window
-    const hardStopResult = checkHardStop();
+    const hardStopResult = checkHardStop(new Date(), {}, profile);
     if (hardStopResult.blocked && !input.overrideHardStop) {
       return {
         content: [
@@ -170,7 +190,7 @@ export async function handler(
         totalReward: 0,
         focusCost: input.maxFocusCost ?? 0,
       },
-      { strict: false }
+      { strict: false, profile }
     );
 
     if (sessionValidation.state === 'FAIL') {
@@ -204,16 +224,57 @@ export async function handler(
       };
     }
 
+    try {
+      if (!input.profile && deps.avatarService?.loadAvatarState) {
+        const avatar = await deps.avatarService.loadAvatarState();
+        const state = avatar?.state;
+        const archetype =
+          state?.profile?.archetype ||
+          state?.profile?.title ||
+          state?.profile?.handle;
+        const flags = state?.flags;
+        const hasAdhdFlag =
+          flags &&
+          Object.entries(flags).some(
+            ([k, v]) =>
+              k.toLowerCase().includes('adhd') &&
+              (v === true ||
+                (typeof v === 'string' && v.toLowerCase() === 'true'))
+          );
+        if (
+          (typeof archetype === 'string' &&
+            archetype.toLowerCase().includes('adhd')) ||
+          hasAdhdFlag
+        ) {
+          profile = 'adhd';
+        }
+      }
+    } catch {
+      // ignore avatar errors
+    }
+
     const result = await deps.sessionPlannerService.planSession({
       durationMinutes: input.durationMinutes,
       maxFocusCost: input.maxFocusCost,
       projectId: input.projectId,
       tags: input.tags,
       maxTasks: input.maxTasks,
+      profile,
     });
 
     if (result.session && result.session.tasks.length > 0) {
       const taskValidationErrors: string[] = [];
+      const taskIssues: Record<
+        string,
+        {
+          issues?: { code?: string; message?: string; fixHint?: string }[];
+          reason?: string;
+        }
+      > = {};
+      const tasksMap: Record<string, number> = {};
+      for (const t of result.session.tasks) {
+        tasksMap[t.taskId] = (tasksMap[t.taskId] || 0) + 1;
+      }
 
       for (const task of result.session.tasks) {
         const taskState: TaskState = {
@@ -223,12 +284,22 @@ export async function handler(
           priority: 5,
         };
 
-        const validation = deps.codValidator.validateTask(taskState);
+        const validation = deps.codValidator.validateTask(
+          normalizeTaskState(taskState),
+          { tasksMap },
+          {
+            profile,
+          }
+        );
 
         if (validation.state === 'FAIL') {
           taskValidationErrors.push(
             `Task ${task.taskId}: ${validation.issues.map((i) => i.code).join(', ')}`
           );
+          taskIssues[task.taskId] = {
+            issues: validation.issues,
+            reason: validation.reason,
+          };
         }
       }
 
@@ -238,6 +309,23 @@ export async function handler(
 
         for (const error of taskValidationErrors) {
           text += `- ${error}\n`;
+        }
+
+        if (Object.keys(taskIssues).length > 0) {
+          text += `\nDetails:\n`;
+          for (const [taskId, info] of Object.entries(taskIssues)) {
+            const line = info.reason ? `Reason: ${info.reason}` : '';
+            text += `- ${taskId}${line ? ` (${line})` : ''}\n`;
+            if (info.issues && info.issues.length > 0) {
+              for (const issue of info.issues) {
+                const code = issue.code ?? 'UNKNOWN';
+                const hint = issue.fixHint || issue.message || '';
+                text += `    - [${code}] ${issue.message || ''}`;
+                if (hint) text += ` — Fix: ${hint}`;
+                text += `\n`;
+              }
+            }
+          }
         }
 
         text += `\n**Action Required:**\n`;

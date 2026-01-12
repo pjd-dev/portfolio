@@ -21,6 +21,9 @@ describe('CODValidator.validateTask', () => {
         title: 'Test Task',
         status: 'todo',
         priority: 5,
+        goal: 'goal-1',
+        focusCost: 3,
+        estimatedTimeMin: 15,
       });
 
       expect(result.state).toBe('FAIL');
@@ -33,6 +36,9 @@ describe('CODValidator.validateTask', () => {
         id: 'task-001',
         status: 'todo',
         priority: 5,
+        goal: 'goal-1',
+        focusCost: 3,
+        estimatedTimeMin: 15,
       });
 
       expect(result.state).toBe('FAIL');
@@ -44,6 +50,9 @@ describe('CODValidator.validateTask', () => {
         id: 'task-001',
         title: 'Test Task',
         priority: 5,
+        goal: 'goal-1',
+        focusCost: 3,
+        estimatedTimeMin: 15,
       });
 
       expect(result.state).toBe('FAIL');
@@ -56,6 +65,9 @@ describe('CODValidator.validateTask', () => {
         title: 'Test Task',
         status: 'todo',
         priority: 5,
+        goal: 'goal-1',
+        focusCost: 3,
+        estimatedTimeMin: 15,
       });
 
       expect(result.state).toBe('PASS');
@@ -70,6 +82,9 @@ describe('CODValidator.validateTask', () => {
         title: 'Test',
         status: 'invalid-status' as any,
         priority: 5,
+        goal: 'goal-1',
+        focusCost: 3,
+        estimatedTimeMin: 15,
       });
 
       expect(result.state).toBe('FAIL');
@@ -94,6 +109,9 @@ describe('CODValidator.validateTask', () => {
           title: 'Test',
           status: status as any,
           priority: 5,
+          goal: 'goal-1',
+          focusCost: 3,
+          estimatedTimeMin: 15,
         });
         expect(result.state).toBe('PASS', `Status ${status} should be valid`);
       }
@@ -133,12 +151,35 @@ describe('CODValidator.validateTask', () => {
           title: 'Test',
           status: 'todo',
           priority,
+          goal: 'goal-1',
+          focusCost: 3,
+          estimatedTimeMin: 10,
         });
         expect(result.state).toBe(
           'PASS',
           `Priority ${priority} should be valid`
         );
       }
+    });
+  });
+
+  describe('RULE 3b: Focus cost bounds', () => {
+    it('should FAIL when focusCost > 10', () => {
+      const result = CODValidator.validateTask({
+        id: 'task-001',
+        title: 'Test',
+        status: 'todo',
+        priority: 5,
+        focusCost: 11,
+      });
+
+      expect(result.state).toBe('FAIL');
+      expect(
+        result.issues.some(
+          (i) => i.field === 'focusCost' && i.code === 'VALUE_OUT_OF_BOUNDS'
+        )
+      ).toBe(true);
+      expect(result.reason).toMatch(/focus cost/i);
     });
   });
 
@@ -150,6 +191,8 @@ describe('CODValidator.validateTask', () => {
           title: 'Test',
           status: 'todo',
           priority: 5,
+          focusCost: 3,
+          estimatedTimeMin: 10,
           goal: 'non-existent-goal',
         },
         {
@@ -166,6 +209,24 @@ describe('CODValidator.validateTask', () => {
       ).toBe(true);
     });
 
+    it('should FAIL when goal is missing', () => {
+      const result = CODValidator.validateTask({
+        id: 'task-001',
+        title: 'Test',
+        status: 'todo',
+        priority: 5,
+        focusCost: 3,
+        estimatedTimeMin: 10,
+      });
+
+      expect(result.state).toBe('FAIL');
+      expect(
+        result.issues.some(
+          (i) => i.code === 'MISSING_REQUIRED_FIELD' && i.field === 'goal'
+        )
+      ).toBe(true);
+    });
+
     it('should PASS when goal exists in goalsMap', () => {
       const result = CODValidator.validateTask(
         {
@@ -174,6 +235,8 @@ describe('CODValidator.validateTask', () => {
           status: 'todo',
           priority: 5,
           goal: 'goal-001',
+          focusCost: 3,
+          estimatedTimeMin: 10,
         },
         {
           goalsMap: {
@@ -184,28 +247,85 @@ describe('CODValidator.validateTask', () => {
 
       expect(result.state).toBe('PASS');
     });
+  });
 
-    it('should PASS when goal is null', () => {
-      const result = CODValidator.validateTask({
-        id: 'task-001',
-        title: 'Test',
-        status: 'todo',
-        priority: 5,
-        goal: null,
-      });
+  describe('RULE 5a: Dependency membership + duplicate ids', () => {
+    it('should FAIL when dependsOn references missing task', () => {
+      const result = CODValidator.validateTask(
+        {
+          id: 'task-001',
+          title: 'Test',
+          status: 'todo',
+          priority: 5,
+          dependsOn: ['missing'],
+          goal: 'goal-1',
+          focusCost: 3,
+          estimatedTimeMin: 10,
+        },
+        {
+          tasksMap: { existing: true },
+        }
+      );
 
-      expect(result.state).toBe('PASS');
+      expect(result.state).toBe('FAIL');
+      expect(
+        result.issues.some(
+          (i) => i.code === 'MISSING_DEPENDENCY' && i.value === 'missing'
+        )
+      ).toBe(true);
     });
 
-    it('should PASS when goal is undefined', () => {
-      const result = CODValidator.validateTask({
-        id: 'task-001',
-        title: 'Test',
-        status: 'todo',
-        priority: 5,
-      });
+    it('should FAIL when duplicate id detected via tasksMap count', () => {
+      const result = CODValidator.validateTask(
+        {
+          id: 'dup-task',
+          title: 'Test',
+          status: 'todo',
+          priority: 5,
+          goal: 'goal-1',
+          focusCost: 3,
+          estimatedTimeMin: 10,
+        },
+        {
+          tasksMap: { 'dup-task': 2 },
+        }
+      );
 
-      expect(result.state).toBe('PASS');
+      expect(result.state).toBe('FAIL');
+      expect(result.issues.some((i) => i.code === 'DUPLICATE_ID')).toBe(true);
+    });
+  });
+
+  describe('Batch validation (FAST)', () => {
+    it('should flag duplicates via batch helper', () => {
+      const batch = CODValidator.validateTasksBatch([
+        { id: 'dup', title: 'One', status: 'todo' },
+        { id: 'dup', title: 'Two', status: 'todo' },
+      ]);
+
+      const dup = batch.find((r) => r.taskId === 'dup');
+      expect(dup?.state).toBe('FAIL');
+      expect(dup?.issues.some((i) => i.code === 'DUPLICATE_ID')).toBe(true);
+    });
+
+    it('should include fixHint compatibility on issues', () => {
+      const [result] = CODValidator.validateTasksBatch(
+        [
+          {
+            id: 'bad',
+            title: '',
+            status: 'todo',
+            goal: 'goal-1',
+            focusCost: 3,
+            estimatedTimeMin: 10,
+          },
+        ],
+        undefined,
+        {}
+      );
+
+      expect(result.state).toBe('FAIL');
+      expect(result.issues.some((i) => i.fixHint)).toBe(true);
     });
   });
 
@@ -217,6 +337,9 @@ describe('CODValidator.validateTask', () => {
         status: 'todo',
         priority: 5,
         dependsOn: ['task-001'],
+        goal: 'goal-1',
+        focusCost: 3,
+        estimatedTimeMin: 10,
       });
 
       expect(result.state).toBe('FAIL');
@@ -232,6 +355,9 @@ describe('CODValidator.validateTask', () => {
         status: 'todo',
         priority: 5,
         dependsOn: ['task-002', 'task-003'],
+        goal: 'goal-1',
+        focusCost: 3,
+        estimatedTimeMin: 10,
       });
 
       expect(result.state).toBe('PASS');
@@ -246,6 +372,9 @@ describe('CODValidator.validateTask', () => {
         status: 'todo',
         priority: 5,
         blockedBy: ['task-001'],
+        goal: 'goal-1',
+        focusCost: 3,
+        estimatedTimeMin: 10,
       });
 
       expect(result.state).toBe('FAIL');
@@ -261,6 +390,9 @@ describe('CODValidator.validateTask', () => {
         status: 'todo',
         priority: 5,
         blockedBy: ['blocker-001'],
+        goal: 'goal-1',
+        focusCost: 3,
+        estimatedTimeMin: 10,
       });
 
       expect(result.state).toBe('PASS');
@@ -275,6 +407,9 @@ describe('CODValidator.validateTask', () => {
         status: 'todo',
         priority: 5,
         dependsOn: ['t1', 't2', 't3', 't4', 't5', 't6'],
+        goal: 'goal-1',
+        focusCost: 3,
+        estimatedTimeMin: 10,
       });
 
       expect(result.state).toBe('WARN');
@@ -288,12 +423,16 @@ describe('CODValidator.validateTask', () => {
         status: 'blocked',
         priority: 5,
         blockedBy: [],
+        goal: 'goal-1',
+        focusCost: 3,
+        estimatedTimeMin: 10,
       });
 
       expect(result.state).toBe('WARN');
       expect(
         result.issues.some((i) => i.code === 'INVALID_STATUS_TRANSITION')
       ).toBe(true);
+      expect(result.warnings?.length).toBeGreaterThan(0);
     });
   });
 
@@ -321,6 +460,9 @@ describe('CODValidator.validateTask', () => {
         status: 'blocked',
         priority: 5,
         blockedBy: [],
+        goal: 'goal-1',
+        focusCost: 3,
+        estimatedTimeMin: 10,
       };
 
       const normalResult = CODValidator.validateTask(task, {}, {});
@@ -368,14 +510,17 @@ describe('CODValidator.validateSession', () => {
     });
 
     it('should PASS when duration is positive', () => {
-      const result = CODValidator.validateSession({
-        id: 'session-001',
-        duration: 500,
-        taskIds: ['task-001'],
-        totalEffort: 5,
-        totalReward: 10,
-        focusCost: 3,
-      });
+      const result = CODValidator.validateSession(
+        {
+          id: 'session-001',
+          duration: 500,
+          taskIds: ['task-001'],
+          totalEffort: 5,
+          totalReward: 10,
+          focusCost: 3,
+        },
+        { skipHardStop: true }
+      );
 
       expect(result.state).toBe('PASS');
     });
@@ -397,14 +542,17 @@ describe('CODValidator.validateSession', () => {
     });
 
     it('should PASS when session has tasks', () => {
-      const result = CODValidator.validateSession({
-        id: 'session-001',
-        duration: 500,
-        taskIds: ['task-001', 'task-002'],
-        totalEffort: 5,
-        totalReward: 10,
-        focusCost: 3,
-      });
+      const result = CODValidator.validateSession(
+        {
+          id: 'session-001',
+          duration: 500,
+          taskIds: ['task-001', 'task-002'],
+          totalEffort: 5,
+          totalReward: 10,
+          focusCost: 3,
+        },
+        { skipHardStop: true }
+      );
 
       expect(result.state).toBe('PASS');
     });
@@ -429,14 +577,17 @@ describe('CODValidator.validateSession', () => {
     });
 
     it('should PASS when work fits in duration', () => {
-      const result = CODValidator.validateSession({
-        id: 'session-001',
-        duration: 120, // 2 hours
-        taskIds: ['task-001'],
-        totalEffort: 2, // 2 * 30 = 60 min
-        totalReward: 10,
-        focusCost: 2, // 2 * 10 = 20 min
-      });
+      const result = CODValidator.validateSession(
+        {
+          id: 'session-001',
+          duration: 120, // 2 hours
+          taskIds: ['task-001'],
+          totalEffort: 2, // 2 * 30 = 60 min
+          totalReward: 10,
+          focusCost: 2, // 2 * 10 = 20 min
+        },
+        { skipHardStop: true }
+      );
 
       // (60 + 20) * 1.2 buffer = 96 min, fits in 120
       expect(result.state).toBe('PASS');

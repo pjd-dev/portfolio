@@ -378,9 +378,10 @@ describe('Markov Chains', () => {
       expect(sunnyPred?.probability).toBeCloseTo(2 / 3);
     });
 
-    it('should throw for unknown state', () => {
+    it('should return empty array for unknown state', () => {
       const chain = createMarkovChain([{ from: 'A', to: 'B' }]);
-      expect(() => predictNextState(chain, 'Z')).toThrow('State "Z" not found');
+      const predictions = predictNextState(chain, 'Z');
+      expect(predictions).toEqual([]);
     });
   });
 

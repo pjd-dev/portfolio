@@ -1,0 +1,407 @@
+openapi: 3.0.3
+info:
+  title: Vault API
+  version: 1.0.0
+  description: REST API exposing vault handlers and MCP tools without an LLM.
+servers:
+  - url: http://localhost:4200/api/v1
+    description: Local development
+paths:
+  /health:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: Service is healthy
+  /health/detailed:
+    get:
+      summary: Detailed health (uptime, memory)
+      responses:
+        '200':
+          description: Detailed health payload
+
+  /tools:
+    get:
+      summary: List registered tools
+      responses:
+        '200':
+          description: Tool list
+  /tools/{name}:
+    get:
+      summary: Get tool schema
+      parameters:
+        - in: path
+          name: name
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Tool metadata
+        '404':
+          description: Tool not found
+  /tools/{name}/execute:
+    post:
+      summary: Execute a tool
+      parameters:
+        - in: path
+          name: name
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Tool result
+        '404':
+          description: Tool not found
+
+  /notes:
+    get:
+      summary: List notes
+      parameters:
+        - in: query
+          name: pattern
+          schema:
+            type: string
+            example: "**/*.md"
+      responses:
+        '200':
+          description: List of notes
+  /notes/search:
+    get:
+      summary: Search notes
+      parameters:
+        - in: query
+          name: query
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: pattern
+          schema:
+            type: string
+            example: "**/*.md"
+      responses:
+        '200':
+          description: Search results
+  /notes/{path}:
+    get:
+      summary: Read note
+      parameters:
+        - in: path
+          name: path
+          required: true
+          schema:
+            type: string
+          description: URL-encoded relative path (e.g. tasks%2Fsample.md)
+      responses:
+        '200':
+          description: Note content and frontmatter
+        '404':
+          description: Not found
+  /notes/{path}/frontmatter:
+    get:
+      summary: Get note frontmatter
+      parameters:
+        - in: path
+          name: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Frontmatter only
+
+  /tasks:
+    get:
+      summary: List tasks
+      parameters:
+        - in: query
+          name: status
+          schema: { type: string, example: todo }
+        - in: query
+          name: limit
+          schema: { type: integer, example: 20 }
+        - in: query
+          name: sortBy
+          schema: { type: string, example: priority }
+        - in: query
+          name: sortOrder
+          schema: { type: string, example: desc }
+      responses:
+        '200':
+          description: Task list
+  /tasks/find:
+    post:
+      summary: Find tasks with filters
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Mirrors obsidian_find_tasks tool filters
+      responses:
+        '200':
+          description: Filtered tasks
+  /tasks/{path}:
+    get:
+      summary: Get a task
+      parameters:
+        - in: path
+          name: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Task detail
+  /tasks/{path}/metrics:
+    get:
+      summary: Get task metrics (stub)
+      parameters:
+        - in: path
+          name: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Metrics payload
+  /tasks/{path}/history:
+    get:
+      summary: Get task history (stub)
+      parameters:
+        - in: path
+          name: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: History entries
+  /tasks/next-actions:
+    get:
+      summary: COD next actions
+      parameters:
+        - in: query
+          name: max
+          schema: { type: integer, example: 10 }
+        - in: query
+          name: maxEffort
+          schema: { type: integer }
+        - in: query
+          name: maxFocusCost
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Ranked next actions
+
+  /graph/search:
+    get:
+      summary: Graph-aware search
+      parameters:
+        - in: query
+          name: query
+          required: true
+          schema: { type: string }
+        - in: query
+          name: limit
+          schema: { type: integer, example: 20 }
+      responses:
+        '200':
+          description: Search results
+  /graph/stats:
+    get:
+      summary: Knowledge graph stats
+      responses:
+        '200':
+          description: Graph statistics
+  /graph/related/{path}:
+    get:
+      summary: Related notes
+      parameters:
+        - in: path
+          name: path
+          required: true
+          schema: { type: string }
+        - in: query
+          name: limit
+          schema: { type: integer, example: 10 }
+      responses:
+        '200':
+          description: Related notes
+
+  /sessions:
+    get:
+      summary: List sessions
+      responses:
+        '200':
+          description: Session list
+  /sessions/{id}:
+    get:
+      summary: Get session
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Session detail
+  /sessions/stats:
+    get:
+      summary: Session stats
+      responses:
+        '200':
+          description: Stats payload
+
+  /cod/status:
+    get:
+      summary: Combined COD status (human state + active session)
+      responses:
+        '200':
+          description: COD status
+  /cod/avatar:
+    get:
+      summary: Get avatar state
+      responses:
+        '200':
+          description: Avatar state
+    patch:
+      summary: Patch avatar state
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                patch:
+                  type: object
+      responses:
+        '200':
+          description: Updated avatar
+  /cod/world:
+    get:
+      summary: Get world state
+      responses:
+        '200':
+          description: World state
+    patch:
+      summary: Patch world state
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                patch:
+                  type: object
+      responses:
+        '200':
+          description: Updated world
+  /cod/hard-stop:
+    get:
+      summary: HARD_STOP status
+      responses:
+        '200':
+          description: Status payload
+  /cod/decision-loop:
+    get:
+      summary: Decision loop state
+      responses:
+        '200':
+          description: Decision loop info
+  /cod/decision-loop/transition:
+    post:
+      summary: Transition decision loop
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                transition:
+                  type: string
+                reason:
+                  type: string
+      responses:
+        '200':
+          description: Transition result
+  /cod/productivity:
+    get:
+      summary: Productivity patterns
+      responses:
+        '200':
+          description: Patterns payload
+  /cod/productivity/peak-hours:
+    get:
+      summary: Peak productivity hours
+      responses:
+        '200':
+          description: Peak hours payload
+  /scheduler/status:
+    get:
+      summary: Scheduler status
+      description: Returns scheduler enablement, allowlist, jobs, and last run info.
+      responses:
+        '200':
+          description: Scheduler status payload
+  /cod/human-state:
+    post:
+      summary: Record human state
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                energy: { type: number }
+                focusCapacity: { type: string, enum: [low, med, high] }
+                stress: { type: number }
+                sleepHours: { type: number }
+                timeAvailableMin: { type: number }
+                source: { type: string, enum: [morning-check, moment-check, manual] }
+      responses:
+        '200':
+          description: Logged state
+  /cod/session/start:
+    post:
+      summary: Start a session
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                taskIds:
+                  type: array
+                  items: { type: string }
+                budgetMin:
+                  type: number
+      responses:
+        '200':
+          description: Session started
+  /cod/session/end:
+    post:
+      summary: End a session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sessionId: { type: string }
+                status: { type: string, enum: [completed, aborted] }
+      responses:
+        '200':
+          description: Session ended
