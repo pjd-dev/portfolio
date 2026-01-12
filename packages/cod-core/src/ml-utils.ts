@@ -174,6 +174,9 @@ export interface LogisticRegressionResult {
 }
 
 function sigmoid(z: number): number {
+  // Clamp to avoid overflow in Math.exp()
+  if (z > 500) return 1;
+  if (z < -500) return 0;
   return 1 / (1 + Math.exp(-z));
 }
 
@@ -288,7 +291,8 @@ export function predictNextState(
 ): { state: string; probability: number }[] {
   const stateIndex = chain.states.indexOf(currentState);
   if (stateIndex === -1) {
-    throw new Error(`State "${currentState}" not found in Markov chain`);
+    // Unknown state - return empty predictions instead of throwing
+    return [];
   }
 
   const probabilities = chain.transitionMatrix[stateIndex];

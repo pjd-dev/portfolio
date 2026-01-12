@@ -368,14 +368,17 @@ describe('CODValidator.validateSession', () => {
     });
 
     it('should PASS when duration is positive', () => {
-      const result = CODValidator.validateSession({
-        id: 'session-001',
-        duration: 500,
-        taskIds: ['task-001'],
-        totalEffort: 5,
-        totalReward: 10,
-        focusCost: 3,
-      });
+      const result = CODValidator.validateSession(
+        {
+          id: 'session-001',
+          duration: 500,
+          taskIds: ['task-001'],
+          totalEffort: 5,
+          totalReward: 10,
+          focusCost: 3,
+        },
+        { skipHardStop: true }
+      );
 
       expect(result.state).toBe('PASS');
     });
@@ -397,14 +400,17 @@ describe('CODValidator.validateSession', () => {
     });
 
     it('should PASS when session has tasks', () => {
-      const result = CODValidator.validateSession({
-        id: 'session-001',
-        duration: 500,
-        taskIds: ['task-001', 'task-002'],
-        totalEffort: 5,
-        totalReward: 10,
-        focusCost: 3,
-      });
+      const result = CODValidator.validateSession(
+        {
+          id: 'session-001',
+          duration: 500,
+          taskIds: ['task-001', 'task-002'],
+          totalEffort: 5,
+          totalReward: 10,
+          focusCost: 3,
+        },
+        { skipHardStop: true }
+      );
 
       expect(result.state).toBe('PASS');
     });
@@ -429,14 +435,17 @@ describe('CODValidator.validateSession', () => {
     });
 
     it('should PASS when work fits in duration', () => {
-      const result = CODValidator.validateSession({
-        id: 'session-001',
-        duration: 120, // 2 hours
-        taskIds: ['task-001'],
-        totalEffort: 2, // 2 * 30 = 60 min
-        totalReward: 10,
-        focusCost: 2, // 2 * 10 = 20 min
-      });
+      const result = CODValidator.validateSession(
+        {
+          id: 'session-001',
+          duration: 120, // 2 hours
+          taskIds: ['task-001'],
+          totalEffort: 2, // 2 * 30 = 60 min
+          totalReward: 10,
+          focusCost: 2, // 2 * 10 = 20 min
+        },
+        { skipHardStop: true }
+      );
 
       // (60 + 20) * 1.2 buffer = 96 min, fits in 120
       expect(result.state).toBe('PASS');

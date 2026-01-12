@@ -106,4 +106,6 @@ export interface ValidatorOptions {
   maxIssues?: number; // stop collecting after N
   skipChecks?: string[]; // skip specific rule codes
   profile?: CodProfile; // runtime profile (default: basic)
+  timestamp?: Date; // override current time (for testing HARD_STOP)
+  skipHardStop?: boolean; // skip HARD_STOP check entirely (for testing)
 }

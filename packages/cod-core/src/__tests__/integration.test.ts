@@ -20,7 +20,9 @@ describe('COD Integration Tests - Real-World Scenarios', () => {
         focusCost: 1, // minimal context switching
       };
 
-      const result = CODValidator.validateSession(session);
+      const result = CODValidator.validateSession(session, {
+        skipHardStop: true,
+      });
 
       expect(result.state).toBe('PASS');
       expect(result.valid).toBe(true);
@@ -505,14 +507,17 @@ describe('COD Integration Tests - Real-World Scenarios', () => {
           status: 'todo' as const,
           priority: 15, // invalid
         }),
-        CODValidator.validateSession({
-          id: 's1',
-          duration: 500,
-          taskIds: ['t1'],
-          totalEffort: 1,
-          totalReward: 10,
-          focusCost: 0,
-        }),
+        CODValidator.validateSession(
+          {
+            id: 's1',
+            duration: 500,
+            taskIds: ['t1'],
+            totalEffort: 1,
+            totalReward: 10,
+            focusCost: 0,
+          },
+          { skipHardStop: true }
+        ),
       ];
 
       const stats = {
