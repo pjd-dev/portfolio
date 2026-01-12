@@ -116,6 +116,14 @@ export type PlanSessionDeps = {
       profile?: CodProfile;
     }) => Promise<PlanSessionResult>;
   };
+  avatarService?: {
+    loadAvatarState: () => Promise<{
+      state?: {
+        profile?: { archetype?: string; title?: string; handle?: string };
+        flags?: Record<string, unknown>;
+      };
+    }>;
+  };
   codValidator: {
     validateSession: (
       session: {
@@ -144,7 +152,7 @@ export async function handler(
   deps: PlanSessionDeps
 ): Promise<PlanSessionOutput> {
   try {
-    const profile: CodProfile = input.profile ?? 'basic';
+    let profile: CodProfile = input.profile ?? 'basic';
     // HARD_STOP guardrail: prevent session planning during late-night window
     const hardStopResult = checkHardStop(new Date(), {}, profile);
     if (hardStopResult.blocked && !input.overrideHardStop) {
@@ -213,6 +221,35 @@ export async function handler(
           issues: sessionValidation.issues,
         },
       };
+    }
+
+    try {
+      if (!input.profile && deps.avatarService?.loadAvatarState) {
+        const avatar = await deps.avatarService.loadAvatarState();
+        const state = avatar?.state;
+        const archetype =
+          state?.profile?.archetype ||
+          state?.profile?.title ||
+          state?.profile?.handle;
+        const flags = state?.flags;
+        const hasAdhdFlag =
+          flags &&
+          Object.entries(flags).some(
+            ([k, v]) =>
+              k.toLowerCase().includes('adhd') &&
+              (v === true ||
+                (typeof v === 'string' && v.toLowerCase() === 'true'))
+          );
+        if (
+          (typeof archetype === 'string' &&
+            archetype.toLowerCase().includes('adhd')) ||
+          hasAdhdFlag
+        ) {
+          profile = 'adhd';
+        }
+      }
+    } catch {
+      // ignore avatar errors
     }
 
     const result = await deps.sessionPlannerService.planSession({

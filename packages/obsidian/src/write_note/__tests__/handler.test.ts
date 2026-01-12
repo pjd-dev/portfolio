@@ -38,6 +38,7 @@ describe('write_note handler', () => {
       {
         path: 'notes/write.md',
         content: 'Hello',
+        frontmatter: {},
       },
       { writeNote, writeNoteText, gitCommitAndPush }
     );
@@ -54,7 +55,7 @@ describe('write_note handler', () => {
     const base64 = Buffer.from(raw, 'utf8').toString('base64');
 
     const result = await handler(
-      { path: 'notes/base64.md', base64 },
+      { path: 'notes/base64.md', base64, frontmatter: {} },
       { writeNote, writeNoteText, gitCommitAndPush }
     );
 
@@ -68,7 +69,7 @@ describe('write_note handler', () => {
     const gitCommitAndPush = vi.fn().mockResolvedValue(undefined);
 
     const result = await handler(
-      { path: 'notes/base64.md', base64: 'Zm9v' },
+      { path: 'notes/base64.md', base64: 'Zm9v', frontmatter: {} },
       { writeNote, writeNoteText, gitCommitAndPush }
     );
 

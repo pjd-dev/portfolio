@@ -58,6 +58,8 @@ const rankedTaskSchema = z.object({
   scoreBreakdown: z.unknown().optional(),
 });
 
+const rescueTaskSchema = taskNodeSchema;
+
 const goalContextSchema = z.object({
   source: z.string(),
   count: z.number(),
@@ -100,6 +102,7 @@ export const outputSchema = z.object({
   total: z.number(),
   goalContext: goalContextSchema,
   humanState: humanStateSchema,
+  rescueActions: z.array(rescueTaskSchema).optional(),
 });
 
 type ToolContent = { type: 'text'; text: string };

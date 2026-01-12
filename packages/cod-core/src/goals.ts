@@ -58,6 +58,30 @@ export type GoalScoreBreakdown = {
   timeDueInDays?: number;
   timeScheduledInDays?: number;
   timeTarget?: 'dueDate' | 'nextRun';
+  // Compounding extensions (optional)
+  compoundScore?: number;
+  compoundBreakdown?: {
+    leverage?: number;
+    habit?: number;
+    automation?: number;
+    momentum?: number;
+  };
+  compoundReasons?: string[];
+  // ADHD/dopamine extensions (optional)
+  adhdStartability?: number;
+  adhdPayoff?: number;
+  adhdDopamineROI?: number;
+  adhdBreakdown?: {
+    startability?: number;
+    payoff?: number;
+    clarity?: number;
+    friction?: number;
+    dread?: number;
+    risk?: number;
+    novelty?: number;
+    reward?: number;
+  };
+  adhdReasons?: string[];
 };
 
 const DEFAULT_WEIGHT = 0.5;

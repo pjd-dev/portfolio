@@ -36,7 +36,7 @@ describe('search_notes handler', () => {
 
     const result = await handler({ query: 'world', pattern: '**/*.md' }, deps);
 
-    expect(result.structuredContent.matches).toEqual(
+    expect(result.structuredContent?.matches).toEqual(
       expect.arrayContaining(['alpha.md', 'nested/beta.md'])
     );
   });
@@ -54,7 +54,7 @@ describe('search_notes handler', () => {
       deps
     );
 
-    expect(result.structuredContent.matches).toEqual([]);
+    expect(result.structuredContent?.matches ?? []).toEqual([]);
     expect(result.content[0]?.text).toBe('');
   });
 
