@@ -22,7 +22,9 @@ const parseArgs = (argv) => {
   // Default API_BASE: check env, then try container DNS, then localhost
   const defaultApiBase =
     process.env.API_BASE ||
-    (process.env.CONTAINER_ENV ? 'http://api-server:4300' : 'http://localhost:4300');
+    (process.env.CONTAINER_ENV
+      ? 'http://api-server:4300'
+      : 'http://localhost:4300');
 
   const args = {
     apiBase: defaultApiBase,
