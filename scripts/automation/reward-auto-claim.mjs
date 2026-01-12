@@ -19,8 +19,13 @@ import path from 'node:path';
 const DEFAULT_EFFECTS_PATH = path.resolve('config/reward-effects.json');
 
 const parseArgs = (argv) => {
+  // Default API_BASE: check env, then try container DNS, then localhost
+  const defaultApiBase =
+    process.env.API_BASE ||
+    (process.env.CONTAINER_ENV ? 'http://api-server:4300' : 'http://localhost:4300');
+
   const args = {
-    apiBase: process.env.API_BASE || 'http://localhost:4200',
+    apiBase: defaultApiBase,
     effectsPath: DEFAULT_EFFECTS_PATH,
     dryRun: false,
     tasks: [],
@@ -94,42 +99,57 @@ const claimReward = async ({
   }
 
   // Log history on the task
-  await postTool(apiBase, 'obsidian_append_note', {
-    path: taskPath,
-    content: `\n- 🎁 Claimed reward ${reward.id || reward.content} (milestone ${reward.milestone ?? 'n/a'}%)`,
-  }, headers);
+  await postTool(
+    apiBase,
+    'obsidian_append_note',
+    {
+      path: taskPath,
+      content: `\n- 🎁 Claimed reward ${reward.id || reward.content} (milestone ${reward.milestone ?? 'n/a'}%)`,
+    },
+    headers
+  );
 
   // Apply avatar patch
   if (effect.avatarPatch && Object.keys(effect.avatarPatch).length) {
-    await postTool(apiBase, 'obsidian_update_avatar_state', {
-      patch: effect.avatarPatch,
-    }, headers);
+    await postTool(
+      apiBase,
+      'obsidian_update_avatar_state',
+      {
+        patch: effect.avatarPatch,
+      },
+      headers
+    );
   }
 
   // Apply world patch
   if (effect.worldPatch && Object.keys(effect.worldPatch).length) {
-    await postTool(apiBase, 'obsidian_update_world_state', {
-      patch: effect.worldPatch,
-    }, headers);
+    await postTool(
+      apiBase,
+      'obsidian_update_world_state',
+      {
+        patch: effect.worldPatch,
+      },
+      headers
+    );
   }
 
   console.log(lines.join('\n'));
 };
 
 const alreadyClaimed = (history = [], rewardId) =>
-  history.some((entry) => entry.note && entry.note.includes(`Claimed reward ${rewardId}`));
+  history.some(
+    (entry) => entry.note && entry.note.includes(`Claimed reward ${rewardId}`)
+  );
 
 const fetchAllTasks = async (apiBase, headers = {}) => {
-  const res = await fetch(`${apiBase}/api/v1/tasks`, {
-    method: 'GET',
-    headers: defaultHeaders(headers),
-  });
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`GET /api/v1/tasks failed: ${res.status} ${text}`);
-  }
-  const body = await res.json();
-  const tasks = body?.structuredContent?.tasks || body?.tasks || [];
+  // Use obsidian_find_tasks tool (same pattern as viewer app)
+  const result = await postTool(
+    apiBase,
+    'obsidian_find_tasks',
+    { status: 'in-progress' }, // Only check tasks that are in progress
+    headers
+  );
+  const tasks = result?.structuredContent?.tasks || result?.tasks || [];
   return tasks.map((t) => t.path).filter(Boolean);
 };
 
