@@ -108,4 +108,5 @@ export interface ValidatorOptions {
   profile?: CodProfile; // runtime profile (default: basic)
   timestamp?: Date; // override current time (for testing HARD_STOP)
   skipHardStop?: boolean; // skip HARD_STOP check entirely (for testing)
+  hardStopConfig?: { allowOverride?: boolean }; // HARD_STOP configuration
 }

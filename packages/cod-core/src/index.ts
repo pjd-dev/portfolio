@@ -116,3 +116,14 @@ export * from './feedback-loop.js';
 export * from './goals.js';
 export * from './human-state.js';
 export * from './time-sensitivity.js';
+
+// Export profile tuning (for heuristics that don't affect validation)
+export {
+  getProfileTuning,
+  BASIC_PROFILE_TUNING,
+  ADHD_PROFILE_TUNING,
+  type ProfileTuning,
+} from './profile.js';
+
+// Export guardrails (protected paths, event system)
+export * from './guardrails/index.js';

@@ -306,7 +306,11 @@ export class CODValidator {
     // Can be skipped via options.skipHardStop or overridden via options.timestamp
     if (!options.skipHardStop) {
       const checkTime = options.timestamp ?? new Date();
-      const hardStopResult = checkHardStop(checkTime, {}, profile);
+      const hardStopResult = checkHardStop(
+        checkTime,
+        options.hardStopConfig ?? {},
+        profile
+      );
       const hardStopBlocker = toValidationBlocker(hardStopResult);
       if (hardStopBlocker) {
         issues.push({
