@@ -177,4 +177,84 @@ describe('task_next_actions handler', () => {
     const result = inputSchema.safeParse({ recurringMode: 'sometimes' });
     expect(result.success).toBe(false);
   });
+
+  it('blocks actions if workload threshold exceeded', async () => {
+    const deps: TaskNextActionsDeps = {
+      ...baseDeps,
+      taskGraphService: {
+        getNextActions: async () => [
+          {
+            task: {
+              id: 't1',
+              title: 'Task 1',
+              status: 'todo',
+              path: 'tasks/t1.md',
+            },
+            blocked: false,
+            unmetDependencies: [],
+            score: 2,
+          },
+        ],
+      },
+      codValidator: {
+        validateTask: () => ({ state: 'PASS', issues: [] }),
+      },
+      avatarWorkloadService: {
+        checkWorkloadGating: async () => ({
+          blocked: true,
+          reason: 'Workload limit exceeded: 25 events today',
+          workloadToday: 25,
+          threshold: 20,
+          date: new Date().toISOString().slice(0, 10),
+        }),
+        getAvatarFreshness: async () => ({
+          stale: false,
+        }),
+      },
+    };
+
+    const result = await handler({}, deps);
+    expect(result.structuredContent?.unblocked).toHaveLength(0);
+    expect(result.content[0]?.text).toContain('Workload Limit Reached');
+    expect(result.content[0]?.text).toContain('25 events');
+  });
+
+  it('allows actions when workload below threshold', async () => {
+    const deps: TaskNextActionsDeps = {
+      ...baseDeps,
+      taskGraphService: {
+        getNextActions: async () => [
+          {
+            task: {
+              id: 't1',
+              title: 'Task 1',
+              status: 'todo',
+              path: 'tasks/t1.md',
+            },
+            blocked: false,
+            unmetDependencies: [],
+            score: 2,
+          },
+        ],
+      },
+      codValidator: {
+        validateTask: () => ({ state: 'PASS', issues: [] }),
+      },
+      avatarWorkloadService: {
+        checkWorkloadGating: async () => ({
+          blocked: false,
+          workloadToday: 10,
+          threshold: 20,
+          date: new Date().toISOString().slice(0, 10),
+        }),
+        getAvatarFreshness: async () => ({
+          stale: false,
+        }),
+      },
+    };
+
+    const result = await handler({}, deps);
+    expect(result.structuredContent?.unblocked).toHaveLength(1);
+    expect(result.structuredContent?.unblocked[0].task.id).toBe('t1');
+  });
 });

@@ -159,6 +159,24 @@ export type TaskNextActionsDeps = {
       };
     }>;
   };
+  avatarWorkloadService?: {
+    checkWorkloadGating: (
+      date: Date,
+      threshold?: number
+    ) => Promise<{
+      blocked: boolean;
+      reason?: string;
+      workloadToday: number;
+      threshold: number;
+      date: string;
+    }>;
+    getAvatarFreshness: (timezone?: string) => Promise<{
+      stale: boolean;
+      age?: number;
+      lastUpdate?: string;
+      reason?: string;
+    }>;
+  };
   codValidator: {
     validateTask: (
       task: Partial<TaskState>,
@@ -296,6 +314,57 @@ export async function handler(
         },
         isError: false,
       };
+    }
+
+    // Workload gating: check if today's workload exceeds threshold
+    if (deps.avatarWorkloadService && !input.overrideHardStop) {
+      try {
+        const workloadResult =
+          await deps.avatarWorkloadService.checkWorkloadGating(
+            new Date(),
+            20 // Default threshold
+          );
+        if (workloadResult.blocked) {
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `# 🛑 Workload Limit Reached\n\n${workloadResult.reason}\n\n**Today's workload:** ${workloadResult.workloadToday} events (limit: ${workloadResult.threshold})\n\n**Recommendation:** Take a break. You've done enough for today.`,
+              },
+            ],
+            structuredContent: {
+              unblocked: [],
+              blocked: [],
+              failed: [],
+              total: 0,
+              goalContext: {
+                source: 'blocked',
+                count: 0,
+                warnings: ['Workload gating active'],
+              },
+              humanState: {
+                status: 'blocked',
+                warnings: [workloadResult.reason || 'Workload limit exceeded'],
+                recommendedMode: 'conservative',
+                durationCapMin: 0,
+                worldSignalsUsed: [],
+                snapshot: {
+                  source: 'workload-gating',
+                  energy: 0,
+                  focusCapacity: 'low',
+                  stress: 10,
+                  sleepHours: 0,
+                  timeAvailableMin: 0,
+                },
+              },
+            },
+            isError: false,
+          };
+        }
+      } catch (error) {
+        // Log but don't block on workload service errors
+        console.warn('Workload gating check failed:', error);
+      }
     }
 
     const goalLoad = await deps.goalService.loadGoals();

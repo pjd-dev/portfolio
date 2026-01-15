@@ -20,3 +20,10 @@ export const createCodTools = (deps: CodToolsDeps): McpToolDef[] => [
 
 export default createCodTools;
 export { createTaskNextActionsTool, createPlanSessionTool };
+// Export avatar workload service types
+export type {
+  AvatarWorkloadService,
+  WorkloadGatingResult,
+  AvatarFreshnessResult,
+} from './services/avatar-workload.service.js';
+export { NoOpAvatarWorkloadService } from './services/avatar-workload.service.js';
