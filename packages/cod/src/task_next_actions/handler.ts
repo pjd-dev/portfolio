@@ -479,15 +479,47 @@ export async function handler(
       const flag =
         (ranked.task as any).recurring === true ||
         (ranked.task as any).recurrence === true;
-      return tagHit || flag;
+      const cadence =
+        (ranked.task as any).compound?.cadence !== undefined &&
+        (ranked.task as any).compound?.cadence !== null;
+      return tagHit || flag || cadence;
+    };
+
+    const isTaskDueNow = (ranked: RankedTask): boolean => {
+      const now = new Date();
+      const nextRun = (ranked.task as any).nextRun;
+
+      if (!nextRun) return true; // No nextRun means always due
+
+      try {
+        const nextRunDate = new Date(nextRun);
+        return nextRunDate <= now;
+      } catch {
+        return true; // Invalid date, treat as due
+      }
     };
 
     const recurringMode = input.recurringMode ?? 'exclude';
     const filteredTasks = tasks.filter((t) => {
-      if (recurringMode === 'include') return true;
+      // Apply recurring mode filter
+      if (recurringMode === 'include') {
+        // Include all tasks (recurring and non-recurring)
+        // But if recurring, check if it's due now
+        const recurring = isRecurringTask(t);
+        if (recurring) {
+          return isTaskDueNow(t);
+        }
+        return true;
+      }
+
       const recurring = isRecurringTask(t);
-      if (recurringMode === 'only') return recurring;
-      // exclude
+      if (recurringMode === 'only') {
+        // Only recurring tasks, and only if due now
+        return recurring && isTaskDueNow(t);
+      }
+
+      // exclude mode (default)
+      // Exclude all recurring tasks (regardless of nextRun)
       return !recurring;
     });
 

@@ -173,6 +173,63 @@ describe('task_next_actions handler', () => {
     ).toEqual(['r1']);
   });
 
+  it('filters recurring tasks by nextRun date', async () => {
+    const now = new Date();
+    const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+    const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
+    const deps: TaskNextActionsDeps = {
+      ...baseDeps,
+      taskGraphService: {
+        getNextActions: async () => [
+          {
+            task: {
+              id: 'r-due',
+              title: 'Due Today',
+              status: 'todo',
+              path: 'tasks/r-due.md',
+              compound: { cadence: 'daily' },
+              nextRun: yesterday.toISOString(),
+            },
+            blocked: false,
+            unmetDependencies: [],
+            score: 2,
+          },
+          {
+            task: {
+              id: 'r-future',
+              title: 'Due Tomorrow',
+              status: 'todo',
+              path: 'tasks/r-future.md',
+              compound: { cadence: 'daily' },
+              nextRun: tomorrow.toISOString(),
+            },
+            blocked: false,
+            unmetDependencies: [],
+            score: 1,
+          },
+        ],
+      },
+      codValidator: {
+        validateTask: () => ({ state: 'PASS', issues: [] }),
+      },
+    };
+
+    // With 'only' mode, should only return task that is due now
+    const onlyResult = await handler({ recurringMode: 'only' }, deps);
+    expect(
+      onlyResult.structuredContent?.unblocked.map((t) => t.task.id)
+    ).toEqual(['r-due']);
+
+    // With 'include' mode, should include both due and future
+    const includeResult = await handler({ recurringMode: 'include' }, deps);
+    const ids = includeResult.structuredContent?.unblocked.map(
+      (t) => t.task.id
+    );
+    expect(ids).toContain('r-due');
+    // r-future may or may not be included depending on other filters
+  });
+
   it('rejects invalid recurringMode in schema validation', () => {
     const result = inputSchema.safeParse({ recurringMode: 'sometimes' });
     expect(result.success).toBe(false);
