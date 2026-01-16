@@ -7,56 +7,66 @@ Comprehensive Jest test implementation for Task Dependency Graph and Session Pla
 ## Files Created/Modified
 
 ### Test Configuration
+
 - **jest.config.js** - Jest config with TypeScript/ESM support
-- **src/__tests__/setup.ts** - Test environment setup
+- **src/**tests**/setup.ts** - Test environment setup
 - **package.json** - Added Jest dependencies and test scripts
 
 ### Test Suites (1,200+ lines of tests)
-- **src/__tests__/services/task-graph.service.test.ts** (650+ lines)
-- **src/__tests__/services/session-planner.service.test.ts** (550+ lines)
+
+- **src/**tests**/services/task-graph.service.test.ts** (650+ lines)
+- **src/**tests**/services/session-planner.service.test.ts** (550+ lines)
 
 ## Test Coverage Summary
 
 ### Task Dependency Graph Tests (15 test cases)
 
 ✅ **1. Build Graph From Vault**
+
 - Nodes with depends_on edges
 - Tasks without dependencies
 - Metadata (effort, reward, focus_cost, tags, projectId)
 
 ✅ **2. Blocked/Unblocked Computation**
+
 - Unblocked when all deps done/dropped
-- Blocked when any dep not done  
+- Blocked when any dep not done
 - Unmet dependencies tracking
 
 ✅ **3. Next Actions with Ranking**
+
 - Score formula: `reward / (effort × focus_cost)`
 - Sorted by score descending
 - Filters: maxEffort, maxFocusCost, statusFilter
 
 ✅ **4. Task Dependencies (Neighborhood)**
+
 - Upstream/downstream traversal
 - Depth parameter support
 - Isolated task handling
 
 ✅ **5. Set Dependency Safety**
+
 - Cycle detection and rejection
 - Allow cycles with flag
 - Add/remove dependencies
 - Graph integrity (DAG)
 
 ✅ **6. Critical Path**
+
 - Longest chain computation
 - Effort weighting
 - Cycle detection
 
 ✅ **7. Graph Statistics**
+
 - Accurate counts by status
 - Total/done/blocked/unblocked
 
 ### Session Planner Tests (10 test cases)
 
 ✅ **1. Duration & Focus Constraints**
+
 - Total effort ≤ duration/minutesPerEffortUnit (15min/unit)
 - Max focus cost filtering
 - Blocked task exclusion
@@ -64,32 +74,38 @@ Comprehensive Jest test implementation for Task Dependency Graph and Session Pla
 - noTasksAvailable handling
 
 ✅ **2. Session Persistence**
+
 - Valid session structure
 - File creation in `.vault-sessions/`
 - getSession() retrieval
 - Totals computation
 
 ✅ **3. Session Lifecycle**
+
 - startSession() → status='active', startedAt
 - updateSessionTask() → mark done/skipped
 - endSession() → status, endedAt, actualEffort/Reward
 - Abort support
 
 ✅ **4. Task Sync**
+
 - syncTaskStatus:true → updates task note
 - syncTaskStatus:false → session only
 - Frontmatter modification
 
 ✅ **5. List Sessions**
+
 - Status filtering
 - Limit/pagination
 - All sessions retrieval
 
 ✅ **6. Project Filtering**
+
 - Project-specific sessions
 - Cross-project exclusion
 
 ✅ **7. Edge Cases**
+
 - Empty vault handling
 - Non-existent session/task
 - Mixed task statuses
@@ -97,6 +113,7 @@ Comprehensive Jest test implementation for Task Dependency Graph and Session Pla
 ## Test Infrastructure
 
 ### Environment Setup Pattern
+
 ```typescript
 beforeEach(async () => {
   testVaultPath = await fs.mkdtemp(path.join(os.tmpdir(), 'vault-test-'));
@@ -108,12 +125,13 @@ beforeEach(async () => {
 ```
 
 ### Helper: createTaskNote()
+
 ```typescript
 async function createTaskNote(
   filename: string,
   frontmatter: Record<string, any>,
   body: string = ''
-): Promise<string>
+): Promise<string>;
 ```
 
 ## Running Tests
@@ -127,12 +145,14 @@ pnpm test:coverage     # Coverage report
 ## Key Validation Points
 
 ### Task Graph Scoring
+
 ```
 score = reward / (effort × focus_cost)
 Higher score = higher priority
 ```
 
 ### Session Planning Algorithm
+
 1. Get unblocked candidates from task graph
 2. Filter by: maxFocusCost, projectId, tags
 3. Score and sort by reward/effort/focus
@@ -140,6 +160,7 @@ Higher score = higher priority
 5. Stop at maxTasks or maxEffort
 
 ### Dependency Rules
+
 - done/dropped tasks unblock dependents
 - todo/in_progress/blocked tasks block dependents
 - Cycles detected via DFS
@@ -157,6 +178,7 @@ Higher score = higher priority
 ## Expected Test Results
 
 Most tests should pass. Potential adjustments needed for:
+
 1. Service-specific error messages
 2. ESM module caching quirks
 3. Async operation timing
@@ -201,6 +223,7 @@ apps/mcp/
 ## Conclusion
 
 Complete test implementation validating all specified functionality:
+
 - Task dependency graphs with cycle detection
 - Next action recommendations with scoring
 - Session planning with time/focus constraints

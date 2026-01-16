@@ -117,11 +117,11 @@ A comprehensive guide to all documentation files in the vault-platform-full proj
 
 ### 📊 Summaries & Reports
 
-| Document                                                               | Purpose                       |
-| ---------------------------------------------------------------------- | ----------------------------- |
-| [COMPLETE_PLATFORM_SUMMARY.txt](COMPLETE_PLATFORM_SUMMARY.txt)         | Complete platform summary     |
-| [TASK_DEPENDENCY_GRAPH_SUMMARY.txt](TASK_DEPENDENCY_GRAPH_SUMMARY.txt) | Task dependency graph summary |
-| [REVIEW_SUMMARY.md](REVIEW_SUMMARY.md)                                 | Architecture review summary   |
+| Document                                                             | Purpose                       |
+| -------------------------------------------------------------------- | ----------------------------- |
+| [COMPLETE_PLATFORM_SUMMARY.md](COMPLETE_PLATFORM_SUMMARY.md)         | Complete platform summary     |
+| [TASK_DEPENDENCY_GRAPH_SUMMARY.md](TASK_DEPENDENCY_GRAPH_SUMMARY.md) | Task dependency graph summary |
+| [REVIEW_SUMMARY.md](REVIEW_SUMMARY.md)                               | Architecture review summary   |
 
 ---
 

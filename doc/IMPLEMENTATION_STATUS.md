@@ -48,8 +48,8 @@
 
 **Documentation:**
 
-- `COMPLETE_PLATFORM_SUMMARY.txt` (comprehensive overview)
-- `TASK_DEPENDENCY_GRAPH_SUMMARY.txt` (quick reference)
+- `COMPLETE_PLATFORM_SUMMARY.md` (comprehensive overview)
+- `TASK_DEPENDENCY_GRAPH_SUMMARY.md` (quick reference)
 - `PIPELINE_ENGINE.md` (existing)
 - `PIPELINE_ENGINE_QUICK_REF.md` (existing)
 - `OPERATION_JOURNAL.md` (existing)
@@ -378,7 +378,7 @@ Examples:
 
 ### Future Enhancements
 
-See `COMPLETE_PLATFORM_SUMMARY.txt` section on "Future Enhancements" for full list of potential improvements.
+See `COMPLETE_PLATFORM_SUMMARY.md` section on "Future Enhancements" for full list of potential improvements.
 
 ---
 
@@ -416,13 +416,13 @@ If issues arise:
 
 ### Comprehensive Guides
 
-1. **COMPLETE_PLATFORM_SUMMARY.txt** (37KB)
+1. **COMPLETE_PLATFORM_SUMMARY.md** (37KB)
    - Full implementation details
    - All features explained
    - Examples and patterns
    - Integration guide
 
-2. **TASK_DEPENDENCY_GRAPH_SUMMARY.txt** (13KB)
+2. **TASK_DEPENDENCY_GRAPH_SUMMARY.md** (13KB)
    - Quick reference
    - Common workflows
    - Troubleshooting

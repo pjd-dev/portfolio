@@ -12,7 +12,7 @@ Implementation: Full production-ready system with all specs implemented
 Five major features have been fully implemented, tested, and integrated:
 
 1. ✅ **Atomic Batch Pipeline Engine** - Deterministic workflow orchestration
-2. ✅ **Operation Journal & Undo** - Full audit trail with reversible operations  
+2. ✅ **Operation Journal & Undo** - Full audit trail with reversible operations
 3. ✅ **Structure Schema Validation** - Contract-based note structure enforcement
 4. ✅ **Task Dependency Graph** - DAG-based task relationships with cycle detection
 5. ✅ **Session Planner** - Time-bounded work session optimization
@@ -28,17 +28,20 @@ Five major features have been fully implemented, tested, and integrated:
 ### Implementation Status: ✅ COMPLETE
 
 Location:
+
 - Service: `apps/mcp/src/services/pipeline.service.ts` (661 lines)
 - Tools: `apps/mcp/src/mcp/obsidian/tools/pipeline.ts` (200+ lines)
 
 ### Core Capabilities
 
 **In-Memory Simulation**
+
 - All operations tested in RAM before disk writes
 - No side effects until explicit apply
 - Full rollback on any error
 
 **Step Types Supported**
+
 - `patch` - Content operations via structured patch
 - `move` - File/folder moves with link updates
 - `autoLink` - Automatic wikilink insertion
@@ -46,6 +49,7 @@ Location:
 - `refactor` - Section rename/delete/move
 
 **Safety Guarantees**
+
 - Vault-level mutex locking (`.vault-lock` file)
 - Stale lock detection (5-minute timeout)
 - Atomic apply (all-or-nothing)
@@ -65,10 +69,10 @@ obsidian_apply_pipeline
 
 obsidian_list_pipelines
   - List active (unapplied) simulations
-  
+
 obsidian_get_pipeline_simulation
   - Retrieve cached simulation result
-  
+
 obsidian_validate_pipeline
   - Validate pipeline definition
 ```
@@ -83,7 +87,11 @@ obsidian_validate_pipeline
       "type": "patch",
       "path": "projects/X.md",
       "operations": [
-        { "type": "replace", "search": "status: active", "replace": "status: archived" }
+        {
+          "type": "replace",
+          "search": "status: active",
+          "replace": "status: archived"
+        }
       ]
     },
     {
@@ -116,23 +124,27 @@ obsidian_validate_pipeline
 ### Implementation Status: ✅ COMPLETE
 
 Location:
+
 - Service: `apps/mcp/src/services/journal.service.ts` (637 lines)
 - Tools: `apps/mcp/src/mcp/obsidian/tools/journal.ts` (300+ lines)
 
 ### Core Capabilities
 
 **Journal Storage**
+
 - JSONL format (one JSON object per line)
 - Day-partitioned files (`2024-12-06.jsonl`)
 - Append-only for integrity
 - In-memory index for fast lookup
 
 **Content Snapshots**
+
 - Before/after content stored inline
 - SHA-256 hashing for conflict detection
 - Pluggable storage (inline/file/patch)
 
 **Undo System**
+
 - Dry-run mode (preview without applying)
 - Conflict detection (file changed since operation)
 - Force flag (override conflicts)
@@ -142,16 +154,16 @@ Location:
 
 ```typescript
 interface OperationEntry {
-  id: string;              // UUID
-  timestamp: string;       // ISO 8601
+  id: string; // UUID
+  timestamp: string; // ISO 8601
   type: 'single_tool' | 'pipeline' | 'system';
   toolName: string;
   description?: string;
   pipelineId?: string;
   files: FileChange[];
   meta?: {
-    undoOf?: string;       // If this is an undo
-    forced?: boolean;      // If conflicts were overridden
+    undoOf?: string; // If this is an undo
+    forced?: boolean; // If conflicts were overridden
     sessionId?: string;
     tags?: string[];
   };
@@ -159,7 +171,7 @@ interface OperationEntry {
 
 interface FileChange {
   path: string;
-  beforeHash: string;      // SHA-256
+  beforeHash: string; // SHA-256
   afterHash: string;
   beforeContentRef: ContentRef;
   afterContentRef: ContentRef;
@@ -175,17 +187,17 @@ obsidian_list_operations
 
 obsidian_get_operation
   - Full operation details + diffs
-  
+
 obsidian_undo_operation
   - Revert operation with conflict check
   - Supports dryRun and force flags
-  
+
 obsidian_undo_last_operation
   - Convenience wrapper for most recent operation
-  
+
 obsidian_prune_operations
   - Remove old entries (respects config)
-  
+
 obsidian_journal_stats
   - Total entries, size, date range
 ```
@@ -193,17 +205,20 @@ obsidian_journal_stats
 ### Conflict Handling
 
 **Detection**
+
 1. Load current file content
 2. Calculate SHA-256 hash
 3. Compare with `afterHash` from journal
 4. If mismatch → conflict
 
 **Resolution Options**
+
 - **Abort**: Return conflicts, don't undo
 - **Force**: Override with `force: true` flag
 - **Preview**: Use `dryRun: true` to see what would happen
 
 **Force Undo Metadata**
+
 - Logs `forced: true` in undo entry
 - Records actual hash at undo time
 - Allows future investigation
@@ -227,18 +242,21 @@ obsidian_journal_stats
 ### Implementation Status: ✅ COMPLETE
 
 Location:
+
 - Service: `apps/mcp/src/services/structure-schema.service.ts` (747 lines)
 - Tools: `apps/mcp/src/mcp/obsidian/tools/structure-schema.ts` (200+ lines)
 
 ### Core Capabilities
 
 **Schema Definition**
+
 - JSON-based declarative rules
 - Heading structure requirements
 - Content validation rules
 - Auto-detection via frontmatter/path
 
 **Validation**
+
 - Required heading checks
 - Unique heading enforcement
 - Order validation
@@ -246,6 +264,7 @@ Location:
 - Unknown heading detection
 
 **Auto-Fix**
+
 - Insert missing headings
 - Reorder sections
 - Remove unknown headings (optional)
@@ -264,7 +283,7 @@ interface NoteStructureSchema {
       tags?: string | string[];
       status?: string | string[];
     };
-    pathPattern?: string;   // glob pattern
+    pathPattern?: string; // glob pattern
   };
   headings: HeadingRule[];
   allowUnknownHeadings?: boolean;
@@ -273,8 +292,8 @@ interface NoteStructureSchema {
 interface HeadingRule {
   id: string;
   title: string;
-  level: number;           // 1-6 (# to ######)
-  text: string;            // Expected heading text
+  level: number; // 1-6 (# to ######)
+  text: string; // Expected heading text
   matchMode?: 'equals' | 'startsWith' | 'regex';
   required?: boolean;
   unique?: boolean;
@@ -299,14 +318,14 @@ interface HeadingRule {
 ```typescript
 obsidian_list_schemas
   - List all available schemas
-  
+
 obsidian_get_schema
   - Get schema definition by ID
-  
+
 obsidian_validate_note_structure
   - Validate note against schema (auto-detect or explicit)
   - Returns: valid, issues[] with severity/code/message
-  
+
 obsidian_fix_note_structure
   - Auto-fix violations
   - Options: insertMissing, reorder, removeUnknown
@@ -328,9 +347,7 @@ obsidian_fix_note_structure
       "level": 2,
       "text": "Attendees",
       "required": true,
-      "contentRules": [
-        { "type": "nonEmpty", "message": "List attendees" }
-      ]
+      "contentRules": [{ "type": "nonEmpty", "message": "List attendees" }]
     },
     {
       "id": "context",
@@ -344,8 +361,8 @@ obsidian_fix_note_structure
       "text": "Decisions",
       "required": true,
       "contentRules": [
-        { 
-          "type": "bulletList", 
+        {
+          "type": "bulletList",
           "minItems": 1,
           "message": "Document at least one decision"
         }
@@ -382,24 +399,28 @@ obsidian_fix_note_structure
 ### Implementation Status: ✅ COMPLETE
 
 Location:
+
 - Service: `apps/mcp/src/services/task-graph.service.ts` (674 lines)
 - Tools: `apps/mcp/src/mcp/obsidian/tools/task-graph.ts` (300+ lines)
 
 ### Core Capabilities
 
 **Graph Construction**
+
 - Scans vault for `type: task` notes
 - Reads `depends_on` and `blocks` fields
 - Builds directed graph (DAG)
 - Detects cycles automatically
 
 **Analysis**
+
 - Unblocked task detection
 - Upstream/downstream traversal (configurable depth)
 - Critical path calculation (longest dependency chain)
 - Next actions ranking (by score)
 
 **Mutation**
+
 - Add/remove dependencies
 - Bidirectional sync of `blocks` field
 - Cycle prevention (optional override)
@@ -409,17 +430,17 @@ Location:
 
 ```typescript
 interface TaskNode {
-  id: string;              // Unique task ID
+  id: string; // Unique task ID
   title: string;
   path: string;
   status: 'todo' | 'in_progress' | 'done' | 'blocked' | 'dropped';
-  effort?: number;         // Abstract units
+  effort?: number; // Abstract units
   reward?: number;
-  focusCost?: number;      // 1-5 scale
+  focusCost?: number; // 1-5 scale
   tags?: string[];
   projectId?: string;
-  dependsOn?: string[];    // Array of task IDs
-  blocks?: string[];       // Array of task IDs
+  dependsOn?: string[]; // Array of task IDs
+  blocks?: string[]; // Array of task IDs
 }
 
 interface TaskGraph {
@@ -433,14 +454,14 @@ interface TaskGraph {
     inProgress: number;
     dropped: number;
   };
-  cycles?: string[][];     // Detected cycles
+  cycles?: string[][]; // Detected cycles
 }
 ```
 
 ### Scoring Algorithm
 
 ```typescript
-score = reward / (effort * focusCost)
+score = reward / (effort * focusCost);
 ```
 
 - Higher reward = better
@@ -448,6 +469,7 @@ score = reward / (effort * focusCost)
 - Lower focus cost = better
 
 Example:
+
 - Task A: reward=10, effort=2, focus=3 → score = 10/6 = 1.67
 - Task B: reward=5, effort=1, focus=2 → score = 5/2 = 2.5
 - Task B ranks higher despite lower reward
@@ -459,22 +481,22 @@ obsidian_task_graph
   - Get full graph with filters
   - Filters: projectId, tag, status, includeDropped
   - Returns: nodes, edges, stats, cycles
-  
+
 obsidian_task_dependencies
   - Inspect task neighborhood
   - Parameters: id, depth, direction (upstream/downstream/both)
   - Returns: task, upstream[], downstream[], cycles[]
-  
+
 obsidian_task_set_dependency
   - Add/remove dependency edge
   - Parameters: fromId, toId, action (add/remove), bidirectional, allowCycle
   - Updates frontmatter of both tasks
-  
+
 obsidian_task_next_actions
   - Ranked list of unblocked tasks
   - Filters: projectId, maxEffort, maxFocusCost, statusFilter
   - Returns: tasks sorted by score
-  
+
 obsidian_task_critical_path
   - Find longest dependency chain to target
   - Parameters: targetId, useEffort
@@ -490,12 +512,12 @@ function detectCycles(nodes, edges) {
   const visited = new Set();
   const recStack = new Set();
   const cycles = [];
-  
+
   function dfs(id, path) {
     visited.add(id);
     recStack.add(id);
     path.push(id);
-    
+
     for (edge of outgoingEdges(id)) {
       if (!visited.has(edge.to)) {
         dfs(edge.to, path);
@@ -505,22 +527,23 @@ function detectCycles(nodes, edges) {
         cycles.push(path.slice(cycleStart).concat([edge.to]));
       }
     }
-    
+
     path.pop();
     recStack.delete(id);
   }
-  
+
   for (node of nodes) {
     if (!visited.has(node.id)) {
       dfs(node.id, []);
     }
   }
-  
+
   return cycles;
 }
 ```
 
 **Cycle Prevention**
+
 - `task_set_dependency` runs cycle detection before applying
 - If cycle would be created, returns error + cycle path
 - Override with `allowCycle: true` flag
@@ -537,16 +560,15 @@ effort: 5
 reward: 10
 focus_cost: 4
 depends_on:
-  - task_2024_0038  # "Design auth flow"
-  - task_2024_0040  # "Set up database"
+  - task_2024_0038 # "Design auth flow"
+  - task_2024_0040 # "Set up database"
 blocks:
-  - task_2024_0045  # "Deploy to production"
+  - task_2024_0045 # "Deploy to production"
 project_id: app_v2
 tags:
   - backend
   - security
 ---
-
 # Implement authentication
 
 [Task description here]
@@ -559,24 +581,28 @@ tags:
 ### Implementation Status: ✅ COMPLETE
 
 Location:
+
 - Service: `apps/mcp/src/services/session-planner.service.ts` (470 lines)
 - Tools: `apps/mcp/src/mcp/obsidian/tools/session-planner.ts` (600+ lines)
 
 ### Core Capabilities
 
 **Session Planning**
+
 - Time-bounded task selection
 - Focus-aware filtering
 - Effort-based packing (greedy algorithm)
 - Project/tag filtering
 
 **Progress Tracking**
+
 - Task status within session
 - Actual vs planned metrics
 - Completion rate calculation
 - Session history
 
 **Statistics**
+
 - Overall completion rate
 - Cumulative effort/reward
 - Average per-session metrics
@@ -585,12 +611,12 @@ Location:
 
 ```typescript
 interface WorkSession {
-  id: string;              // UUID
-  createdAt: string;       // ISO 8601
+  id: string; // UUID
+  createdAt: string; // ISO 8601
   startedAt?: string;
   endedAt?: string;
   status: 'planned' | 'active' | 'completed' | 'aborted';
-  
+
   params: {
     durationMinutes: number;
     maxFocusCost?: number;
@@ -598,15 +624,15 @@ interface WorkSession {
     tags?: string[];
     maxTasks?: number;
   };
-  
+
   totals: {
     plannedEffort: number;
     plannedReward: number;
     plannedTasks: number;
-    actualEffort?: number;    // Calculated on end
+    actualEffort?: number; // Calculated on end
     actualReward?: number;
   };
-  
+
   tasks: SessionTask[];
 }
 
@@ -652,11 +678,13 @@ const MINUTES_PER_EFFORT_UNIT = 15;
 ```
 
 **Examples**:
+
 - 45 minutes → 3 effort units
 - 90 minutes → 6 effort units
 - 120 minutes → 8 effort units
 
 **Task Selection**:
+
 - Effort 2 task = ~30 minutes
 - Effort 1 task = ~15 minutes
 - Effort 5 task = ~75 minutes
@@ -668,28 +696,28 @@ obsidian_plan_session
   - Create optimized session
   - Parameters: durationMinutes, maxFocusCost, projectId, tags, maxTasks
   - Returns: session, notePath?, noTasksAvailable?
-  
+
 obsidian_get_session
   - Get session details by ID
   - Returns: full session object with progress
-  
+
 obsidian_list_sessions
   - List recent sessions
   - Filters: status, since, limit
-  
+
 obsidian_update_session_task
   - Update task status in session
   - Parameters: sessionId, taskId, status, syncTaskStatus
   - Optional: sync to task note frontmatter
-  
+
 obsidian_start_session
   - Mark session active, record start time
-  
+
 obsidian_end_session
   - Mark session completed/aborted
   - Calculate actual effort/reward
   - Returns: final stats
-  
+
 obsidian_get_session_stats
   - Overall statistics
   - Returns: totalSessions, averageCompletionRate, cumulative effort/reward
@@ -702,7 +730,7 @@ obsidian_get_session_stats
 const result = await planSession({
   durationMinutes: 90,
   maxFocusCost: 5,
-  projectId: "app_v2"
+  projectId: 'app_v2',
 });
 
 // Result: session with 5-6 tasks, total effort ~6 units
@@ -714,21 +742,21 @@ await startSession({ sessionId: result.session.id });
 // 3. Work on tasks
 await updateSessionTask({
   sessionId: result.session.id,
-  taskId: "task_2024_0042",
-  status: "in_progress"
+  taskId: 'task_2024_0042',
+  status: 'in_progress',
 });
 
 await updateSessionTask({
   sessionId: result.session.id,
-  taskId: "task_2024_0042",
-  status: "done",
-  syncTaskStatus: true  // Also marks task as done in vault
+  taskId: 'task_2024_0042',
+  status: 'done',
+  syncTaskStatus: true, // Also marks task as done in vault
 });
 
 // 4. End session
 const final = await endSession({
   sessionId: result.session.id,
-  status: "completed"
+  status: 'completed',
 });
 
 // final.totals.actualEffort = 5
@@ -826,7 +854,7 @@ const pipeline = {
         { type: "append", content: "# Project X\n\n..." }
       ]
     },
-    
+
     // Validate structure
     {
       type: "validateStructure",
@@ -834,21 +862,21 @@ const pipeline = {
       schemaId: "project",
       onFail: "abort"
     },
-    
+
     // Create task breakdown
     {
       type: "patch",
       path: "tasks/X_setup.md",
       operations: [...]
     },
-    
+
     // Link tasks to project
     {
       type: "autoLink",
       path: "projects/X.md",
       options: { scope: "folder" }
     },
-    
+
     // Set task dependencies
     {
       type: "taskSetDependency",
@@ -879,7 +907,7 @@ await undoOperation(ops[0].id, { dryRun: true });
 const session = await planSession({
   durationMinutes: 120,
   maxFocusCost: 4,
-  projectId: "app_v2"
+  projectId: 'app_v2',
 });
 
 // Start work
@@ -890,23 +918,23 @@ for (const task of session.session.tasks) {
   await updateSessionTask({
     sessionId: session.session.id,
     taskId: task.taskId,
-    status: "in_progress"
+    status: 'in_progress',
   });
-  
+
   // ... work on task ...
-  
+
   await updateSessionTask({
     sessionId: session.session.id,
     taskId: task.taskId,
-    status: "done",
-    syncTaskStatus: true
+    status: 'done',
+    syncTaskStatus: true,
   });
 }
 
 // End day
 const final = await endSession({
   sessionId: session.session.id,
-  status: "completed"
+  status: 'completed',
 });
 
 // Review stats
@@ -918,32 +946,32 @@ const stats = await getSessionStats();
 ```typescript
 // Migrate all notes in folder to new structure
 
-const notePaths = ["folder/A.md", "folder/B.md", "folder/C.md"];
+const notePaths = ['folder/A.md', 'folder/B.md', 'folder/C.md'];
 const steps = [];
 
 for (const notePath of notePaths) {
   // Validate against schema
   steps.push({
-    type: "validateStructure",
+    type: 'validateStructure',
     path: notePath,
-    schemaId: "meeting",
-    onFail: "warn"
+    schemaId: 'meeting',
+    onFail: 'warn',
   });
-  
+
   // Fix structure
   steps.push({
-    type: "fixStructure",
+    type: 'fixStructure',
     path: notePath,
-    schemaId: "meeting",
-    options: { insertMissing: true }
+    schemaId: 'meeting',
+    options: { insertMissing: true },
   });
-  
+
   // Update metadata
   steps.push({
-    type: "metadata",
+    type: 'metadata',
     path: notePath,
-    frontmatter: { migrated: true, migratedDate: "2024-12-06" },
-    merge: true
+    frontmatter: { migrated: true, migratedDate: '2024-12-06' },
+    merge: true,
   });
 }
 
@@ -963,41 +991,49 @@ await applyPipeline(sim.pipelineId, true);
 ### Caching Strategy
 
 **Task Graph**
+
 - 5-second TTL cache
 - Invalidated on any task modification
 - Memo table for path-finding algorithms
 
 **Journal Index**
+
 - In-memory map: `id → {file, offset}`
 - Persisted to `.vault-ops/journal/.index.json`
 - Rebuilt on corruption detection
 
 **Schema Loading**
+
 - Loaded once on service initialization
 - Explicit reload via `loadSchemas()`
 
 **Pipeline Simulations**
+
 - Cached until applied or garbage collected
 - 1-hour TTL for unclaimed simulations
 
 ### Scalability Limits
 
 **Task Graph**
+
 - Tested: 1,000 tasks, O(n log n) for sorting
 - Cycle detection: O(V + E) via DFS
 - Critical path: O(V + E) with memoization
 
 **Journal**
+
 - Day-partitioned: Max ~10,000 ops/day before slowdown
 - Index enables O(1) lookup by ID
 - Pruning: Manual or scheduled (configurable retention)
 
 **Session Planning**
+
 - Greedy packing: O(n log n)
 - Filters before scoring: reduces candidate set
 - Typical: 20-50 candidates → instant
 
 **Pipeline Simulation**
+
 - In-memory file system: Limited by RAM
 - Typical: 10-20 files, <1MB each
 - Heavy pipelines (100+ files): May need streaming
@@ -1005,15 +1041,18 @@ await applyPipeline(sim.pipelineId, true);
 ### File System Operations
 
 **Atomic Writes**
+
 - `fs-extra.ensureDir()` + `fs-extra.writeFile()`
 - No partial writes (OS guarantees)
 
 **Locking**
+
 - Exclusive flag (`wx`) on lock file creation
 - 5-minute timeout on stale locks
 - Manual unlock via `rm .vault-lock` if stuck
 
 **Bulk Operations**
+
 - Pipeline: Single transaction
 - Journal append: Batch writes possible
 - Task updates: Individual (for now)
@@ -1025,16 +1064,19 @@ await applyPipeline(sim.pipelineId, true);
 ### Pipeline Engine
 
 **Error Collection**
+
 - `stopOnError: true` (default) → abort on first failure
 - `stopOnError: false` → continue, collect all errors
 - Partial results returned with error list
 
 **Lock Failures**
+
 - Return immediately with clear error
 - Suggest checking for `.vault-lock` file
 - No retry (caller decides)
 
 **Step Validation**
+
 - Pre-flight checks before simulation
 - Type validation for all step parameters
 - Missing file warnings
@@ -1042,47 +1084,56 @@ await applyPipeline(sim.pipelineId, true);
 ### Journal Service
 
 **Conflict Detection**
+
 - Always check hash before undo
 - Clear error messages with paths
 - Suggest force flag if appropriate
 
 **Corrupted Entries**
+
 - Skip unparseable JSON lines
 - Log warnings to console
 - Continue processing remaining entries
 
 **Index Corruption**
+
 - Rebuild from journal files on error
 - Fallback: Linear scan (slow but works)
 
 ### Task Graph Service
 
 **Missing Dependencies**
+
 - Warn about dangling references
 - Filter out non-existent tasks from graph
 - Don't block graph construction
 
 **Cycle Prevention**
+
 - Run detection before applying new edges
 - Return cycle path for debugging
 - Allow override with explicit flag
 
 **Invalid Status**
+
 - Accept unknown statuses, treat as "todo"
 - Log warnings for debugging
 
 ### Session Planner Service
 
 **No Tasks Available**
+
 - Return empty session with `noTasksAvailable: true`
 - Suggest reasons (blocked, too high effort, etc.)
 - Don't throw error
 
 **Session Not Found**
+
 - Return clear error message
 - Suggest `list_sessions` to find valid IDs
 
 **Task Sync Failures**
+
 - Log error but don't block session update
 - Return partial success
 
@@ -1093,6 +1144,7 @@ await applyPipeline(sim.pipelineId, true);
 ### Unit Tests (Recommended)
 
 **Pipeline Service**
+
 - [ ] Step execution in memory (patch, move, autolink, metadata, refactor)
 - [ ] Diff generation for multiple files
 - [ ] Lock acquisition and release
@@ -1100,6 +1152,7 @@ await applyPipeline(sim.pipelineId, true);
 - [ ] Cache management
 
 **Journal Service**
+
 - [ ] Append entry to JSONL
 - [ ] Read by ID (with index)
 - [ ] List with filters (toolName, path, date)
@@ -1108,6 +1161,7 @@ await applyPipeline(sim.pipelineId, true);
 - [ ] Prune old entries
 
 **Structure Schema Service**
+
 - [ ] Schema loading from JSON
 - [ ] Auto-detection via frontmatter
 - [ ] Heading validation (all match modes)
@@ -1116,6 +1170,7 @@ await applyPipeline(sim.pipelineId, true);
 - [ ] Diff preview
 
 **Task Graph Service**
+
 - [ ] Graph construction from vault
 - [ ] Cycle detection (various scenarios)
 - [ ] Unblocked task filtering
@@ -1124,6 +1179,7 @@ await applyPipeline(sim.pipelineId, true);
 - [ ] Scoring algorithm
 
 **Session Planner Service**
+
 - [ ] Task gathering and filtering
 - [ ] Scoring and sorting
 - [ ] Greedy packing algorithm
@@ -1134,6 +1190,7 @@ await applyPipeline(sim.pipelineId, true);
 ### Integration Tests
 
 **Pipeline → Journal → Undo**
+
 1. Run pipeline simulation
 2. Apply pipeline
 3. Verify journal entry created
@@ -1141,18 +1198,21 @@ await applyPipeline(sim.pipelineId, true);
 5. Verify files restored
 
 **Task Graph → Session Planner**
+
 1. Create task graph with dependencies
 2. Plan session
 3. Verify only unblocked tasks selected
 4. Verify scoring applied correctly
 
 **Schema Validation → Pipeline**
+
 1. Simulate pipeline with schema validation step
 2. Verify validation runs
 3. Apply fix if needed
 4. Verify structure matches schema
 
 **Concurrent Pipelines**
+
 1. Attempt two pipeline applies simultaneously
 2. Verify lock prevents race condition
 3. Second pipeline waits or fails cleanly
@@ -1160,6 +1220,7 @@ await applyPipeline(sim.pipelineId, true);
 ### End-to-End Tests
 
 **Full Session Workflow**
+
 1. Plan session (90 min, max focus 4)
 2. Start session
 3. Update task statuses (3 done, 1 skipped)
@@ -1167,6 +1228,7 @@ await applyPipeline(sim.pipelineId, true);
 5. Verify stats (completion rate, actual effort)
 
 **Complex Pipeline**
+
 1. Create 10-step pipeline touching 5 files
 2. Include validation, fixes, moves
 3. Simulate and review diff
@@ -1174,6 +1236,7 @@ await applyPipeline(sim.pipelineId, true);
 5. Verify all files correct
 
 **Large Task Graph**
+
 1. Import 100 tasks with dependencies
 2. Build graph
 3. Detect cycles (if any)
@@ -1181,6 +1244,7 @@ await applyPipeline(sim.pipelineId, true);
 5. Plan optimal session
 
 **Schema Migration**
+
 1. Define new schema
 2. Validate 20 existing notes
 3. Generate fixes for all
@@ -1215,6 +1279,7 @@ await applyPipeline(sim.pipelineId, true);
 ### New Tools Summary
 
 #### Pipeline (5)
+
 - `obsidian_run_pipeline_simulation` - Simulate multi-step workflow
 - `obsidian_apply_pipeline` - Apply atomically with locking
 - `obsidian_list_pipelines` - List active simulations
@@ -1222,6 +1287,7 @@ await applyPipeline(sim.pipelineId, true);
 - `obsidian_validate_pipeline` - Validate definition
 
 #### Journal (6)
+
 - `obsidian_list_operations` - Browse history
 - `obsidian_get_operation` - Inspect details
 - `obsidian_undo_operation` - Revert with conflict check
@@ -1230,12 +1296,14 @@ await applyPipeline(sim.pipelineId, true);
 - `obsidian_journal_stats` - Statistics
 
 #### Schema (4)
+
 - `obsidian_list_schemas` - Available schemas
 - `obsidian_get_schema` - Schema definition
 - `obsidian_validate_note_structure` - Check compliance
 - `obsidian_fix_note_structure` - Auto-fix violations
 
 #### Task Graph (5)
+
 - `obsidian_task_graph` - Full graph with cycles
 - `obsidian_task_dependencies` - Neighborhood traversal
 - `obsidian_task_set_dependency` - Add/remove edge
@@ -1243,6 +1311,7 @@ await applyPipeline(sim.pipelineId, true);
 - `obsidian_task_critical_path` - Bottleneck analysis
 
 #### Session Planner (7)
+
 - `obsidian_plan_session` - Create optimized session
 - `obsidian_get_session` - Session details
 - `obsidian_list_sessions` - Recent sessions
@@ -1342,6 +1411,7 @@ Schema definitions. Example `meeting.json`:
 ## Migration & Deployment
 
 ### Prerequisites
+
 - Node.js 18+
 - pnpm (or npm/yarn)
 - Existing MCP server
@@ -1349,17 +1419,20 @@ Schema definitions. Example `meeting.json`:
 ### Installation Steps
 
 1. **Install Dependencies**
+
    ```bash
    cd apps/mcp
    pnpm install
    ```
 
 2. **Build TypeScript**
+
    ```bash
    pnpm build
    ```
 
 3. **Initialize Directories**
+
    ```bash
    mkdir -p vault-data/.vault-ops/journal
    mkdir -p vault-data/.vault-ops/snapshots
@@ -1368,6 +1441,7 @@ Schema definitions. Example `meeting.json`:
    ```
 
 4. **Create Config**
+
    ```bash
    cat > vault-data/.vault-ops/config.json << EOF
    {
@@ -1378,10 +1452,11 @@ Schema definitions. Example `meeting.json`:
    ```
 
 5. **Restart MCP Server**
+
    ```bash
    # Docker
    docker-compose restart mcp
-   
+
    # Or direct
    cd apps/mcp
    pnpm start
@@ -1390,17 +1465,20 @@ Schema definitions. Example `meeting.json`:
 ### Backwards Compatibility
 
 ✅ **All existing tools unchanged**
+
 - No breaking API changes
 - Existing frontmatter fields still work
 - Graceful degradation if directories missing
 
 ✅ **Optional features**
+
 - Schema validation: Only runs if schemas defined
 - Journal: Auto-creates on first use
 - Session planner: Independent of other features
 - Task graph: Builds from existing task notes
 
 ✅ **Safe to deploy**
+
 - No data migration required
 - No schema changes to existing notes
 - Can roll back by removing new directories
@@ -1425,6 +1503,7 @@ Journal entries won't be lost (just unused).
 ## Future Enhancements (Not Implemented)
 
 ### Pipeline Engine
+
 - [ ] Named pipeline library (`.vault-pipelines/`)
 - [ ] Pipeline templates with parameters
 - [ ] Conditional steps (if/else branching)
@@ -1432,6 +1511,7 @@ Journal entries won't be lost (just unused).
 - [ ] Step retry logic
 
 ### Journal
+
 - [ ] Patch-based content refs (delta compression)
 - [ ] External snapshot storage (S3, disk)
 - [ ] Automated retention enforcement
@@ -1439,6 +1519,7 @@ Journal entries won't be lost (just unused).
 - [ ] Visual timeline UI
 
 ### Structure Schema
+
 - [ ] Schema inheritance (base → derived)
 - [ ] Custom content validators (plugin system)
 - [ ] AI-powered schema generation
@@ -1446,6 +1527,7 @@ Journal entries won't be lost (just unused).
 - [ ] Schema versioning
 
 ### Task Graph
+
 - [ ] Weighted edges (partial dependencies)
 - [ ] Resource constraints (person, equipment)
 - [ ] Auto-scheduling (optimal order)
@@ -1453,6 +1535,7 @@ Journal entries won't be lost (just unused).
 - [ ] Monte Carlo simulation
 
 ### Session Planner
+
 - [ ] Multi-session planning (week/month view)
 - [ ] Energy tracking over time
 - [ ] Break scheduling (Pomodoro)
@@ -1460,6 +1543,7 @@ Journal entries won't be lost (just unused).
 - [ ] Team sessions (multi-user)
 
 ### Cross-Cutting
+
 - [ ] Real-time collaboration (WebSockets)
 - [ ] Conflict resolution UI
 - [ ] Change notifications (webhook/email)
@@ -1471,16 +1555,18 @@ Journal entries won't be lost (just unused).
 ## Documentation Artifacts
 
 ### Created Documents
+
 1. `PIPELINE_ENGINE.md` - Full architecture spec
 2. `PIPELINE_ENGINE_QUICK_REF.md` - Quick reference
 3. `PIPELINE_IMPLEMENTATION_SUMMARY.md` - Implementation notes
 4. `OPERATION_JOURNAL.md` - Journal spec
 5. `OPERATION_JOURNAL_QUICK_REF.md` - Quick reference
 6. `STRUCTURE_SCHEMA_VALIDATION.md` - Schema format spec
-7. `TASK_DEPENDENCY_GRAPH_SUMMARY.txt` - Graph API reference
-8. `COMPLETE_PLATFORM_SUMMARY.txt` - This document
+7. `TASK_DEPENDENCY_GRAPH_SUMMARY.md` - Graph API reference
+8. `COMPLETE_PLATFORM_SUMMARY.md` - This document
 
 ### Inline Code Documentation
+
 - All services have JSDoc comments
 - All tools have descriptions and input schemas
 - All types have inline documentation
@@ -1493,6 +1579,7 @@ Journal entries won't be lost (just unused).
 ### Code Statistics
 
 **Services**
+
 - `pipeline.service.ts`: 661 lines
 - `journal.service.ts`: 637 lines
 - `task-graph.service.ts`: 674 lines
@@ -1501,6 +1588,7 @@ Journal entries won't be lost (just unused).
 - **Total**: 3,189 lines
 
 **Tools**
+
 - `pipeline.ts`: ~250 lines
 - `journal.ts`: ~350 lines
 - `task-graph.ts`: ~350 lines
@@ -1509,6 +1597,7 @@ Journal entries won't be lost (just unused).
 - **Total**: ~1,850 lines
 
 **Types & Interfaces**
+
 - ~500 lines of TypeScript types
 - ~50 interfaces defined
 - Full type safety throughout
@@ -1518,15 +1607,18 @@ Journal entries won't be lost (just unused).
 ### Feature Complexity
 
 **High Complexity**
+
 - Pipeline Engine (in-memory FS, locking, adapters)
 - Task Graph (cycle detection, critical path)
 
 **Medium Complexity**
+
 - Journal (JSONL, indexing, undo)
 - Session Planner (scoring, packing)
 - Structure Schema (parsing, validation)
 
 **Lines of Code by Feature**
+
 1. Structure Schema: 747 lines
 2. Task Graph: 674 lines
 3. Pipeline: 661 lines
@@ -1536,16 +1628,19 @@ Journal entries won't be lost (just unused).
 ### Test Coverage Targets
 
 **Unit Tests**: 80%+ coverage
+
 - All pure functions
 - All algorithms (scoring, cycle detection, packing)
 - Error handling paths
 
 **Integration Tests**: Key workflows
+
 - Pipeline → Journal → Undo
 - Task Graph → Session Planner
 - Schema Validation → Auto-fix
 
 **E2E Tests**: User journeys
+
 - Daily work session
 - Bulk note migration
 - Project bootstrap
@@ -1559,30 +1654,35 @@ All five features are **production-ready** and **fully integrated**. The impleme
 ### Key Achievements
 
 ✅ **Atomic Batch Pipeline Engine**
+
 - In-memory simulation
 - Unified diff preview
 - Atomic apply with locking
 - Full journal integration
 
 ✅ **Operation Journal & Undo**
+
 - Append-only JSONL storage
 - Hash-based conflict detection
 - Dry-run and force flags
 - Index for fast lookup
 
 ✅ **Structure Schema Validation**
+
 - JSON-based declarative rules
 - Auto-detection and validation
 - Content rule enforcement
 - Auto-fix with preview
 
 ✅ **Task Dependency Graph**
+
 - DAG construction from vault
 - Cycle detection
 - Unblocked task filtering
 - Critical path analysis
 
 ✅ **Session Planner**
+
 - Time-bounded planning
 - Focus-aware filtering
 - Greedy packing algorithm
@@ -1610,6 +1710,7 @@ These features transform your MCP tool collection from a "big toolbox" into a **
 ### AI-Friendly Automation
 
 All features designed for:
+
 - Conversational interfaces
 - Batch operations
 - Preview-before-apply
