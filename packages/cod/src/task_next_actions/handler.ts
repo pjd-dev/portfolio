@@ -367,6 +367,55 @@ export async function handler(
       }
     }
 
+    // Freshness gating: require Avatar vitals to be fresh for today
+    if (deps.avatarWorkloadService && !input.overrideHardStop) {
+      try {
+        const freshness = await deps.avatarWorkloadService.getAvatarFreshness();
+        if (freshness.stale) {
+          const reasonText =
+            freshness.reason ||
+            `Avatar vitals are stale${freshness.lastUpdate ? ` (last update: ${freshness.lastUpdate})` : ''}.`;
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `# 🛑 Avatar Vitals Stale\n\n${reasonText}\n\n**Action:** Please record your human-state for today to refresh Avatar vitals.`,
+              },
+            ],
+            structuredContent: {
+              unblocked: [],
+              blocked: [],
+              failed: [],
+              total: 0,
+              goalContext: {
+                source: 'blocked',
+                count: 0,
+                warnings: ['Avatar freshness gating active'],
+              },
+              humanState: {
+                status: 'blocked',
+                warnings: [reasonText],
+                recommendedMode: 'conservative',
+                durationCapMin: 0,
+                worldSignalsUsed: [],
+                snapshot: {
+                  source: 'avatar-freshness',
+                  energy: 0,
+                  focusCapacity: 'low',
+                  stress: 10,
+                  sleepHours: 0,
+                  timeAvailableMin: 0,
+                },
+              },
+            },
+            isError: false,
+          };
+        }
+      } catch (error) {
+        console.warn('Avatar freshness check failed:', error);
+      }
+    }
+
     const goalLoad = await deps.goalService.loadGoals();
     const humanState = await deps.humanStateService.loadPlanningContext();
     const contextTolerance = humanState.snapshot.contextTolerance ?? 'med';

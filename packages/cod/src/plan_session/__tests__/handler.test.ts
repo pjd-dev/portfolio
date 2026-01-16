@@ -126,4 +126,54 @@ describe('plan_session handler', () => {
     const result = inputSchema.safeParse({});
     expect(result.success).toBe(false);
   });
+
+  it('blocks planning when Avatar vitals are stale', async () => {
+    const deps: PlanSessionDeps = {
+      sessionPlannerService: {
+        planSession: async () => baseResult,
+      },
+      avatarWorkloadService: {
+        getAvatarFreshness: async () => ({
+          stale: true,
+          reason: 'Avatar vitals are stale (asOf=2025-01-14, today=2025-01-15)',
+        }),
+      },
+      codValidator: {
+        validateSession: () => ({ state: 'PASS', issues: [] }),
+        validateTask: () => ({ state: 'PASS', issues: [] }),
+      },
+    };
+
+    const result = await handler({ durationMinutes: 30 }, deps);
+
+    expect(result.content[0]?.text).toContain('Avatar Vitals Stale');
+    expect(result.content[0]?.text).toContain('record your human-state');
+    expect(result.structuredContent?.validationState).toBe('BLOCKED');
+    expect(result.structuredContent?.issues?.[0]?.code).toBe(
+      'AVATAR_VITALS_STALE'
+    );
+  });
+
+  it('allows planning when Avatar vitals are fresh', async () => {
+    const deps: PlanSessionDeps = {
+      sessionPlannerService: {
+        planSession: async () => baseResult,
+      },
+      avatarWorkloadService: {
+        getAvatarFreshness: async () => ({
+          stale: false,
+          reason: 'Avatar vitals are fresh for 2025-01-15',
+        }),
+      },
+      codValidator: {
+        validateSession: () => ({ state: 'PASS', issues: [] }),
+        validateTask: () => ({ state: 'PASS', issues: [] }),
+      },
+    };
+
+    const result = await handler({ durationMinutes: 30 }, deps);
+
+    expect(result.content[0]?.text).toContain('Work Session Planned');
+    expect(result.structuredContent?.session?.id).toBe('session-1');
+  });
 });

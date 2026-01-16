@@ -125,6 +125,13 @@ export type PlanSessionDeps = {
       };
     }>;
   };
+  avatarWorkloadService?: {
+    getAvatarFreshness: (timezone?: string) => Promise<{
+      stale: boolean;
+      lastUpdate?: string;
+      reason?: string;
+    }>;
+  };
   codValidator: {
     validateSession: (
       session: {
@@ -179,6 +186,41 @@ export async function handler(
         },
         isError: false,
       };
+    }
+
+    // Avatar freshness gating: require Avatar vitals to be fresh for today
+    if (deps.avatarWorkloadService && !input.overrideHardStop) {
+      try {
+        const freshness = await deps.avatarWorkloadService.getAvatarFreshness();
+        if (freshness.stale) {
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `# ⏰ Avatar Vitals Stale\n\n${freshness.reason || 'Avatar vitals are not fresh for today'}\n\n**Action Required:** Please record your human-state for today to refresh Avatar vitals.\n\nOnce you check in, your vitals will be synchronized and planning can proceed.`,
+              },
+            ],
+            structuredContent: {
+              session: undefined,
+              validationState: 'BLOCKED',
+              blockingReasons: [freshness.reason || 'Avatar vitals stale'],
+              issues: [
+                {
+                  code: 'AVATAR_VITALS_STALE',
+                  message: freshness.reason || 'Avatar vitals stale',
+                  suggestion:
+                    'Record your human-state snapshot to refresh Avatar vitals',
+                },
+              ],
+              reason: 'Avatar freshness gating active',
+            },
+            isError: false,
+          };
+        }
+      } catch (error) {
+        console.warn('Avatar freshness check failed:', error);
+        // Don't block on service errors, just warn
+      }
     }
 
     const sessionValidation = deps.codValidator.validateSession(

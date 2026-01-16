@@ -257,4 +257,85 @@ describe('task_next_actions handler', () => {
     expect(result.structuredContent?.unblocked).toHaveLength(1);
     expect(result.structuredContent?.unblocked[0].task.id).toBe('t1');
   });
+
+  it('blocks actions when avatar vitals are stale', async () => {
+    const deps: TaskNextActionsDeps = {
+      ...baseDeps,
+      taskGraphService: {
+        getNextActions: async () => [
+          {
+            task: {
+              id: 't1',
+              title: 'Task 1',
+              status: 'todo',
+              path: 'tasks/t1.md',
+            },
+            blocked: false,
+            unmetDependencies: [],
+            score: 2,
+          },
+        ],
+      },
+      codValidator: {
+        validateTask: () => ({ state: 'PASS', issues: [] }),
+      },
+      avatarWorkloadService: {
+        checkWorkloadGating: async () => ({
+          blocked: false,
+          workloadToday: 5,
+          threshold: 20,
+          date: new Date().toISOString().slice(0, 10),
+        }),
+        getAvatarFreshness: async () => ({
+          stale: true,
+          lastUpdate: '2025-01-01',
+          reason: 'Avatar vitals not updated today',
+        }),
+      },
+    };
+
+    const result = await handler({}, deps);
+    expect(result.structuredContent?.unblocked).toHaveLength(0);
+    expect(result.content[0]?.text).toContain('Avatar Vitals Stale');
+  });
+
+  it('allows actions when avatar vitals are fresh', async () => {
+    const deps: TaskNextActionsDeps = {
+      ...baseDeps,
+      taskGraphService: {
+        getNextActions: async () => [
+          {
+            task: {
+              id: 't1',
+              title: 'Task 1',
+              status: 'todo',
+              path: 'tasks/t1.md',
+            },
+            blocked: false,
+            unmetDependencies: [],
+            score: 2,
+          },
+        ],
+      },
+      codValidator: {
+        validateTask: () => ({ state: 'PASS', issues: [] }),
+      },
+      avatarWorkloadService: {
+        checkWorkloadGating: async () => ({
+          blocked: false,
+          workloadToday: 5,
+          threshold: 20,
+          date: new Date().toISOString().slice(0, 10),
+        }),
+        getAvatarFreshness: async () => ({
+          stale: false,
+          lastUpdate: new Date().toISOString().slice(0, 10),
+        }),
+      },
+    };
+
+    const result = await handler({}, deps);
+    expect(result.structuredContent?.unblocked).toHaveLength(1);
+    expect(result.structuredContent?.unblocked[0].task.id).toBe('t1');
+  });
 });
